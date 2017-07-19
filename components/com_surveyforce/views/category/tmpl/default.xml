@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="議題類別">
+        <message>
+			<![CDATA[選擇不同的議題類別]]>
+        </message>
+    </layout>
+       
+    <fields name="params" >
+		<fieldset name="basic" label="選項" addfieldpath="/administrator/components/com_surveyforce/models/fields">
+			<field name="vote_cat" type="list" label="類別" default="0">
+				<option value="0">待投票</option>
+				<option value="1">進行中</option>
+				<option value="2">已結束</option>
+			</field>
+
+			<field name="desc_limit" type="text" label="描述字數" filter="integer" default="50" />
+
+			<field name="orderby" type="list" label="排序" default="">
+				<option value="publish_up ASC">發佈時間</option>
+				<option value="vote_start ASC">開始投票時間</option>
+				<option value="total_vote DESC">投票票數</option>
+			</field>
+
+
+		</fieldset>
+    </fields>
+</metadata>

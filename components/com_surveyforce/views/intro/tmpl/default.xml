@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="單一議題">
+        <message>
+			<![CDATA[選擇單一個議題]]>
+        </message>
+    </layout>
+
+	<fields name="request">
+		<fieldset name="request"
+			addfieldpath="/administrator/components/com_surveyforce/models/fields">
+
+			<field name="sid" type="survey"
+				label="選擇議題"
+				required="true"
+				default="0"
+			/>
+		</fieldset>
+	</fields>
+	
+    
+</metadata>

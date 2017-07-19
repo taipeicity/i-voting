@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="實體投票所登入頁">
+        <message>
+			<![CDATA[實體投票所登入頁]]>
+        </message>
+    </layout>
+    <state>
+        <name>實體投票所登入頁</name>
+        <description>實體投票所登入頁</description>
+    </state>
+	
+    <fields name="params" >
+        <fieldset name="basic" label="議題選項" addfieldpath="/administrator/components/com_surveyforce/models/fields">
+
+            <field name="group_id" type="usergroup" default="0" label="選擇工作人員群組" description="" required="true" />
+
+			<field name="is_limit_connection" type="list" default="0" label="是否開啟連線限制">
+				<option value="0">否</option>
+				<option value="1">是</option>
+			</field>
+
+			<field name="single_ips" type="textarea" default="" label="單一IP清單" description="請填寫半形逗號代表多組IP，前後不需要空白格" rows="10" cols="5" />
+			<field name="range_ips" type="textarea" default="" label="IP範圍清單" description="請以填寫半形逗號代表多組IP，ex:192.168.1.1-192.168.1.100" rows="10" cols="5" />
+			
+        </fieldset>
+    </fields>
+</metadata>

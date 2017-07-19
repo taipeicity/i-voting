@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="議題-進行中">
+        <message>
+			<![CDATA[選擇不同的議題類別]]>
+        </message>
+    </layout>
+       
+    <fields name="params" >
+		<fieldset name="basic" label="選項" addfieldpath="/administrator/components/com_surveyforce/models/fields">
+			<field name="vote_cat" type="hidden" label="類別" default="1" />
+
+			<field name="orderby" type="hidden" label="排序" default="vote_end ASC" />
+
+			<field name="voting_mymuid" type="menuitem" default="" label="進行中的投票的選單" />
+			<field name="soon_mymuid" type="menuitem" default="" label="將開始的投票的選單" />
+			<field name="completed_mymuid" type="menuitem" default="" label="已完成的投票的選單" />
+
+
+		</fieldset>
+    </fields>
+</metadata>
