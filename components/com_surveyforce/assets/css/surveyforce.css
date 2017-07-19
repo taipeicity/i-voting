@@ -1,0 +1,577 @@
+
+/***********************************************************************************
+
+It�s a default template css file.
+It will be used only if templates in `media` folder are deleted
+
+Normally you shouldn't edit it, instead, edit templates in `media` folder
+
+************************************************************************************/
+
+@font-face {
+    font-family: 'fontello';
+    src: url('../fonts/fontello.eot?64789087');
+    src: url('../fonts/fontello.eot?64789087#iefix') format('embedded-opentype'),
+    url('../fonts/fontello.woff?64789087') format('woff'),
+    url('../fonts/fontello.ttf?64789087') format('truetype'),
+    url('../fonts/fontello.svg?64789087#fontello') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'fontello';
+    src: url('../font/fontello.svg?64789087#fontello') format('svg');
+  }
+}
+*/
+
+[class^="sf-icon-"]:before, [class*=" sf-icon-"]:before {
+    font-family: "fontello";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    /* opacity: .8; */
+
+    /* For safety - reset parent styles, that can break glyph codes*/
+    font-variant: normal;
+    text-transform: none;
+
+    /* fix buttons height, for twitter bootstrap */
+    line-height: 1em;
+
+    /* Animation center compensation - margins should be symmetric */
+    /* remove if not needed */
+    margin-left: .2em;
+
+    /* you can be more comfortable with increased icons size */
+    /* font-size: 120%; */
+
+    /* Uncomment for 3D effect */
+    /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.sf-icon-users:before { content: '\e800'; } /* 'î €' */
+.sf-icon-user:before { content: '\e801'; } /* 'î ' */
+.sf-icon-plus:before { content: '\e802'; } /* 'î ‚' */
+.sf-icon-ok:before { content: '\e803'; } /* 'î ƒ' */
+.sf-icon-cancel:before { content: '\e804'; } /* 'î „' */
+.sf-icon-help:before { content: '\e805'; } /* 'î …' */
+.sf-icon-ok-circled:before { content: '\e806'; } /* 'î †' */
+.sf-icon-cancel-circled:before { content: '\e807'; } /* 'î ‡' */
+.sf-icon-trash:before { content: '\e808'; } /* 'î ˆ' */
+.sf-icon-paste:before { content: '\e809'; } /* 'î ‰' */
+.sf-icon-desktop:before { content: '\e80a'; } /* 'î Š' */
+.sf-icon-docs:before { content: '\e80b'; } /* 'î ‹' */
+.sf-icon-pencil:before { content: '\e80c'; } /* 'î Œ' */
+.sf-icon-retweet:before { content: '\e80d'; } /* 'î ' */
+.sf-icon-box:before { content: '\e80e'; } /* 'î Ž' */
+.sf-icon-tasks:before { content: '\e80f'; } /* 'î ' */
+.sf-icon-wrench:before { content: '\e810'; } /* '' */
+.sf-icon-help-circled:before { content: '\e811'; } /* '' */
+.sf-icon-minus-circled:before { content: '\e812'; } /* '' */
+.sf-icon-block:before { content: '\e813'; } /* '' */
+.sf-icon-chart-bar:before { content: '\e814'; } /* '' */
+.sf-icon-mail:before { content: '\e815'; } /* '' */
+.sf-icon-mail-alt:before { content: '\e816'; } /* '' */
+.sf-icon-th-list:before { content: '\e817'; } /* '' */
+.sf-icon-file-pdf:before { content: '\e818'; } /* '' */
+.sf-icon-doc-text:before { content: '\e819'; } /* '' */
+.sf-icon-shuffle:before { content: '\e81a'; } /* '' */
+.sf-icon-newspaper:before { content: '\e81b'; } /* '' */
+.sf-icon-book-open:before { content: '\e81c'; } /* '' */
+.sf-icon-info-circled:before { content: '\e81d'; } /* '' */
+.sf-icon-download:before { content: '\e81e'; } /* '' */
+.sf-icon-upload:before { content: '\e81f'; } /* '' */
+.sf-icon-left-open:before { content: '\e820'; } /* '' */
+
+[class^="sf-icon-"], [class*=" sf-icon-"] {
+    *font-family: 'fontello';
+    *font-style: normal;
+    *font-weight: normal;
+
+    /* fix buttons height */
+    *line-height: 1em;
+
+    /* you can be more comfortable with increased icons size */
+    /* font-size: 120%; */
+}
+
+.sf-icon-users { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.sf-icon-user { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.sf-icon-plus { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.sf-icon-ok { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.sf-icon-cancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
+.sf-icon-help { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe805;&nbsp;'); }
+.sf-icon-ok-circled { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe806;&nbsp;'); }
+.sf-icon-cancel-circled { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe807;&nbsp;'); }
+.sf-icon-trash { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe808;&nbsp;'); }
+.sf-icon-paste { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe809;&nbsp;'); }
+.sf-icon-desktop { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80a;&nbsp;'); }
+.sf-icon-docs { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80b;&nbsp;'); }
+.sf-icon-pencil { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80c;&nbsp;'); }
+.sf-icon-retweet { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80d;&nbsp;'); }
+.sf-icon-box { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80e;&nbsp;'); }
+.sf-icon-tasks { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe80f;&nbsp;'); }
+.sf-icon-wrench { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe810;&nbsp;'); }
+.sf-icon-help-circled { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe811;&nbsp;'); }
+.sf-icon-minus-circled { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe812;&nbsp;'); }
+.sf-icon-block { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe813;&nbsp;'); }
+.sf-icon-chart-bar { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe814;&nbsp;'); }
+.sf-icon-mail { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe815;&nbsp;'); }
+.sf-icon-mail-alt { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe816;&nbsp;'); }
+.sf-icon-th-list { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe817;&nbsp;'); }
+.sf-icon-file-pdf { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe818;&nbsp;'); }
+.sf-icon-doc-text { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe819;&nbsp;'); }
+.sf-icon-shuffle { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81a;&nbsp;'); }
+.sf-icon-newspaper { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81b;&nbsp;'); }
+.sf-icon-book-open { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81c;&nbsp;'); }
+.sf-icon-info-circled { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81d;&nbsp;'); }
+.sf-icon-download { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81e;&nbsp;'); }
+.sf-icon-upload { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe81f;&nbsp;'); }
+.sf-icon-left-open { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe820;&nbsp;'); }
+
+div.contentpane.surveyforce div.current {
+    max-width: 10000px !important;
+}
+
+div.contentpane.surveyforce dl.tabs {
+    margin-top: 10px !important;
+}
+
+.jq_fe_toolbar{ margin: auto !important;}
+
+.jq_fe_toolbar a{ padding: 2px;}
+
+div.contentpane.surveyforce .container {
+    background-color: initial;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: initial;
+}
+
+div.contentpane.surveyforce .navbar .nav > li > a {
+    padding: 11px;
+}
+
+div.contentpane.surveyforce .table input[type="checkbox"] {margin: 0;}
+div.contentpane.surveyforce .form-horizontal input[type="checkbox"],
+div.contentpane.surveyforce .form-horizontal input[type="radio"] {margin: 0;}
+div.contentpane.surveyforce .form-horizontal a:hover {text-decoration: none;}
+div.contentpane.surveyforce .form-horizontal .extra-set {display: inline-block; margin-left: 20px;}
+
+div.contentpane.surveyforce .label {
+    white-space: normal;
+    font-size: 12px;
+}
+
+div.contentpane.surveyforce td.sectiontableheader {
+    background: none repeat scroll 0 0 #EFEFEF;
+    border-right: 1px solid #FFFFFF;
+    color: #333333;
+    font-weight: bold;
+    padding: 4px;
+}
+div.contentpane.surveyforce .move-q {overflow:hidden;}
+div.contentpane.surveyforce .block {float:left;width:34%;}
+div.contentpane.surveyforce .block.last {float:left;width:32%;}
+
+div.contentpane.surveyforce .add-manually {margin-bottom:0;}
+div.contentpane.surveyforce .add-manually label {width: 200px;}
+div.contentpane.surveyforce .userlist #limit {float:right;}
+
+
+div.contentpane.surveyforce tr.sectiontableentry0 td, tr.sectiontableentry1 td, tr.sectiontableentry2 td {
+    padding: 4px;
+}
+
+div.contentpane.surveyforce td.sectiontableentry0, td.sectiontableentry1, td.sectiontableentry2 {
+    padding: 3px;
+}
+
+div.contentpane.surveyforce table.contentpaneopen, table.contentpane {
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+
+div.contentpane.surveyforce .sf-description img {
+    width: 25%;
+    margin: 10px;
+}
+
+div.contentpane.surveyforce .sf-description blockquote {
+    margin-top: 85px;
+}
+
+div.contentpane.surveyforce .sf-answers small{font-size: 13px;}
+
+div.contentpane.surveyforce table.contentpaneopen fieldset {
+    border-color: #DDDDDD -moz-use-text-color -moz-use-text-color;
+    border-right: 0 none;
+    border-style: solid none none;
+    border-width: 1px 0 0;
+}
+
+div.contentpane.surveyforce table.contentpaneopen h3 {
+    margin-top: 25px;
+}
+div.contentpane.surveyforce table.contentpaneopen h4 {
+    color: #333333;
+    font-family: Arial,Helvetica,sans-serif;
+}
+.icon-32-forward  {
+    background-image:url("../images/icon-32-forward.png");
+	width: 32px !important;
+	height: 32px !important;
+}
+
+.icon-32-cancel {
+    background-image:url("../images/icon-32-cancel.png");
+	width: 32px !important;
+	height: 32px !important;
+}
+
+div.toolbar  {
+    float:right;
+    padding:0;
+    text-align:right;
+}
+
+table.toolbar {
+    border-collapse:collapse;
+    margin:0;
+    padding:0;
+}
+
+table.toolbar td {
+    color:#666666;
+    height:48px;
+    padding:1px 1px 1px 4px;
+    text-align:center;
+}
+
+table.toolbar td.spacer {
+    width:10px;
+}
+
+table.toolbar td.divider {
+    border-right:1px solid #EEEEEE;
+    width:5px;
+}
+
+table.toolbar span {
+    display:block;
+    float:none;
+    height:32px;
+    margin:0 auto;
+    width:32px;
+}
+
+table.toolbar a {
+    border:1px solid #FBFBFB;
+    cursor:pointer;
+    display:block;
+    float:left;
+    padding:1px 5px;
+    white-space:nowrap;
+}
+
+table.toolbar a:hover {
+    border-color:#EEEEEE #CCCCCC #CCCCCC #EEEEEE;
+    border-left:1px solid #EEEEEE;
+    border-style:solid;
+    border-width:1px;
+    color:#0B55C4;
+    text-decoration:none;
+}
+
+dl.tabs {
+    float:left;
+    margin:10px 0 -1px;
+    z-index:50;
+}
+
+dl.tabs dt {
+    background:none repeat scroll 0 0 #F0F0F0;
+    border-left:1px solid #CCCCCC;
+    border-right:1px solid #CCCCCC;
+    border-top:1px solid #CCCCCC;
+    color:#666666;
+    float:left;
+    margin-left:3px;
+    padding:4px 10px;
+}
+
+dl.tabs dt.open {
+    background:none repeat scroll 0 0 #F9F9F9;
+    border-bottom:1px solid #F9F9F9;
+    color:#000000;
+    z-index:100;
+}
+
+div.current {
+    clear:both;
+}
+
+div.current dd {
+    margin:0;
+    padding:0;
+}
+
+div#survey_container {
+    width:100%;
+    min-height:235px; 
+    height:auto !important;
+}
+
+div#start_div {
+    padding-left: 20px;
+    padding-right: 4x;
+}
+
+td#sf_error_message {
+    text-align: center;
+}
+
+td#td_survey_task {
+    text-align: center;
+}
+
+/*LIKERT SCALE*/
+div.likert_scale_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.likert_scale_table {
+    width: auto;
+    border:1px solid;	
+}
+table.likert_scale_table td {
+    padding: 2px;
+}
+table.likert_scale_table td.ls_factor_name {
+    width: auto;
+    padding-left: 10px;
+
+}
+table.likert_scale_table td.ls_scale_field {
+    width: 10%;
+    text-align:center;
+    border-left:1px solid;
+    padding-left: 3px;
+    padding-right: 3px;
+
+}
+table.likert_scale_table td.ls_quest_field {
+    text-align:left;
+    border-top:1px solid;
+    padding-left: 5px;
+
+}
+table.likert_scale_table td.ls_answer_cell {
+    text-align:center;
+    border-top:1px solid;
+    border-left:1px solid;
+    cursor:pointer;
+}
+input.ls_radio {
+    cursor:pointer;
+}
+
+/*PICK ONE*/
+div.pick_one_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.pick_one_table {
+    width: 95%;
+}
+td.po_answer_cell {
+    width: 20px;
+    text-align:left;
+}
+td.po_quest_cell {
+    text-align:left;
+}
+input.po_radio {
+    cursor:pointer;
+    margin-top: -8px !important;
+
+}
+input.po_other {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+select.po_select {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+
+/*PICK MANY*/
+div.pick_many_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.pick_many_table {
+    width: 95%;
+}
+td.pm_answer_cell {
+    width: 20px;
+    text-align:left;
+}
+td.pm_quest_cell {
+    text-align:left;
+}
+input.pm_checkbox {
+    cursor:pointer;
+}
+input.pm_other {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+
+/*SHORT ANSWER*/
+div.short_ans_div {
+    padding-left:5px;
+    text-align:left;
+}
+textarea.short_ans_textarea {
+    width:75%;
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+input.sa_input_text {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+
+/*RANKING DROP-DOWN*/
+div.dp_n_dn_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.drop_down_table {
+    width: 95%;
+}
+td.dd_left_cell {
+    width: 40%;
+    text-align:left;
+}
+td.dd_right_cell {
+    text-align:left;
+}
+select.dd_select {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+option.dd_option {
+    /*nothing*/
+}
+
+/*RANKING DRAG-AND-DROP*/
+div.drag_drop_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.drag_drop_table {
+    /*nothing*/
+}
+
+/*RANKING*/
+div.ranking_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.ranking_table {
+    width: 95%;
+}
+td.r_left_cell {
+    width: 40%;
+    text-align:left;
+}
+td.r_right_cell {
+    text-align:left;
+}
+select.r_select {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+option.r_option {
+    /*nothing*/
+}
+input.r_other {
+    padding: 2px;
+    border:solid 1px #cccccc;
+    background-color: #ffffff;
+}
+
+/*IMPORTANCE SCALE*/
+div.importance_div {
+    padding-left:5px;
+    text-align:left;
+}
+table.importance_table {
+    width: 95%;
+    border:1px solid;
+    border-left: none;
+}
+table.importance_table td {
+    padding: 2px;
+}
+table.importance_table td.i_quest {
+    width: auto;
+    text-align:left;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    padding-left:5px;
+    background:#EEEEEE;
+}
+table.importance_table td.i_text_cell {
+    text-align:center;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    cursor: pointer;
+}
+table.importance_table td.i_ans_cell {
+    text-align:center;
+    border-left: 1px solid;
+    cursor: pointer;
+}
+input.i_radio {
+    cursor: pointer;
+}
+
+td#sf_progressbar {
+    padding-left:5px;
+    padding-right:5px;
+}
+
+div#progress {
+    width: 100%;
+}
+
+div#progress_bar_txt {
+    text-align:center;
+}
+
+label {
+    cursor:pointer;
+}
