@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="survey" method="upgrade">
+	<name>數字排序</name>
+	<author>JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/</author>
+	<creationDate>Nov 2015</creationDate>
+	<copyright>JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.</copyright>
+	<license>GNU/GPL http://www.gnu.org/copyleft/gpl.html</license>
+	<version>1.0-modified</version>
+	<isapplication>false</isapplication>
+	<isbrowsable>false</isbrowsable>
+	<description>新增數字排序選項</description>
+	<files>
+		<filename>index.html</filename>
+		<folder>admin</folder>
+		<folder>js</folder>
+		<folder>tmpl</folder>
+	</files>
+</extension>
