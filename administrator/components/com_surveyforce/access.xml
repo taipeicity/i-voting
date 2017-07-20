@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<access component="com_surveyforce">
+	<section name="component">
+		<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
+		<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+		<action name="core.create" title="JACTION_CREATE" description="JACTION_CREATE_COMPONENT_DESC" />
+		<action name="core.delete" title="JACTION_DELETE" description="JACTION_DELETE_COMPONENT_DESC" />
+		<action name="core.edit" title="JACTION_EDIT" description="JACTION_EDIT_COMPONENT_DESC" />
+		<!--<action name="core.comment" title="JACTION_COMMENT" description="JACTION_COMMENT_COMPONENT_DESC" />-->
+		<!--<action name="core.publish" title="JACTION_EDITSTATE" description="JACTION_EDITSTATE_COMPONENT_DESC" />-->
+		<action name="core.review" title="審核" description="是否可審核該議題" />
+		<action name="core.own" title="所有議題" description="是否可以管理所有議題" />
+		<!--<action name="core.notify" title="COM_SURVEYFORCE_NOTIFICATIONS" description="COM_SURVEYFORCE_NOTIFICATIONS_DESC" />-->
+		<action name="core.config" title="編輯設定" description="是否可修改功能選項" />
+
+	</section>
+    <section name="survey">
+        <action name="survey.show" title="COM_SURVEYFORCE_SETTINGS_SHOWSURV" description="COM_SURVEYFORCE_SETTINGS_SHOWSURV_DESC" />
+    </section>
+
+</access>
