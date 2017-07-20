@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldpath="/administrator/components/com_surveyforce/models/fields">
+    <fieldset name="question"
+                  label="COM_SURVEYFORCE_SETTINGS_GLOBAL"
+                  description="COM_SURVEYFORCE_QUESTION_GLOBAL_DESC"
+    >
+		
+        <field name="id" type="hidden"/>
+        <field name="sf_qtype" type="hidden" default="0"/>
+
+		<field name="sf_qtext" type="textarea"  class="inputbox" label="COM_SURVEYFORCE_QUESTION_TEXT2" required="true" rows="10" cols="5" labelclass="control-label" />
+        
+		
+		
+        <field
+            name="published"
+            type="radio"
+            class="btn-group"
+            label="是否發佈"
+            labelclass="control-label"
+            default="1">
+			<option value="1">JYES</option>
+            <option value="0">JNO</option>
+           
+        </field>
+        
+		
+
+    <field name="sf_survey" type="survey" label="COM_SURVEYFORCE_SURVEY2"  required="true"/>
+    <field name="sf_impscale" type="iscale" label="COM_SURVEYFORCE_IMPORTANCE_SCALE2"  required="false"/>
+		
+
+    <field name="ordering" type="ordering" label="COM_SURVEYFORCE_ORDERING"  labelclass="control-label" required="false"/>
+
+	<field name="question_type" type="hidden"  default="" />
+
+	<field name="is_multi" type="list" labelclass="control-label" label="選項類別" default="0">
+		<option value="0">單選</option>
+		<option value="1">複選</option>
+	</field>
+
+	<field name="multi_limit" type="text" default="0" label="至少" filter="integer" />
+	<field name="multi_min" type="text" default="0" label="最少" filter="integer" />
+	<field name="multi_max" type="text" default="0" label="最多" filter="integer" />
+
+
+    </fieldset>
+	
+    <fieldset name="question_options">
+	
+    </fieldset>	
+</form>

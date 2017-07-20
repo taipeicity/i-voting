@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset>
+        <field name="id" type="hidden"/>
+
+		<field name="result_desc" type="editor" buttons="false" hide="pagebreak,readmore,testimonial" class="inputbox" filter="safehtml" label="結果說明" labelclass="control-label" required="true" />
+
+    </fieldset>
+</form>
