@@ -38,3 +38,9 @@
  
 	3-6.  首頁重點宣傳區
 	
+4.	安裝
+
+        請先安裝JOOMLA 3.4.8版本
+	4-1.  將此Repo clone 或者下載至本地端的 administraror路徑 compoents路徑 languages路徑及plugins路徑
+ 
+	4-2   依照資料庫schema檔案,將其新增置資料庫
