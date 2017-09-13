@@ -13,14 +13,13 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.controllerform');
 
 /**
- * Export Controller
+ * Getip Controller
  */
-class SurveyforceControllerExport extends JControllerForm {
+class SurveyforceControllerGetip extends JControllerForm {
 
     public function __construct($config = array()) {
-		
+
         parent::__construct($config);
     }
 
-   	
 }
