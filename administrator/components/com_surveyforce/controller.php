@@ -1,10 +1,11 @@
 <?php
+
 /**
- * SurveyForce Delux Component for Joomla 3
- * @package Survey Force Deluxe
- * @author JoomPlace Team
- * @Copyright Copyright (C) JoomPlace, www.joomplace.com
- * @license GNU/GPL http://www.gnu.org/copyleft/gpl.html
+ *   @package         Surveyforce
+ *   @version           1.1-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 defined('_JEXEC') or die('Restricted access');
 
@@ -18,12 +19,13 @@ class SurveyforceController extends JControllerLegacy {
 	 *
 	 * @return void
 	 */
-	public function __construct($config = array()) {
+	public function __construct($config = array ()) {
 
 		parent::__construct($config);
 
 	}
-	public function display($cachable = false, $urlparams = array()) {
+
+	public function display($cachable = false, $urlparams = array ()) {
 		$app = JFactory::getApplication();
 		$view = JFactory::getApplication()->input->getCmd('view', 'surveys');
 
@@ -37,14 +39,16 @@ class SurveyforceController extends JControllerLegacy {
 			case "result":
 			case "resultnote":
 			case "export":
+			case "getip":
+			case "autocheck":
 			case "print":
 			case "lottery":
 			case "addend":
 				break;
 			default:
-				$app->redirect("index.php?option=com_surveyforce&view=surveys");	// 直接進入議題管理
+				$app->redirect("index.php?option=com_surveyforce&view=surveys"); // 直接進入議題管理
 		}
-		
+
 
 		JFactory::getApplication()->input->set('view', $view);
 		parent::display($cachable);
@@ -65,28 +69,28 @@ class SurveyforceController extends JControllerLegacy {
 		$data['sf_qtype'] = JFactory::getApplication()->input->getCmd('sf_qtype');
 
 		$appsLib->triggerEvent('onGetAdminQuestionOptions', $data);
-	}
 
+	}
 
 	// 投票測試
 	public function testvote() {
 		$db = JFactory::getDBO();
 		$config = JFactory::getConfig();
-		$testsite_link = $config->get( 'testsite_link', false );
+		$testsite_link = $config->get('testsite_link', false);
 
 		$app = JFactory::getApplication();
 		$survey_id = $app->input->getInt('test_survey_id', 0);
-		$api_request_url = $config->get( 'testsite_link', '' ). "api/server_survey.php";
+		$api_request_url = $config->get('testsite_link', '') . "api/server_survey.php";
 
 		// 先刪除資料
-		$api_request_parameters = array(
+		$api_request_parameters = array (
 			'survey_id' => $survey_id
 		);
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		$api_request_url .= '?' . http_build_query($api_request_parameters);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Accept: application/json'));
 		curl_setopt($ch, CURLOPT_URL, $api_request_url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
@@ -104,19 +108,18 @@ class SurveyforceController extends JControllerLegacy {
 				JHtml::_('utility.recordLog', "api_log.php", "投票測試無法刪除資料", JLog::ERROR);
 				jexit();
 			}
-
-		} else {	// 無法連線API
+		} else { // 無法連線API
 			echo "無法連線API，請聯絡系統管理員。";
 			JHtml::_('utility.recordLog', "api_log.php", sprintf("Url:%s, Code:%d, Msg:%s", $api_request_url, $code, $message), JLog::ERROR);
 			jexit();
 		}
-		
+
 		// 再新增資料
 		// 依序取得議題、題目、選項的資料
 		$query = $db->getQuery(true);
 		$query->select('*');
 		$query->from('#__survey_force_survs');
-		$query->where('id = '. $db->quote($survey_id));
+		$query->where('id = ' . $db->quote($survey_id));
 		$db->setQuery($query);
 		$survey_row = $db->loadAssoc();
 
@@ -124,22 +127,22 @@ class SurveyforceController extends JControllerLegacy {
 		$query = $db->getQuery(true);
 		$query->select('*');
 		$query->from('#__survey_force_quests');
-		$query->where('sf_survey = '. $db->quote($survey_id));
+		$query->where('sf_survey = ' . $db->quote($survey_id));
 		$db->setQuery($query);
 		$question_rows = $db->loadAssocList();
 
 
 		unset($options_rows);
-		$options_rows = array();
+		$options_rows = array ();
 
 		unset($sub_options_rows);
-		$sub_options_rows = array();
+		$sub_options_rows = array ();
 
 		unset($cats_rows);
-		$cats_rows = array();
+		$cats_rows = array ();
 		if ($question_rows) {
-			$question_ids = array();
-			foreach($question_rows as $question_row) {
+			$question_ids = array ();
+			foreach ($question_rows as $question_row) {
 				$question_ids[] = $question_row["id"];
 			}
 
@@ -147,40 +150,39 @@ class SurveyforceController extends JControllerLegacy {
 			$query = $db->getQuery(true);
 			$query->select('*');
 			$query->from('#__survey_force_fields');
-			$query->where('quest_id IN ('. implode(",", $question_ids) . ')');
+			$query->where('quest_id IN (' . implode(",", $question_ids) . ')');
 			$db->setQuery($query);
 			$options_rows = $db->loadAssocList();
-			
+
 			// 取得子選項
 			$query = $db->getQuery(true);
 			$query->select('*');
 			$query->from('#__survey_force_sub_fields');
-			$query->where('quest_id IN ('. implode(",", $question_ids) . ')');
+			$query->where('quest_id IN (' . implode(",", $question_ids) . ')');
 			$db->setQuery($query);
 			$sub_options_rows = $db->loadAssocList();
-			
-			
+
+
 			// 取得分類
 			$query = $db->getQuery(true);
 			$query->select('*');
 			$query->from('#__survey_force_quests_cat');
-			$query->where('question_id IN ('. implode(",", $question_ids) . ')');
+			$query->where('question_id IN (' . implode(",", $question_ids) . ')');
 			$db->setQuery($query);
 			$cats_rows = $db->loadAssocList();
-
 		}
 
 		// assign_summary
 		$query = $db->getQuery(true);
 		$query->select('*');
 		$query->from('#__assign_summary');
-		$query->where('survey_id = '. $db->quote($survey_id));
+		$query->where('survey_id = ' . $db->quote($survey_id));
 		$db->setQuery($query);
 		$assign_summary_rows = $db->loadAssocList();
 
 
 		// 寫至測試站台中，再將網頁導向測試站台
-		$api_request_parameters = array(
+		$api_request_parameters = array (
 			'survey_id' => $survey_id,
 			'survey_row' => json_encode($survey_row),
 			'question_rows' => json_encode($question_rows),
@@ -194,7 +196,7 @@ class SurveyforceController extends JControllerLegacy {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_POST, TRUE);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($api_request_parameters));
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Accept: application/json'));
 		curl_setopt($ch, CURLOPT_URL, $api_request_url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
@@ -212,16 +214,17 @@ class SurveyforceController extends JControllerLegacy {
 				JHtml::_('utility.recordLog', "api_log.php", "投票測試無法新增資料", JLog::ERROR);
 				jexit();
 			} else {
-				header("Location:".$testsite_link. "index.php?option=com_surveyforce&view=intro&Itemid=120&sid=". $survey_id );
+				header("Location:" . $testsite_link . "index.php?option=com_surveyforce&view=intro&Itemid=120&sid=" . $survey_id);
 				jexit();
 			}
-
-		} else {	// 無法連線API
+		} else { // 無法連線API
 			echo "無法連線API，請聯絡系統管理員。";
 			JHtml::_('utility.recordLog', "api_log.php", sprintf("Url:%s, Code:%d, Msg:%s", $api_request_url, $code, $message), JLog::ERROR);
 			jexit();
 		}
 
 		jexit();
+
 	}
+
 }

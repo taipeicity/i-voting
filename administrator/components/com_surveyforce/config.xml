@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+	@package         Surveyforce
+	@version           1.1-modified
+	@copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+	@license            GPL-2.0+
+	@author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+-->
 <config>
 	<field name="asset_id" type="hidden" filter="unset" />
 	<fieldset name="settings" label="議題設定">
 
 		<field name="statement_text" type="editor" buttons="false" hide="pagebreak,readmore,testimonial" class="inputbox" filter="safehtml" label="個資聲明內容" required="true" labelclass="control-label" />
         
-		<!--<field name="assign_api_keys" type="textarea"  label="可投票人名單介接API KEY" rows="5" cols="5" labelclass="control-label" description="請用半形逗號做區隔" />-->
-
-		
 
 		<field name="email_verify_content" type="textarea"  label="信件驗證碼訊息" rows="5" cols="5" class="config_textarea" description="請用%code%代表驗證碼" />
 
@@ -18,19 +22,20 @@
 		<field name="assign_api_keys" type="text" class="input-xlarge" size="30" label="可投票人名單介接API KEY" labelclass="control-label" placeholder="ex:key_20151201_001"  />
 		
 		<field name="core_review" type="usergroup"
-			label="審核群組" 
-			multiple="false"
-			default="4"
+			   label="審核群組" 
+			   multiple="false"
+			   default="4"
 		/>
-		
+                
+		<field name="Internal_IP" type="textarea"  label="內部IP範圍清單" rows="5" cols="5" class="config_textarea" hint="請使用 &quot; - &quot; 表示IP範圍，並用半形逗號區隔多組IP  ex:192.168.1.1-192.168.1.100, 114.32.110.56" description="請使用 &quot; - &quot; 表示IP範圍，並用半形逗號區隔多組IP  ex:192.168.1.1-192.168.1.100, 114.32.110.56" />
 	</fieldset>
 	
 	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL">
 		<field name="rules" type="rules"
-			component="com_surveyforce"
-			filter="rules"
-			validate="rules"
-			label="JCONFIG_PERMISSIONS_LABEL"
-			section="component" />
+			   component="com_surveyforce"
+			   filter="rules"
+			   validate="rules"
+			   label="JCONFIG_PERMISSIONS_LABEL"
+			   section="component" />
 	</fieldset>
 </config>
