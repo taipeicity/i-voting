@@ -1,5 +1,14 @@
+<?php
+/**
+*   @package         Surveyforce
+*   @version           1.0-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+*/
+?>
 <script language="javascript" type="text/javascript">
-		<!--
+
 		var quest_type = <?php echo $q_om_type; ?>;
 
 		function ReAnalize_tbl_Rows( start_index, tbl_id ) {
@@ -184,5 +193,5 @@
 			row.appendChild(cell7);
 			ReAnalize_tbl_Rows(tbl_elem.rows.length - 2, tbl_id);
 		}
-//-->
+
 </script>

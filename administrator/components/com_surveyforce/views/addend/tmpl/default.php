@@ -1,19 +1,22 @@
 <?php
+
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.1-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
+
 defined('_JEXEC') or die;
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
-//JHtml::_('formbehavior.chosen', 'select');
 
+$user = JFactory::getUser();
+$user_id = $user->get('id');
+$user_name = $user->get('name');
 ?>
-<?php // echo $this->loadTemplate('menu'); ?>
 
 <script type="text/javascript">
     
@@ -84,7 +87,7 @@ JHtml::_('behavior.keepalive');
 				url: "../plugins/verify/idnum/admin/ajax_upload_addend.php",
 				type: "POST",
 				dataType:"json",
-				data: {'table_suffix': jQuery("#idnum_table_suffix").val(), 'id_num':jQuery("#id_num").val(), 'birth_date':jQuery("#birth_date").val() },
+				data: {'table_suffix': jQuery("#idnum_table_suffix").val(), 'id_num':jQuery("#id_num").val(), 'birth_date':jQuery("#birth_date").val(), 'user_id':'<?php echo $user_id; ?>' , 'user_name':'<?php echo $user_name; ?>' },
 				cache: false,
 				async: false,
 

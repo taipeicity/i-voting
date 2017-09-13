@@ -1,12 +1,13 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.1-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modeladmin');
@@ -344,6 +345,7 @@ class SurveyforceModelResult extends JModelList {
 		$query->where($db->quoteName('survey_id') . " = " . $db->quote($sid));
 		$query->where($db->quoteName('sub_field_id') . " > '0'");
 		$query->where($db->quoteName('is_place') . " = 1");
+		$query->group($db->quoteName('field_id'));
 		$query->group($db->quoteName('sub_field_id'));
 
 		$db->setQuery($query);

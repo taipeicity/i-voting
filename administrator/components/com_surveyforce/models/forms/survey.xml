@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    @package         Surveyforce
+    @version           1.1-modified
+    @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+    @license            GPL-2.0+
+    @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+-->
 <form>
     <fieldset>
         <field name="id" type="hidden"/>
@@ -12,11 +19,11 @@
         <field name="voters_authentication" type="textarea"  class="inputbox large" label="投票人驗證方式" rows="3" cols="5" labelclass="control-label" />
         <field name="during_vote" type="textarea"  class="inputbox large" label="投票期間" rows="3" cols="5" labelclass="control-label" />
         <field name="promotion" type="textarea"  class="inputbox large" label="宣傳推廣方式" required="true" rows="3" cols="5" labelclass="control-label" />
-        <field name="results_using" type="textarea"  class="inputbox large" label="投票結果運用方式" required="true" rows="3" cols="5" labelclass="control-label" default="none"/>
-        <field name="announcement_date" type="textarea"  class="inputbox large" label="公布日期" rows="3" cols="5" labelclass="control-label" />
+        <!--<field name="results_using" type="textarea"  class="inputbox large" label="投票結果運用方式" required="true" rows="3" cols="5" labelclass="control-label" />-->
+        <field name="results_using" type="textarea"  class="inputbox large" label="投票結果運用方式" rows="3" cols="5" labelclass="control-label" />
         <field name="announcement_method" type="textarea"  class="inputbox large" label="公布方式" required="true" rows="3" cols="5" labelclass="control-label" />
         <field name="precautions" type="textarea"  class="inputbox large" label="注意事項" required="true" rows="3" cols="5" labelclass="control-label" />
-        <!--2017/1/16 Sam start-->    
+    
         <field name="results_proportion" id="results_proportions" onchange="addtextarea()" required="true" type="list" labelclass="control-label" label="投票結果運用方式" default="default">            
             <option value="whole">完全參採</option>
             <option value="part">部分參採</option>
@@ -25,16 +32,13 @@
         </field>
         <field name="part" type="text"  class="input-xlarge" size="10" label="部分參採" labelclass="control-label" />
         <field name="other" type="textarea"  class="inputbox large" label="其他" rows="3" cols="5" labelclass="control-label" />
-        <field name="other_data" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="file_extension" />
-        <field name="other_data2" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="file_extension" />
-        <field name="other_data3" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="file_extension" />
+        <field name="other_data" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="application/pdf, .pdf" />
+        <field name="other_data2" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="application/pdf, .pdf" />
+        <field name="other_data3" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label" accept="application/pdf, .pdf" />
         <field name="other_url" type="text"  class="input-xlarge" size="10" label="其他參考網址" labelclass="control-label" filter="raw"/>
         <field name="followup_caption" type="textarea"  class="inputbox large"  rows="3" cols="5" label="後續辦理情形" labelclass="control-label" filter="raw"/>
-        <!--2017/1/16 Sam end-->
-        <!--2017/1/18 Sam start-->
         <field name="at_present" type="textarea"  class="inputbox large" label="目前進度" required="true" rows="3" cols="5" labelclass="control-label" />
         <field name="discuss_source" type="textarea"  class="inputbox large" label="討論管道" required="true" rows="3" cols="5" labelclass="control-label" filter="raw"/>
-        <!--2017/1/18 Sam end-->
         
         <field name="image" type="file" class="input-xlarge" size="30" label="議題圖示" labelclass="control-label" accept="image/*" />
 
@@ -49,7 +53,18 @@
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
+        
+        <field name="is_define" type="radio" class="btn-group" label="是否成案" labelclass="control-label" default="1">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        
 
+        <field type="checkboxes" label="投票模式" name="vote_pattern" multiple="true" class="btn-group" labelclass="control-label">
+            <option value="1">正式投票</option>
+            <option value="2">練習投票</option>
+        </field>
+       
         
         <field name="asset_id" type="hidden" filter="unset"/>
         <field name="rules" type="rules" label="COM_SURVEYFORCE_SURVEY_RULES" translate_label="false" class="inputbox" filter="rules" component="com_surveyforce" section="survey" validate="rules"/>
@@ -78,7 +93,7 @@
                label="上架時間"
                class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
                filter="user_utc" required="true" 
-                        
+               todaybutton="false" weeknumbers="false" timeformat="24" showtime="true" filltable="true" singleheader="false"
         />
 
         <field name="publish_down" type="calendar" labelclass="control-label"
@@ -86,19 +101,30 @@
                class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
                filter="user_utc" required="true" 
                default="2035-12-31 00:00:00"
+               todaybutton="false" weeknumbers="false" timeformat="24" showtime="true" filltable="true" singleheader="false"
         />
 
 
         <field name="vote_start" type="calendar" labelclass="control-label"
                label="開始投票時間"
                class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
-               filter="user_utc" required="true" />
+               filter="user_utc" required="true"
+               todaybutton="false" weeknumbers="false" timeformat="24" showtime="true" filltable="true" singleheader="false"
+        />
 
         <field name="vote_end" type="calendar" labelclass="control-label"
                label="投票結束時間"
                class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
-               filter="user_utc" required="true" />
-
+               filter="user_utc" required="true"
+               todaybutton="false" weeknumbers="false" timeformat="24" showtime="true" filltable="true" singleheader="false"
+        />
+        
+        <field name="announcement_date" type="calendar" labelclass="control-label"
+               label="公布日期"
+               class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
+               filter="user_utc"
+               todaybutton="false" weeknumbers="false" timeformat="24" showtime="true" filltable="true" singleheader="false"
+        />
        
 
         <field name="is_notice_email" type="radio" class="btn-group" labelclass="control-label" label="電子郵件訊息通知" default="0">
@@ -126,12 +152,12 @@
         </field>
 
 
-		<field name="is_place" type="radio" class="btn-group" labelclass="control-label" label="啟用現地投票" default="0">
+        <field name="is_place" type="radio" class="btn-group" labelclass="control-label" label="啟用現地投票" default="0">
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
 
-		<field name="place_image" type="file" class="input-xlarge" size="30" label="掃瞄標的物圖片" labelclass="control-label" accept="image/*" />
+        <field name="place_image" type="file" class="input-xlarge" size="30" label="掃瞄標的物圖片" labelclass="control-label" accept="image/*" />
 
         <field name="sms_user" type="text" label="簡訊平台帳號" labelclass="control-label" />
         <field name="sms_passwd" type="text" label="簡訊平台密碼" labelclass="control-label" />
@@ -139,7 +165,9 @@
         <field name="phone_drumup_text" type="textarea"  class="inputbox large" label="手機訊息-催票提醒" rows="5" cols="5" labelclass="control-label" />
         <field name="phone_end_text" type="textarea"  class="inputbox large" label="手機訊息-投票結束通知提醒" rows="5" cols="5" labelclass="control-label" />
 
-
+        <field name="verify_precautions" type="textarea"  class="inputbox large" label="驗證方式注意事項說明" rows="3" cols="5" labelclass="control-label" />              
+   
+        
         <field name="display_result" type="list" labelclass="control-label" label="票數顯示" default="2">
             <option value="0">不顯示</option>
             <option value="1">投票中顯示</option>

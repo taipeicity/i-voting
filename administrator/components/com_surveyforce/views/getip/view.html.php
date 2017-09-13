@@ -15,38 +15,27 @@ jimport('joomla.application.component.view');
 /**
  * HTML View class for the Surveyforce Deluxe Component
  */
-class SurveyforceViewExport extends JViewLegacy {
+class SurveyforceViewGetip extends JViewLegacy {
 
-	protected $items;
+    protected $items;
     protected $state;
-    
 
     public function display($tpl = null) {
 
         $app = JFactory::getApplication();
-		$layout = $app->input->getString("layout");
+        $layout = $app->input->getString("layout");
 
-        $this->state = $this->get('State');
-		$this->item = $this->get('Item');
-		$orderby = $this->item->result_orderby;
-		
-		$model = $this->getModel();
-		$this->fields 		= $model->getFields($orderby);
-		$this->sub_fields 	= $model->getSubFields($orderby);
-		$this->results 		= $this->get('Results');
-		$this->sub_results 	= $this->get('SubResults');
-		$this->paper 		= $this->get('PaperResults');
-		$this->sub_paper 	= $this->get('PaperSubResults');
-		$this->open			= $this->get('OpenResults');
-		
-		$this->total_num = $this->get('TotalNum');
-		
+//        $this->state = $this->get('State');
+        $this->item = $this->get('Item');
+
+        JToolBarHelper::title("投票管理: 匯出投票來源");
+
         // Check for errors.
         if (count($errors = $this->get('Errors'))) {
             JError::raiseError(500, implode("\n", $errors));
             return false;
         }
-      
+
         $this->addToolbar();
         parent::display($tpl);
     }
@@ -54,9 +43,8 @@ class SurveyforceViewExport extends JViewLegacy {
     protected function addToolbar() {
 
         JFactory::getApplication()->input->set('hidemainmenu', true);
-        
-        JToolBarHelper::cancel('survey.cancel', 'JTOOLBAR_CLOSE');
 
+        JToolBarHelper::cancel('survey.cancel', 'JTOOLBAR_CLOSE');
     }
 
 }

@@ -1,12 +1,13 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.1-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modeladmin');
@@ -68,11 +69,6 @@ class SurveyforceModelExport extends JModelList {
 		foreach($items as $key => $item) {
 			$fields[$item->qid][$item->id] = $item->ftext;
 		}
-
-		// echo "fields"; 
-		// echo "<pre>";
-		// print_r($fields);
-		// echo "</pre>";
 		
 		return $fields;
 	}
@@ -102,11 +98,6 @@ class SurveyforceModelExport extends JModelList {
 		foreach($items as $key => $item) {
 			$sub_fields[$item->qid][$item->id] = $item->title;
 		}
-	
-		// echo "sub_fields"; 
-		// echo "<pre>";
-		// print_r($sub_fields);
-		// echo "</pre>";
 				
 		return $sub_fields;
 	}
@@ -144,11 +135,7 @@ class SurveyforceModelExport extends JModelList {
 				$results[$quest]->count[$item->field_id] = $item->count;
 			}
 		}
-		
-		// echo "results"; 
-		// echo "<pre>";
-		// print_r($results);
-		// echo "</pre>";
+	
 		
 		return $results;
 	}
@@ -185,11 +172,6 @@ class SurveyforceModelExport extends JModelList {
 			$subs[$index]->count 			= $item->count;
 		}
 		
-		// echo "sub_resluts"; 
-		// echo "<pre>";
-		// print_r($subs);
-		// echo "</pre>";
-		
 		return $subs;
 	}
 
@@ -213,11 +195,6 @@ class SurveyforceModelExport extends JModelList {
 		foreach ($items as $key => $item) {
 			$paper[$item->question_id][$item->field_id] = $item->vote_num;
 		}
-
-		// echo "paper"; 
-		// echo "<pre>";
-		// print_r($paper);
-		// echo "</pre>";
 		
 		return $paper;
 	}
@@ -242,11 +219,6 @@ class SurveyforceModelExport extends JModelList {
 		foreach($items as $key => $item) {
 			$sub_paper[$item->field_id][$item->sub_field_id] = $item->vote_num;
 		}
-
-		// echo "sub_paper"; 
-		// echo "<pre>";
-		// print_r($sub_paper);
-		// echo "</pre>";
 		
 		return $sub_paper;
 	}

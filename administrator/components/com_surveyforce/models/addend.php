@@ -1,18 +1,19 @@
 <?php
 
 /**
- * Survey Force Deluxe component for Joomla 3
- * @package Survey Force Deluxe
- * @author JoomPlace Team
- * @Copyright Copyright (C) JoomPlace, www.joomplace.com
- * @license GNU/GPL http://www.gnu.org/copyleft/gpl.html
- */
+*   @package         Surveyforce
+*   @version           1.1-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+*/
+
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.modeladmin');
 
 /**
- * Result model.
+ * Addend model.
  *
  */
 class SurveyforceModelAddend extends JModelList {

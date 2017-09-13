@@ -15,38 +15,39 @@ jimport('joomla.application.component.view');
 /**
  * HTML View class for the Surveyforce Deluxe Component
  */
-class SurveyforceViewExport extends JViewLegacy {
+class SurveyforceViewAutocheck extends JViewLegacy {
 
-	protected $items;
+    protected $items;
     protected $state;
-    
 
     public function display($tpl = null) {
 
         $app = JFactory::getApplication();
-		$layout = $app->input->getString("layout");
+        $layout = $app->input->getString("layout");
 
-        $this->state = $this->get('State');
-		$this->item = $this->get('Item');
-		$orderby = $this->item->result_orderby;
-		
-		$model = $this->getModel();
-		$this->fields 		= $model->getFields($orderby);
-		$this->sub_fields 	= $model->getSubFields($orderby);
-		$this->results 		= $this->get('Results');
-		$this->sub_results 	= $this->get('SubResults');
-		$this->paper 		= $this->get('PaperResults');
-		$this->sub_paper 	= $this->get('PaperSubResults');
-		$this->open			= $this->get('OpenResults');
-		
-		$this->total_num = $this->get('TotalNum');
-		
+        $this->item = $this->get('Item');
+
+        /* 投票紀錄 */
+        $this->before_votenum = $this->get('BeforeVoteNum');
+        $this->before_peopleNum = $this->get('BeforePeopleNum');
+        $this->after_votenum = $this->get('AfterVoteNum');
+        $this->after_peopleNum = $this->get('AfterPeopleNum');
+
+        /* 後台登入紀錄 */
+        $this->BackStageRecord_User = $this->get('BackStageRecordUser');
+        $this->BackStageRecord_Ip = $this->get('BackStageRecordIp');
+
+        /* 投票日誌檔統計 */
+        $this->VoteLogSum = $this->get('VoteLogSum');
+
+        JToolBarHelper::title("投票管理: 自動檢核投票紀錄");
+
         // Check for errors.
         if (count($errors = $this->get('Errors'))) {
             JError::raiseError(500, implode("\n", $errors));
             return false;
         }
-      
+
         $this->addToolbar();
         parent::display($tpl);
     }
@@ -54,9 +55,8 @@ class SurveyforceViewExport extends JViewLegacy {
     protected function addToolbar() {
 
         JFactory::getApplication()->input->set('hidemainmenu', true);
-        
-        JToolBarHelper::cancel('survey.cancel', 'JTOOLBAR_CLOSE');
 
+        JToolBarHelper::cancel('survey.cancel', 'JTOOLBAR_CLOSE');
     }
 
 }
