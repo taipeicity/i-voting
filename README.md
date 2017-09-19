@@ -49,7 +49,7 @@
 	
 	4-1.  將此Repo clone 或者下載至本地端的 administraror路徑 compoents路徑 languages路徑及plugins路徑。
  
-	4-2.  依照資料庫schema檔案，將其新增至資料庫。
+	4-2.  下載ivoting-schema.sql檔案，將其新增至資料庫。
 	
 	
 5.	授權說明
