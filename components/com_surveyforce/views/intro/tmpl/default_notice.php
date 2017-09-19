@@ -1,16 +1,13 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
-
-
-
 ?>
 <div class="survey_notice">
     <form id="intro_form" method="post" action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=intro&task=intro.check_intro_form&Itemid=' . $this->itemid, false); ?>" >
@@ -40,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 			<noscript>
 				您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
 			</noscript>
-			<a href="index.php" class="btn">
+			<a href="<?php echo JURI::root(); ?>" class="btn">
 				回首頁
 			</a>
 		</div>

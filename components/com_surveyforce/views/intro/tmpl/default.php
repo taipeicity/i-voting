@@ -1,10 +1,10 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
@@ -17,6 +17,18 @@ foreach ($questions as $i => $question):
 endforeach;
 
 $id = $this->item->id;
+$verify_type = json_decode($this->item->verify_type);
+if (count($verify_type) == 1) {
+    $plugin = JPluginHelper::getPlugin('verify', $verify_type[0]);
+    if ($plugin) {
+        // Get plugin params
+        $pluginParams = new JRegistry($plugin->params);
+        $level = $pluginParams->get('level');
+        if ($level == 0) {
+            $level = 1;
+        }
+    }
+}
 ?>
 <div class="survey_toolsbar">
     <?php
@@ -37,7 +49,7 @@ $id = $this->item->id;
     瀏覽人數：<?php echo $this->item->hits; ?>
 </div>
 <div class="survey_hits">
-    已完成投票人數：<?php echo sprintf("%d", $this->finish_votes); ?>
+    <?php echo ($this->finish_votes) ? sprintf("已完成投票人數：%d", $this->finish_votes) : ""; ?>
 </div>
 <div class="survey <?php echo $this->item->layout; ?>">
     <?php
@@ -70,7 +82,7 @@ $id = $this->item->id;
                         echo "<br>";
                         for ($i = 0; $i < count($array_que); $i++) {
                             $j = $i + 1;
-                            echo "(" . $j . ")" . $array_que[$i] . "&nbsp;&nbsp;&nbsp;";
+                            echo "&nbsp;&nbsp;&nbsp;" . "(" . $j . ")" . $array_que[$i];
                         }
                         echo "<br>";
                         $y++;
@@ -78,16 +90,38 @@ $id = $this->item->id;
                     ?>
 
                 </li>
-                <li><strong>投票方式：</strong><?php echo ($this->item->is_place) ? "網路與現地投票" : "網路投票"; ?></li>
-                <li><strong>投票人資格：</strong><?php echo $this->item->voters_eligibility; ?></li>
-                <li><strong>投票人驗證方式：</strong><?php echo $this->item->voters_authentication; ?></li>
-                <li><strong>投票期間：</strong><?php echo $this->item->during_vote; ?></li>
-                <li><strong>宣傳推廣方式：</strong><?php echo $this->item->promotion; ?></li>    
+                <?php if ($this->item->is_define) { ?>
+                    <li><strong>投票方式：</strong><?php echo ($this->item->is_place) ? "網路與現地投票" : "網路投票"; ?></li>
+                <?php } ?>
+                <li><strong>投票人資格：</strong><?php echo nl2br($this->item->voters_eligibility); ?></li>
+                <?php if ($this->item->is_define) { ?>
+                    <li><strong>投票人驗證方式：</strong><?php echo $this->item->voters_authentication; ?></li>
+                <?php } ?>
+                <?php if ($this->item->is_define) { ?>
+                    <?php if ($this->item->verify_precautions) { ?>
+                        <li><strong>驗證方式注意事項說明：</strong><?php echo nl2br($this->item->verify_precautions); ?></li>
+                    <?php } ?>
+                <?php } ?>
+                <?php if ($this->item->is_define) { ?>
+                    <?php if (count($verify_type) == 1) { ?>
+                        <li><strong>驗證強度：</strong><div class="verifylevel_intro"><img src="images/system/VerifyLevel/verifylevel_<?php echo $level; ?>.svg" /></div></li>
+                    <?php } ?>    
+                <?php } ?>
+                <?php if ($this->item->is_define) { ?>
+                    <li><strong>投票期間：</strong><?php echo $this->item->during_vote; ?></li>
+                <?php } ?>
+                <li><strong>宣傳推廣方式：</strong><?php echo nl2br($this->item->promotion); ?></li>
                 <li style="display: none;"><strong>投票結果運用方式：</strong><?php echo $this->item->results_using; ?></li>
-                <li><strong>公布方式：</strong><?php echo $this->item->announcement_method; ?></li>
-                <li><strong>公布日期：</strong><?php echo $this->item->announcement_date; ?></li>
-                <li><strong>目前進度：</strong><?php echo $this->item->at_present; ?></li>
-                <li><strong>討論管道：</strong><?php echo $this->item->discuss_source; ?></li>
+                <li><strong>公布方式：</strong><?php echo nl2br($this->item->announcement_method); ?></li>
+                <?php if ($this->item->is_define) { ?>
+                    <?php if (!preg_match("/(0000\-00\-00)/", $this->item->announcement_date)) { ?>
+                        <li><strong>公布日期：</strong><?php echo JHtml::_('date', $this->item->announcement_date, "Y年n月j日G點i分"); ?></li>
+                    <?php } else { ?>
+                        <li><strong>公布日期：</strong>不公布</li>
+                    <?php } ?>
+                <?php } ?>
+                <li><strong>目前進度：</strong><?php echo nl2br($this->item->at_present); ?></li>
+                <li><strong>討論管道：</strong><?php echo nl2br($this->item->discuss_source); ?></li>
                 <li><strong>投票結果運用方式：</strong>                    
                     <?php
                     switch ($this->item->results_proportion) {
@@ -148,13 +182,13 @@ $id = $this->item->id;
                 <li><strong>後續辦理情形：</strong>
                     <?php
                     if ($this->item->followup_caption) {
-                        echo $this->item->followup_caption;
+                        echo  nl2br($this->item->followup_caption);
                     } else {
                         ?>
                         無
                     <?php } ?>
                 </li>
-                <li><strong>注意事項：</strong><?php echo $this->item->precautions; ?></li> 
+                <li><strong>注意事項：</strong><?php echo nl2br($this->item->precautions); ?></li>
                 <?php ?>
 
 
@@ -169,7 +203,7 @@ $id = $this->item->id;
     $nowDate = $date->toSql();
     if (strtotime($this->item->vote_start) < strtotime($nowDate)) {
         if (strtotime($this->item->vote_end) < strtotime($nowDate)) { // 已結束
-            if ($this->item->display_result == 1 || $this->item->display_result == 2) {  // 投票結束後顯示結果
+            if (($this->item->display_result == 1 || $this->item->display_result == 2) && $this->item->is_define == 1) {  // 投票結束後顯示結果
                 ?>
                 <div class="btns">
                     <a href="<?php echo JRoute::_('index.php?option=com_surveyforce&view=result&sid=' . $this->item->id . '&Itemid=' . $this->completed_menuid, false); ?>" class="submit">觀看投票結果</a>
@@ -177,9 +211,11 @@ $id = $this->item->id;
                 <?php
             }
         } else { // 進行中
-            ?>
-            <a href="<?php echo JRoute::_('index.php?option=com_surveyforce&task=intro.start_vote&sid=' . $this->item->id . '&Itemid=' . $this->voting_menuid, false); ?>"><img src="modules/mod_voting_slider/assets/images/vote_btn.png" alt="我要投票" title="我要投票" /></a>
-            <?php
+            if ($this->item->is_define == 1) {
+                ?>
+                <a href="<?php echo JRoute::_('index.php?option=com_surveyforce&task=intro.start_vote&sid=' . $this->item->id . '&Itemid=' . $this->voting_menuid, false); ?>"><img src="modules/mod_voting_slider/assets/images/vote_btn.png" alt="我要投票" title="我要投票" /></a>
+                <?php
+            }
         }
     } else { // 待投票
         if ($this->item->is_notice_email || $this->item->is_notice_phone) {

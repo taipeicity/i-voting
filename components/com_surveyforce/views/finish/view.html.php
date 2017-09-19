@@ -1,12 +1,12 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
-*/
+ *   @package         Surveyforce
+ *   @version           1.2-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
@@ -16,27 +16,31 @@ jimport('joomla.application.component.view');
  */
 class SurveyforceViewFinish extends JViewLegacy {
 
-    public function __construct() {
-        parent::__construct();
-    }
+	public function __construct() {
+		parent::__construct();
 
-    public function display($tpl = null) {
+	}
+
+	public function display($tpl = null) {
 		$config = JFactory::getConfig();
 		$app = JFactory::getApplication();
-		$this->itemid	= $app->input->getInt('Itemid');
-		$this->survey_id	= $app->input->getInt('sid');
-        
-        
-        $this->state = $this->get('state');
-        $this->params = $this->state->get('params');
+
+		$this->itemid = $app->input->getInt('Itemid');
+		$this->survey_id = $app->input->getInt('sid');
 
 
+		$this->state = $this->get('state');
+		$this->params = $this->state->get('params');
 
-        // Check for errors.
-        if (count($errors = $this->get('Errors'))) {
-            JError::raiseError(500, implode('<br />', $errors));
-            return false;
-        }
+		unset($prac);
+		$session = &JFactory::getSession();
+		$prac = $session->get('practice_pattern');
+
+		// Check for errors.
+		if (count($errors = $this->get('Errors'))) {
+			JError::raiseError(500, implode('<br />', $errors));
+			return false;
+		}
 
 
 		// 檢查
@@ -63,51 +67,58 @@ class SurveyforceViewFinish extends JViewLegacy {
 			$app->redirect($intro_link, $msg);
 		}
 
+
 		$this->is_notice_email = SurveyforceVote::getSurveyData($this->survey_id, "is_notice_email");
 		$this->is_notice_phone = SurveyforceVote::getSurveyData($this->survey_id, "is_notice_phone");
 		$this->display_result = SurveyforceVote::getSurveyData($this->survey_id, "display_result");
 		$this->is_lottery = SurveyforceVote::getSurveyData($this->survey_id, "is_lottery");
 
-		 // Display the view
-		$layout	= $app->input->getString('layout', 'default');
+		// Display the view
+		$layout = $app->input->getString('layout', 'default');
 		$this->setLayout($layout);
 
-
-		if ($layout == "default") {
-			// 取得短網址
-			$this->ticket_num = SurveyforceVote::getSurveyData($this->survey_id, "ticket");
-			if ($this->ticket_num) {
-				$vote_detail_url = JURI::root(). "vote_detail.php?ticket=". $this->ticket_num;
-				$this->short_url = JHtml::_('utility.getShortUrl', $vote_detail_url);
-				if ($this->short_url == "") {
-					$this->short_url = JHtml::_('utility.getShortUrl2', $vote_detail_url);		// 呼叫第2組API
-
+		if (!$prac) {
+			if ($layout == "default") {
+				// 取得短網址
+				$this->ticket_num = SurveyforceVote::getSurveyData($this->survey_id, "ticket");
+				if ($this->ticket_num) {
+					$vote_detail_url = JURI::root() . "vote_detail.php?ticket=" . $this->ticket_num;
+					$this->short_url = JHtml::_('utility.getShortUrl', $vote_detail_url);
 					if ($this->short_url == "") {
-						sleep(1);
-						$this->short_url = JHtml::_('utility.getShortUrl3', $vote_detail_url);		// 呼叫第3組API
+						$this->short_url = JHtml::_('utility.getShortUrl2', $vote_detail_url);  // 呼叫第2組API
+
 						if ($this->short_url == "") {
-							$this->short_url = $vote_detail_url;
+							sleep(1);
+							$this->short_url = JHtml::_('utility.getShortUrl3', $vote_detail_url);  // 呼叫第3組API
+							if ($this->short_url == "") {
+								$this->short_url = $vote_detail_url;
+							}
 						}
 					}
+				} else {
+					$this->short_url = "";
+					JFactory::getApplication()->enqueueMessage("未正確取得票號，請重新投票");
 				}
-			} else {
-				$this->short_url = "";
-				JFactory::getApplication()->enqueueMessage("未正確取得票號，請重新投票");
+				// 記錄短網址
+				SurveyforceVote::setSurveyData($this->survey_id, "short_url", $this->short_url);
 			}
-			// 記錄短網址
-			SurveyforceVote::setSurveyData($this->survey_id, "short_url", $this->short_url);
+		}else{
+			if($layout == "layout"){
+				$msg = "網頁已閒置過久，請重新點選議題進行投票。";
+				$app->redirect($category_link, $msg);
+			}
 		}
 		
-		if(!$this->item) {
-			$this->item = $this->get('Item');	
+		if (!$this->item) {
+			$this->item = $this->get('Item');
 		}
 		$document = JFactory::getDocument();
 		$document->setTitle($this->escape($this->item->title));
 
-		
 
-        parent::display($tpl);
-        
-    }
+
+		parent::display($tpl);
+
+	}
 
 }

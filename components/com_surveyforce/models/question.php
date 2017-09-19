@@ -1,18 +1,18 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.modellist');
 
 /**
- * Survey Model.
+ * Question Model.
  */
 class SurveyforceModelQuestion extends JModelItem {
 
@@ -81,7 +81,7 @@ class SurveyforceModelQuestion extends JModelItem {
 
 	// 取得題目清單
 	public function getQuestions($_survey_id) {
-		$db		= $this->getDbo();
+		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 
 		$query->select('a.id');
@@ -100,7 +100,7 @@ class SurveyforceModelQuestion extends JModelItem {
 	// 取得題目詳細資料
 	public function getQuestion($_qid) {
 		$app = JFactory::getApplication();
-		$db		= $this->getDbo();
+		$db		= JFactory::getDbo();
 
 		$query	= $db->getQuery(true);
 		$query->select('a.*');
@@ -117,7 +117,7 @@ class SurveyforceModelQuestion extends JModelItem {
 	// 取得選項清單
 	public function getOptions($_qid) {
 		$app = JFactory::getApplication();
-		$db		= $this->getDbo();
+		$db		= JFactory::getDbo();
 
 		$query	= $db->getQuery(true);
 		$query->select('a.*');
@@ -133,7 +133,7 @@ class SurveyforceModelQuestion extends JModelItem {
 
 	public function getOption($_option_id) {
 		$app = JFactory::getApplication();
-		$db		= $this->getDbo();
+		$db		= JFactory::getDbo();
 
 		$query	= $db->getQuery(true);
 		$query->select('a.*');
@@ -149,7 +149,7 @@ class SurveyforceModelQuestion extends JModelItem {
 	// 取得子選項清單
 	public function getSubOptions($_qid) {
 		$app = JFactory::getApplication();
-		$db		= $this->getDbo();
+		$db		= JFactory::getDbo();
 
 		$query	= $db->getQuery(true);
 		$query->select('a.*');

@@ -1,12 +1,11 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
-
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
@@ -58,7 +57,7 @@ $itemid = $app->input->getInt('Itemid');
 				<noscript>
 					您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
 				</noscript>
-				<div><a href="<?php echo $this->category_link; ?>" class="btn <?php // echo "small"; ?>">取消</a></div>
+				<div><a href="<?php echo $this->category_link; ?>" class="btn ">取消</a></div>
 			</div>			
 			<input type="hidden" name="task" value="verify_opt.check_verify_form">
 			<input type="hidden" id="sid" name="sid" value="<?php echo $this->survey_id; ?>">

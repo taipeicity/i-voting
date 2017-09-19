@@ -1,19 +1,19 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
-
 defined('_JEXEC') or die('Restricted Access');
 
 $title_limit = 20;
+
 ?>
 <div class="category-list soon">
     <div class="menu-list">
-		<div class="menu-item">
+        <div class="menu-item">
             <a class="soon active" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=soon&Itemid=" . $this->soon_mymuid, false); ?>" title="提案資料內容">
                 <span class="image">
                     <img src="images/system/soon.png" alt="提案資料內容">
@@ -45,9 +45,11 @@ $title_limit = 20;
     </div>
 
     <div class="category-content">
-        <?php if ($this->items) { ?>
+        <?php if ($this->items && $this->soon_counts >0) { ?>
             <div class="issues">
-                <?php foreach ($this->items as $item) { ?>
+                <?php
+                foreach ($this->items as $item) {
+                    ?>
                     <div class="issue">
                         <div class="issue_inner">
                             <div class="title">
@@ -68,7 +70,7 @@ $title_limit = 20;
 
                             <div class="more">
                                 <a href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=intro&sid=" . $item->id . "&Itemid=" . $this->itemid, false); ?>" title="觀看內容">
-                                    <img class="lazy" src="<?php echo JURI::root(); ?>modules/mod_voting_slider/assets/images/soon_btn.png" alt="觀看內容" />
+                                    <img class="lazy" src="<?php echo JURI::root(); ?>images/system/soon_btn.png" alt="觀看內容" />
                                 </a>
                             </div>
 

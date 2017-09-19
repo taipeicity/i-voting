@@ -1,12 +1,11 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
-
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
@@ -14,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 JPluginHelper::importPlugin('survey', $this->question->question_type);
 $className = 'plgSurvey' . ucfirst($this->question->question_type);
 
-
+$question_type = array("number", "table", "select", "open");
 ?>
 <div class="survey_question">
 	<div class="question">
@@ -60,6 +59,23 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 
 </div>
 
+
+<?php if (!in_array($this->question->question_type, $question_type)) { ?>
+    <div class="already_fancybox">
+        本案投票應投 
+        <?php
+        if ($this->question->is_multi > 0) {
+            echo $this->question->multi_limit > 0 ? $this->question->multi_limit : $this->question->multi_min;
+            echo $this->question->multi_max > 0 ? " 至 " . $this->question->multi_max : "";
+        } else {
+            echo '1 ';
+        }
+        ?> 票。<br>
+        <span class="not_check">您尚未投選項</span>
+        <span class="already_check">您已投：<span class="option_active"></span>，共 <span class="already">1</span> 票，還可投 <span class="yet"><?php echo $this->question->multi_limit; ?></span> 票。</span><br>
+    </div>
+<?php } ?>
+
 <div id="message_area" style="display: none;">
 	<div class="alert alert-message">
 		<a class="close" data-dismiss="alert">×</a>
@@ -71,6 +87,8 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 </div>
 
 <script>
+	var _select_nums = 0;
+
 	jQuery.fn.showMessage = function(msg) {
 		jQuery('html, body').scrollTop(0);
 		jQuery("#message_area #message_content").html(msg);
@@ -80,7 +98,7 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 
 
 	jQuery(document).ready(function(){
-
+			
 		jQuery("#btn_reset").bind( "click", function() {
 			jQuery("#question_form")[0].reset();
 			jQuery(".option .stamp").removeClass("active");

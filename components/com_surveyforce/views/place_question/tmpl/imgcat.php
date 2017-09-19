@@ -1,4 +1,11 @@
 <?php
+/**
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+*/
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
@@ -61,6 +68,19 @@ if ($this->question->is_multi == 0) {
 
 </div>
 
+<div class="already_fancybox">
+    本案投票應投 
+    <?php
+    if ($this->question->is_multi > 0) {
+        echo $this->question->multi_limit > 0 ? $this->question->multi_limit : $this->question->multi_min;
+        echo $this->question->multi_max > 0 ? " 至 " . $this->question->multi_max : "";
+    } else {
+        echo '1 ';
+    }
+    ?> 票。<br>
+    <span class="not_check">您尚未投選項</span>
+    <span class="already_check">您已投：<span class="option_active"></span>，共 <span class="already">1</span> 票，還可投 <span class="yet"><?php echo $this->question->multi_limit; ?></span> 票。</span><br>
+</div>
 
 <div id="message_area" style="display: none;">
 	<div class="alert alert-message">

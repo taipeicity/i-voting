@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+*/
+-->
 <metadata>
     <layout title="議題-將開始">
         <message>
@@ -12,9 +21,9 @@
 
 			<field name="orderby" type="hidden" label="排序" default="vote_start ASC" />
 
-			<field name="voting_mymuid" type="menuitem" default="" label="進行中的投票的選單" />
-			<field name="soon_mymuid" type="menuitem" default="" label="將開始的投票的選單" />
-			<field name="completed_mymuid" type="menuitem" default="" label="已完成的投票的選單" />
+                        <field name="voting_mymuid" type="menuitem" default="" label="進行中的投票的選單" />
+                        <field name="soon_mymuid" type="menuitem" default="" label="提案資料內容的選單" />
+                        <field name="completed_mymuid" type="menuitem" default="" label="已完成的投票的選單" />
 
 
 		</fieldset>

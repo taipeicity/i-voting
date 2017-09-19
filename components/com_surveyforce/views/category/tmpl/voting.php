@@ -1,12 +1,11 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
-
 defined('_JEXEC') or die('Restricted Access');
 
 
@@ -20,47 +19,55 @@ $date_arr = array();
 
 
 $title_limit = 20;
+
+$status = $this->practice_pattern;
 ?>
 <div class="category-list voting">
-    <div class="menu-list">
-		<div class="menu-item">
-            <a class="soon" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=soon&Itemid=" . $this->soon_mymuid, false); ?>" title="提案資料內容">
-                <span class="image">
-                    <img src="images/system/soon.png" alt="提案資料內容">
-                </span>
-                <span class="title">提案資料內容</span>
-                <span class="num">(<?php echo $this->soon_counts; ?>)</span>
-            </a>
-        </div>
+    <?php if (!$status) { ?>
+        <div class="menu-list">
+            <div class="menu-item">
+                <a class="soon" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=soon&Itemid=" . $this->soon_mymuid, false); ?>" title="提案資料內容">
+                    <span class="image">
+                        <img src="images/system/soon.png" alt="提案資料內容">
+                    </span>
+                    <span class="title">提案資料內容</span>
+                    <span class="num">(<?php echo $this->soon_counts; ?>)</span>
+                </a>
+            </div>
 
-        <div class="menu-item">
-            <a class="voting active" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=voting&Itemid=" . $this->voting_mymuid, false); ?>" title="進行中的投票">
-                <span class="image">
-                    <img src="images/system/voting.png" alt="進行中的投票">
-                </span>
-                <span class="title">進行中的投票</span>
-                <span class="num">(<?php echo $this->voting_counts; ?>)</span>
-            </a>
-        </div>
+            <div class="menu-item">
+                <a class="voting active" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=voting&Itemid=" . $this->voting_mymuid, false); ?>" title="進行中的投票">
+                    <span class="image">
+                        <img src="images/system/voting.png" alt="進行中的投票">
+                    </span>
+                    <span class="title">進行中的投票</span>
+                    <span class="num">(<?php echo $this->voting_counts; ?>)</span>
+                </a>
+            </div>
 
-        <div class="menu-item">
-            <a class="completed" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=completed&Itemid=" . $this->completed_mymuid, false); ?>" title="已完成的投票">
-                <span class="image">
-                    <img src="images/system/completed.png" alt="已完成的投票" />
-                </span>
-                <span class="title">已完成的投票</span>
-                <span class="num">(<?php echo $this->completed_counts; ?>)</span>
+            <div class="menu-item">
+                <a class="completed" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=completed&Itemid=" . $this->completed_mymuid, false); ?>" title="已完成的投票">
+                    <span class="image">
+                        <img src="images/system/completed.png" alt="已完成的投票" />
+                    </span>
+                    <span class="title">已完成的投票</span>
+                    <span class="num">(<?php echo $this->completed_counts; ?>)</span>
 
-            </a>
+                </a>
+            </div>    
         </div>
-    </div>
+    <?php } ?>
 
     <div class="category-content">
-        <?php if ($this->items) { ?>
+        <?php if ($this->items && $this->voting_counts > 0) { ?>
             <div class="issues">
                 <?php
                 foreach ($this->items as $key => $item) {
                     $date_arr[$item->id] = $item->vote_end;
+
+                    if ($status == true && $item->vote_pattern == 1) {
+                        continue;
+                    }
                     ?>
                     <div class="issue">
                         <div class="issue_inner">
@@ -84,7 +91,7 @@ $title_limit = 20;
 
                             <div class="more">
                                 <a href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=intro&sid=" . $item->id . "&Itemid=" . $this->itemid, false); ?>" title="我要投票">
-                                    <img class="lazy" src="<?php echo JURI::root(); ?>modules/mod_voting_slider/assets/images/vote_btn.png" alt="我要投票" />
+                                    <img class="lazy" src="<?php echo JURI::root(); ?>images/system/vote_btn.png" alt="我要投票" />
                                 </a>
                             </div>
 
@@ -122,10 +129,16 @@ $title_limit = 20;
             </div>
             <?php
         } else {
-            ?>
-            <div class="nodata">
-                現在沒有進行中的投票
-            </div>
+            if ($status) {
+                ?>
+                <div class="nodata">
+                    現在沒有練習的投票
+                </div>
+            <?php } else { ?>
+                <div class="nodata">
+                    現在沒有進行中的投票
+                </div>
+            <?php } ?>
         <?php } ?>
     </div>
 </div>

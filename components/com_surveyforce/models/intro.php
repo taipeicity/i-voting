@@ -1,18 +1,18 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.modellist');
 
 /**
- * Survey Model.
+ * Intro Model.
  */
 class SurveyforceModelIntro extends JModelItem {
 
@@ -203,7 +203,7 @@ class SurveyforceModelIntro extends JModelItem {
         $query->leftJoin($db->quoteName('#__survey_force_fields') . 'AS b ON b.quest_id = a.id');
         $query->where('a.sf_survey = ' . (int) $_survey_id);
         $query->where('a.published = 1');
-        $query->order('a.ordering ASC');
+        $query->order('a.ordering ASC, b.ordering ASC');
 
 
         $db->setQuery($query);

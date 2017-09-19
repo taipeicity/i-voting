@@ -1,37 +1,21 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
-
 defined('_JEXEC') or die('Restricted Access');
 
 $title_limit = 20;
 
-$current = JFactory::getDate()->format('Y-m-d');
-$cdate = explode("-", $current);
+$session = &JFactory::getSession();
 
-if ($this->items) {
-
-    $start_year = JHtml::_('date', $this->first_vote_start, 'Y');
-    $end_year = JHtml::_('date', $this->last_vote_end, 'Y');
-
-    $years = array();
-    for ($y = $start_year; $y <= $end_year; $y++) {
-        array_push($years, $y);
-    }
-
-    if (!in_array(date("Y"), $years)) {
-        array_push($years, date("Y"));
-    }
-}
 ?>
 <div class="category-list completed">
     <div class="menu-list">
-		<div class="menu-item">
+        <div class="menu-item">
             <a class="soon" href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=category&layout=soon&Itemid=" . $this->soon_mymuid, false); ?>" title="提案資料內容">
                 <span class="image" >
                     <img src="images/system/soon.png" alt="提案資料內容">
@@ -62,53 +46,56 @@ if ($this->items) {
         </div>
     </div>
 
-    <div class="category-content">
-        <?php if ($this->items) { ?>
+    <div class="category-content">        
 
-            <div class="mod_voting_list">
-                <div class="year">
-                    <a href="javascript: void(0)" alt="上一年"><span class="leftarrow" id="prev"></span></a>
-                    <div class="year_list">
-                        <?php foreach ($years as $ykey => $year) { ?>
-                            <div id="year_<?php echo $year; ?>" class="year_block <?php echo ($year == $cdate[0]) ? "active" : ""; ?>" value="<?php echo $year; ?>">
-                                <?php echo $year; ?>
-                            </div>
-                        <?php } ?>
-                    </div>
-                    <a href="javascript: void(0)" alt="下一年"><span class="rightarrow" id="next"></span></a>
-                </div>
-
-                <!-- 月 -->
-                <div class="month">
-                    <?php
-                    for ($i = 1; $i <= 12; $i++) {
-                        $mm = str_pad($i, 2, "0", STR_PAD_LEFT);
-                        ?>
-                        <div id="month_<?php echo $mm; ?>" class="month_block <?php echo ($mm == $cdate[1]) ? "active" : ""; ?>" value="<?php echo $mm; ?>">
-                            <a href="javascript: void(0)"><?php echo $mm; ?></a>
+        <div class="mod_voting_list">
+            <div class="css_table">
+                <form class="history_search" action="<?php echo JRoute::_("index.php?option=com_surveyforce&task=category.completed_form", false); ?>" method="POST">
+                    <div class="css_tr">
+                        <div class="css_th">年份：</div>
+                        <div class="css_td">
+                            <?php
+                            $year = date("Y");
+                            $j = 1;
+                            for ($i = $year; $i >= 2015; $i--) {
+                                ?>
+                                <label class="radio radio-<?php echo $j; ?>"><input type="radio" name="condition" value="<?php echo $i; ?>" <?php echo $this->year == $i ? "checked" : "" ?> /><?php echo $i; ?></label>                                
+                                <?php
+                                $j++;
+                            }
+                            ?>
                         </div>
-                    <?php } ?>
-                </div>
+                    </div>
+                    <div class="css_tr">
+                        <div class="css_th">案件狀態：</div>
+                        <div class="css_td">
+                            <label class="radio radio-is_define">
+                                <input type="radio" name="condition" value="1" <?php echo $this->is_define == 1 ? "checked" : ""; ?> />已完成
+                            </label>
+                            <label class="radio radio-is_define">
+                                <input type="radio" name="condition" value="2" <?php echo $this->is_define == 2 ? "checked" : ""; ?> />未成案
+                            </label>
+                        </div>
+                    </div>
+                    <div class="css_tr">
+                        <div class="css_th">搜尋關鍵字：</div>
+                        <div class="css_td btns">
+                            <input name="survey_search" type="text" id="survey_search" placeholder="請輸入關鍵字" size="18" value="<?php echo $this->survey_search ? $this->survey_search : ""; ?>" />
+                            <input type="button" class="btn" value="搜尋" />
+                        </div>
+                    </div>
+                    <?php echo JHtml::_('form.token'); ?>
+                </form>
             </div>
+        </div>
 
-            <?php
+        <?php
+        if ($this->items && $this->completed_counts > 0) {
+
             foreach ($this->items as $item) {
 
-                // 計算投票期間跨越的月份
-                $date_class = "";
-                for ($y = JHtml::_('date', $item->vote_start, 'Y'); $y <= JHtml::_('date', $item->vote_end, 'Y'); $y++) {
-                    $start_month = ($y == JHtml::_('date', $item->vote_start, 'Y')) ? JHtml::_('date', $item->vote_start, 'm') : 1;
-                    for ($m = $start_month; $m <= 12; $m++) {
-
-                        $date_class .= sprintf(" date_%d_%02d", $y, $m);
-
-                        if ($y == JHtml::_('date', $item->vote_end, 'Y') && $m == JHtml::_('date', $item->vote_end, 'm')) {
-                            break;
-                        }
-                    }
-                }
                 ?>
-                <div class="issue <?php echo $date_class; ?>">
+                <div class="issue">
                     <div class="issue_inner">
                         <div class="title">
                             <a href="<?php echo JRoute::_('index.php?option=com_surveyforce&view=intro&sid=' . $item->id . '&Itemid=' . $this->itemid, false); ?>">
@@ -128,7 +115,7 @@ if ($this->items) {
 
                         <div class="more">
                             <a href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=intro&sid=" . $item->id . "&Itemid=" . $this->itemid, false); ?>" title="觀看結果">
-                                <img class="lazy" src="<?php echo JURI::root(); ?>modules/mod_voting_slider/assets/images/completed_btn.png" alt="觀看結果" />
+                                <img class="lazy" src="<?php echo JURI::root(); ?>images/system/completed_btn.png" alt="觀看結果" />
                             </a>
                         </div>
 
@@ -153,126 +140,64 @@ if ($this->items) {
 
             <?php
         } else {
-            ?>
-            <div class="nodata">
-                現在沒有已完成的投票
-            </div>
-        <?php } ?>
+            if ($session->get('completed_form')) {
+                ?>
+                <div class="nodata">
+                    查無此議題
+                </div>
+                <?php
+            } else {
+                ?>
+                <div class="nodata">
+                    現在沒有已完成的投票
+                </div>
+                <?php
+            }
+        }
+        ?>
     </div>
-
-
-
 </div>
-<style>
-    .category-content .issue {
-        display: none;
-    }
-</style>
-<noscript>
-<style>
-    .mod_voting_list {
-        display: none;
-    }
-    .category-content .issue {
-        display: block;
-    }
-</style>
-</noscript>
+
+<div id="message_area" style="display: none;">
+    <div class="alert alert-message">
+        <a class="close" data-dismiss="alert">×</a>
+        <h4 class="alert-heading">訊息</h4>
+        <div>
+            <p id="message_content"></p>
+        </div>
+    </div>
+</div>
+
+
 <script type="text/javascript">
-    (function ($) {
-        $(document).ready(function () {
-            var current = $(".year .active");
-            if (!current.prev(".year_block").length) {
-                $("#prev").hide();
-            }
-            if (!current.next(".year_block").length) {
-                $("#next").hide();
-            }
 
-            $(".year .year_block").hide();
-            $(".year .active").show();
+    jQuery('.history_search input[type="radio"]').click(function () {
+        jQuery('#survey_search').removeAttr('name');
+        jQuery.fancybox.showLoading();
+        jQuery.fancybox.helpers.overlay.open({parent: jQuery('body'), closeClick : false});
+        setTimeout(function () {
+            jQuery('.history_search').submit();
+        }, 1000);
+    });
 
+    jQuery('.btn').click(function () {
+        jQuery('input[type="radio"]:checked').removeAttr('name');
+        jQuery.fancybox.showLoading();
+        jQuery.fancybox.helpers.overlay.open({parent: jQuery('body'), closeClick : false});
+        setTimeout(function () {
+            jQuery('.history_search').submit();
+        }, 1000);
+    });
 
-            // 年份
-            $("#prev").on("click", function () { // prev
-                var active = $(".year .active").prev(".year_block");
-                if (active.length) {
-                    $(".year_block").removeClass("active");
-                    active.addClass("active");
+    jQuery("#survey_search").keypress(function (event) {
+        if (event.keyCode == 13) {
+            jQuery('input[type="radio"]:checked').removeAttr('name');
+            jQuery.fancybox.showLoading();
+            jQuery.fancybox.helpers.overlay.open({parent: jQuery('body'), closeClick : false});
+            setTimeout(function () {
+                jQuery('.history_search').submit();
+            }, 1000);
+        }
+    });
 
-                    $(".year .year_block").hide();
-                    $(".year .active").show();
-
-                    var year = active.attr("value");
-                    $(".month_block").removeClass("active");
-                    $("#month_01").addClass("active");
-
-                    $(".issue").hide();
-                    $("#month_01").trigger("click");
-
-                }
-
-                var prev = active.prev(".year_block");
-                if (!prev.length) {
-                    $(this).hide();
-                }
-
-                var next = active.next(".year_block");
-                if (next.length) {
-                    $("#next").show();
-                }
-
-            });
-
-            $("#next").on("click", function () { // next
-                var active = $(".year .active").next(".year_block");
-                if (active.length) {
-                    $(".year_block").removeClass("active");
-                    active.addClass("active");
-
-                    $(".year .year_block").hide();
-                    $(".year .active").show();
-
-                    var year = active.attr("value");
-                    $(".month_block").removeClass("active");
-                    $("#month_01").addClass("active");
-
-                    $(".issue").hide();
-                    $("#month_01").trigger("click");
-                }
-
-                var prev = active.prev(".year_block");
-                if (prev.length) {
-                    $("#prev").show();
-                }
-
-                var next = active.next(".year_block");
-                if (!next.length) {
-                    $(this).hide();
-                }
-            });
-
-
-            // 月份
-            $(".month_block").on("click", function () {
-                var year = $(".year .active").attr("value");
-                var month = $(this).attr("value");
-
-                $(".month_block").removeClass("active");
-                $(this).addClass("active");
-
-                $(".issue").hide();
-
-                _html_str = '';
-                $(".date_" + year + "_" + month).each(function (index) {
-                    _html_str += '<div class="issue">' + $(this).html() + '</div>';
-                });
-                $(".issues").html(_html_str);
-                $(".issues .issue").show();
-            });
-
-            $("#month_<?php echo date("m"); ?>").trigger("click");
-
-        });
-    })(jQuery);
 </script>

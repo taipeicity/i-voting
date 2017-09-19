@@ -1,18 +1,18 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.modellist');
 
 /**
- * Survey Model.
+ * Result Model.
  */
 class SurveyforceModelResult extends JModelItem {
 
@@ -89,7 +89,7 @@ class SurveyforceModelResult extends JModelItem {
 		$query->leftJoin($db->quoteName('#__survey_force_quests', 'q') . " ON q.id = f.quest_id");
 		$query->where($db->quoteName('q.sf_survey') . " = " . $db->quote($sid));
 		$query->where($db->quoteName('q.published') . " = '1'");
-		
+
 		// 依選項排序
 		if($orderby == 0) {
 			$query->order("qid, f.ordering");
@@ -102,7 +102,7 @@ class SurveyforceModelResult extends JModelItem {
 		foreach($items as $key => $item) {
 			$fields[$item->qid][$item->id] = $item->ftext;
 		}
-		
+
 		return $fields;
 	}
 	
@@ -212,7 +212,7 @@ class SurveyforceModelResult extends JModelItem {
 		$query->from($db->quoteName('#__survey_force_vote_paper'));
 		$query->where($db->quoteName('survey_id') . " = " . $db->quote($sid));
 		$query->where($db->quoteName('sub_field_id') . " = '0'");
-		
+
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 		
@@ -236,7 +236,7 @@ class SurveyforceModelResult extends JModelItem {
 		$query->from($db->quoteName('#__survey_force_vote_paper'));
 		$query->where($db->quoteName('survey_id') . " = " . $db->quote($sid));
 		$query->where($db->quoteName('sub_field_id') . " != '0'");
-
+        
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 		
@@ -261,7 +261,7 @@ class SurveyforceModelResult extends JModelItem {
 		$query->from($db->quoteName('#__survey_force_vote_place'));
 		$query->where($db->quoteName('survey_id') . " = " . $db->quote($sid));
 		$query->where($db->quoteName('sub_field_id') . " = '0'");
-
+        
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 
