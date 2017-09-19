@@ -1,43 +1,42 @@
 <?php
-/**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
-*/
 
+/**
+ *   @package         Surveyforce
+ *   @version           1.2-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 // No direct access.
 defined('_JEXEC') or die;
 
 jimport('joomla.application.component.controllerform');
 
-
-
 /**
- * Items list controller class.
+ * Intro controller class.
  */
 class SurveyforceControllerIntro extends JControllerForm {
+
 	/**
 	 * Proxy for getModel.
 	 * @since	1.6
 	 */
-
-	public function getModel($name = 'intro', $prefix = '', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'intro', $prefix = '', $config = array ('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
 		return $model;
+
 	}
 
 	public function start_vote() {
 		$config = JFactory::getConfig();
-		$session = &JFactory::getSession();
 		$app = JFactory::getApplication();
 
-		$survey_id	= $app->input->getInt('sid', 0);
-		$itemid	= $app->input->getInt('Itemid', 0);
+		$survey_id = $app->input->getInt('sid', 0);
+		$itemid = $app->input->getInt('Itemid', 0);
 
-		$expire_minute = $config->get( 'expire_minute', 30 );
+		$expire_minute = $config->get('expire_minute', 30);
 
+		$session = &JFactory::getSession();
 
 		$return_link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$itemid}", false);
 
@@ -50,23 +49,24 @@ class SurveyforceControllerIntro extends JControllerForm {
 		}
 
 
+
+
 		// 設定已通過verify步驟
 		SurveyforceVote::setSurveyStep($survey_id, "intro", true);
 
 		// 寫入議題資料-標題、驗證方式
 		$survey_item = SurveyforceVote::getSurveyItem($survey_id);
-		SurveyforceVote::setSurveyData($survey_id, "title", $survey_item->title, true );
-		SurveyforceVote::setSurveyData($survey_id, "verify_required", $survey_item->verify_required );
-		SurveyforceVote::setSurveyData($survey_id, "verify_type", $survey_item->verify_type );
-		SurveyforceVote::setSurveyData($survey_id, "verify_params", $survey_item->verify_params );
-		SurveyforceVote::setSurveyData($survey_id, "is_public", $survey_item->is_public );
-		SurveyforceVote::setSurveyData($survey_id, "is_notice_email", $survey_item->is_notice_email );
-		SurveyforceVote::setSurveyData($survey_id, "is_notice_phone", $survey_item->is_notice_phone );
-		SurveyforceVote::setSurveyData($survey_id, "display_result", $survey_item->display_result );
-		SurveyforceVote::setSurveyData($survey_id, "is_lottery", $survey_item->is_lottery );
-		SurveyforceVote::setSurveyData($survey_id, "vote_num_params", $survey_item->vote_num_params );
-		SurveyforceVote::setSurveyData($survey_id, "expire_time", time() + ($expire_minute * 60) );
-
+		SurveyforceVote::setSurveyData($survey_id, "title", $survey_item->title, true);
+		SurveyforceVote::setSurveyData($survey_id, "verify_required", $survey_item->verify_required);
+		SurveyforceVote::setSurveyData($survey_id, "verify_type", $survey_item->verify_type);
+		SurveyforceVote::setSurveyData($survey_id, "verify_params", $survey_item->verify_params);
+		SurveyforceVote::setSurveyData($survey_id, "is_public", $survey_item->is_public);
+		SurveyforceVote::setSurveyData($survey_id, "is_notice_email", $survey_item->is_notice_email);
+		SurveyforceVote::setSurveyData($survey_id, "is_notice_phone", $survey_item->is_notice_phone);
+		SurveyforceVote::setSurveyData($survey_id, "display_result", $survey_item->display_result);
+		SurveyforceVote::setSurveyData($survey_id, "is_lottery", $survey_item->is_lottery);
+		SurveyforceVote::setSurveyData($survey_id, "vote_num_params", $survey_item->vote_num_params);
+		SurveyforceVote::setSurveyData($survey_id, "expire_time", time() + ($expire_minute * 60));
 
 		// 若為不驗證(圖形驗證)，且沒有提供抽獎，則略過個資頁
 		if ($survey_item->verify_type == '["none"]' && $survey_item->is_lottery == 0) {
@@ -78,7 +78,6 @@ class SurveyforceControllerIntro extends JControllerForm {
 			} else {
 				$link = JRoute::_("index.php?option=com_surveyforce&view=verify&sid={$survey_id}&Itemid={$itemid}", false);
 			}
-
 		} else {
 			$link = JRoute::_("index.php?option=com_surveyforce&view=statement&sid={$survey_id}&Itemid={$itemid}", false);
 		}
@@ -87,15 +86,13 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 
 		// 清空所有驗證的保留欄位資料
-		$session->clear('verify_reserve_'. $survey_id);
-		$session->clear('verify_google_'. $survey_id);
-		
+		$session->clear('verify_reserve_' . $survey_id);
+		$session->clear('verify_google_' . $survey_id);
+
 
 		$this->setRedirect($link);
 
 	}
-
-
 
 	public function check_intro_form() {
 		$model = $this->getModel();
@@ -104,8 +101,8 @@ class SurveyforceControllerIntro extends JControllerForm {
 		$app = JFactory::getApplication();
 
 
-		$survey_id	= $app->input->getInt('sid', 0);
-		$itemid	= $app->input->getInt('Itemid', 0);
+		$survey_id = $app->input->getInt('sid', 0);
+		$itemid = $app->input->getInt('Itemid', 0);
 
 
 
@@ -124,10 +121,10 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 
 		unset($msges);
-		$msges = array();
+		$msges = array ();
 
-		$email	= trim($app->input->getString('email'));
-		$phone	= trim($app->input->getString('phone'));
+		$email = trim($app->input->getString('email'));
+		$phone = trim($app->input->getString('phone'));
 
 		if ($email || $phone) {
 			if ($email) {
@@ -135,7 +132,7 @@ class SurveyforceControllerIntro extends JControllerForm {
 					$msges[] = "該議題並不提供電子郵件通知服務。請重新操作。";
 				} else {
 					// 檢查Email格式
-					if(!preg_match('/^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/', $email)) {
+					if (!preg_match('/^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/', $email)) {
 						$msges[] = "Email格式錯誤，請確認您是否輸入正確。";
 					}
 				}
@@ -147,12 +144,11 @@ class SurveyforceControllerIntro extends JControllerForm {
 					$msges[] = "該議題並不提供手機簡訊通知服務。請重新操作。";
 				} else {
 					// 檢查手機號碼格式
-					if(!preg_match('/^09[0-9]{8}$/', $phone)) {
+					if (!preg_match('/^09[0-9]{8}$/', $phone)) {
 						$msges[] = "手機號碼格式錯誤。";
 					}
 				}
 			}
-
 		} else {
 			$msges[] = "請至少選擇其中一項。請重新操作。";
 		}
@@ -190,6 +186,5 @@ class SurveyforceControllerIntro extends JControllerForm {
 		return;
 
 	}
-
 
 }

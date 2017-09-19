@@ -1,11 +1,11 @@
 <?php
 
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 // No direct access.
 defined('_JEXEC') or die;
@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.controllerform');
 
 /**
- * Items list controller class.
+ * Place_login controller class.
  */
 class SurveyforceControllerPlace_login extends JControllerForm {
 	/*	 * recaptcha
@@ -89,7 +89,10 @@ class SurveyforceControllerPlace_login extends JControllerForm {
 		$captcha = $app->input->getString('recaptcha_response_field2');
 		if ($captcha) {
 			// 與session中的值做比對
-			if ($session->get('captcha_0') != md5($captcha)) {
+			if ($session->get('captcha_0') == md5($captcha)) {
+				// 比對正確則清空session
+				$session->Set('captcha_0', "");
+			} else {
 				$msges[] = "驗證碼比對錯誤，請重新填寫。";
 			}
 		} else {

@@ -1,10 +1,10 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 
 // No direct access.
@@ -14,7 +14,7 @@ jimport('joomla.application.component.controllerform');
 
 
 /**
- * Items list controller class.
+ * Place_verify controller class.
  */
 class SurveyforceControllerPlace_verify extends JControllerForm {
 	/**
@@ -38,7 +38,6 @@ class SurveyforceControllerPlace_verify extends JControllerForm {
 		$itemid	= $app->input->getInt('Itemid', 0);
 		$client_ip = JHtml::_('utility.getUserIP');
 
-//		JRequest::checkToken() or die( 'Invalid Token' );
 
 
 		// 檢查欄位是否已填寫
@@ -113,7 +112,6 @@ class SurveyforceControllerPlace_verify extends JControllerForm {
 			$this->setRedirect($return_link, $msg);
 			return;
 		}  else if ($result_check_data->status == 1) {		// 驗證成功
-//			$verify_identify[$type] = $identify;	// 確認無投過票，記錄識別碼
 
 			// 記錄驗證結果至DB
 			$model->recordVerifyStatus($survey_id, "entity", $result_check_data->status, $client_ip);

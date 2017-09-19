@@ -1,10 +1,10 @@
 <?php
 /**
-* @package     Surveyforce
-* @version     1.0-modified
-* @copyright   JoomPlace Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
-* @license     GPL-2.0+
-* @author      JoomPlace Team,臺北市政府資訊局- http://doit.gov.taipei/
+*   @package         Surveyforce
+*   @version           1.2-modified
+*   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+*   @license            GPL-2.0+
+*   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
 */
 
 // No direct access.
@@ -14,7 +14,7 @@ jimport('joomla.application.component.controllerform');
 
 
 /**
- * Items list controller class.
+ * Finish controller class.
  */
 class SurveyforceControllerFinish extends JControllerForm {
 	/**
@@ -33,7 +33,6 @@ class SurveyforceControllerFinish extends JControllerForm {
 		$session 	= &JFactory::getSession();
 		$app = JFactory::getApplication();
 
-//		JRequest::checkToken() or die( 'Invalid Token' );
 
 		$survey_id	= $app->input->getInt('sid', 0);
 		$itemid	= $app->input->getInt('Itemid', 0);
