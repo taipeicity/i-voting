@@ -18,7 +18,7 @@
 
 |項次|軟體名稱|　
 |--- |---|
-|1 | securimage||
+|　1｜securimage　|
 
 2-3. 其他說明
 * php需安裝php-xml, php-pdo, php-mbstring
