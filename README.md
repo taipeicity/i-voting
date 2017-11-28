@@ -40,7 +40,8 @@ php需安裝php-xml, php-pdo, php-mbstring
 ### 4.安裝說明
 
  * 作業系統建議安裝CentOS7與php5.4
- * 請先安裝JOOMLA 3.7.3版本  [下載點]:https://downloads.joomla.org/zh/cms/joomla3/3-7-3/  "Joomla 3.7.3" 
+ * 請先安裝JOOMLA 3.7.3版本  
+   [Joomla 3.7.3]: https://downloads.joomla.org/zh/cms/joomla3/3-7-3/  "Joomla 3.7.3" 
  * 將此Repo clone 或者下載至本地端的 administraror路徑 compoents路徑 languages路徑及plugins路徑。
  * 下載ivoting-schema.sql檔案，將其新增至資料庫。
 	
