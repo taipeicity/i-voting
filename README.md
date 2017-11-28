@@ -16,9 +16,9 @@
 
 2-2.第三方函數庫
 
-｜　項次　｜　軟體名稱　｜　
-｜　--- ｜　---　｜　
-｜　1　｜　securimage　｜
+| 項次 | 函式名稱 | 功能說明 | 授權 | 下載網址 |
+| ---- | ----     | ----    | ---- | ----    |
+|  1   | Securimage| 圖形驗證功能| BSD License | https://www.phpcaptcha.org/ |
 
 2-3. 其他說明
 * php需安裝php-xml, php-pdo, php-mbstring
