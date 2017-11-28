@@ -5,7 +5,8 @@
 下載網址為:https://www.phpcaptcha.org/
 授權格式為:BSD License
 
-* 字型檔：於投票模組內置入2套字型檔，包含如下檔案
+字型檔：於投票模組內置入2套字型檔，包含如下檔案
+
  | 項次  |	檔案 |
  | ----- | ----- |
  |   1   | DejaVuSansCondensed.ttf |
