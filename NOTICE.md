@@ -12,12 +12,10 @@
 |  1   | Securimage| 圖形驗證功能| BSD License | https://www.phpcaptcha.org/ |
 
 
-字型檔：於投票模組內置入2套字型檔，包含如下檔案
+* 字型檔：於投票模組內置入2套字型檔，包含如下檔案
 
- | 項次  |	檔案 |
- | ----- | ----- |
- |   1   | DejaVuSansCondensed.ttf |
- |   2   | DejaVuSansCondensed-Bold.ttf|
+ | 項次  |	檔案 | 授權 | 下載網址 |
+ | ----- | ----- | ----- | ----- |
+ |   1   | DejaVuSansCondensed.ttf |https://dejavu-fonts.github.io/License.html | https://dejavu-fonts.github.io/ |
+ |   2   | DejaVuSansCondensed-Bold.ttf|https://dejavu-fonts.github.io/License.html | https://dejavu-fonts.github.io/ |
 
-* 下載網址為:https://dejavu-fonts.github.io/
-* 授權模式為: https://dejavu-fonts.github.io/License.html
