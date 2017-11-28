@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.2" client="site" method="upgrade">
+	<name>MOD_ITPGOOGLESEARCH</name>
+	<author>Todor Iliev</author>
+	<copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html</license>
+	<authorEmail>todor@itprism.com</authorEmail>
+	<authorUrl>http://itprism.com</authorUrl>
+	<version>2.5</version>
+	<creationDate>11 April, 2014</creationDate>
+	<description><![CDATA[
+    <p>This module adds a search field on the website.</p>
+    ]]>
+	</description>
+    
+	<files>
+		<filename module="mod_itpgooglesearch">mod_itpgooglesearch.php</filename>
+		<filename>index.html</filename>
+		<folder>language</folder>
+		<folder>tmpl</folder>
+	</files>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="searchText" type="text" default="" label="MOD_ITPGOOGLESEARCH_SEARCH_TEXT" description="MOD_ITPGOOGLESEARCH_SEARCH_TEXT_DESC" />
+				<field name="searchButton" type="radio" default="1" label="MOD_ITPGOOGLESEARCH_SEARCH_BUTTON" description="MOD_ITPGOOGLESEARCH_SEARCH_BUTTON_DESC" class="btn-group">
+					<option value="0">Hide</option>
+					<option value="1">Show</option>
+				</field>
+				<field name="searchButtonText" type="text" default="" label="MOD_ITPGOOGLESEARCH_SEARCH_BUTTON_TEXT" description="MOD_ITPGOOGLESEARCH_SEARCH_BUTTON_TEXT_DESC" />
+					
+				<field
+					name="menuid"
+					type="menuitem"
+					label="選單ID"
+					description="設定文章來源選單" />
+			</fieldset>
+			
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text"
+					   label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					   description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL
+					</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+
+				<field
+					name="cachemode"
+					type="hidden"
+					default="static">
+					<option value="static"></option>
+				</field>
+			</fieldset>
+			
+		</fields>
+	</config>
+</extension>

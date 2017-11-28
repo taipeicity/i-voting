@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.1.0" client="site"
+	method="upgrade"
+>
+	<name>mod_counter</name>
+	<author>Joomla! Project</author>
+	<creationDate>February 2010</creationDate>
+	<copyright>Copyright (C) 2005 - 2011 Open Source Matters.
+		All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see
+		LICENSE.txt</license>
+	<authorEmail>admin@joomla.org</authorEmail>
+	<authorUrl>www.joomla.org</authorUrl>
+	<version>1.6.0</version>
+	<description>使用Google analytics做記錄
+	</description>
+	<files>
+		<filename module="mod_counter">mod_counter.php
+		</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<filename>mod_counter.xml</filename>
+	</files>
+	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_COUNTER" />
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="lang" type="radio" default=""
+					label="選流量語系"
+					description="選擇流量統計之語系"
+				>
+					<option value="1">中文版
+					</option>
+					<option value="2">英文版
+					</option>
+					<option value="3">兒童版
+					</option>
+				</field>
+				<field
+					name="gakey"
+					type="text"
+					label="填入Google Analytics的key"
+					description="ex: UA-42419537-1"
+					default="">
+				</field>
+				<field
+					name="ga_profile_id"
+					type="text"
+					label="填入Google Analytics的設定檔編號"
+					description="ex: 74465262"
+					default="">
+				</field>
+				<field
+					name="google_email"
+					type="text"
+					label="Google Analytics Email帳號"
+					default="">
+				</field>
+				<field
+					name="google_password"
+					type="password"
+					label="Google Analytics 密碼"
+					default="">
+				</field>
+				<field
+					name="start_date"
+					type="calendar"
+					label="開始統計的日期"
+					default="2014-01-01">
+				</field>
+
+				<field name="is_show" type="list" default="1"
+					label="前台是否顯示統計"
+				>
+					<option value="1">是 </option>
+					<option value="0">否 </option>
+				</field>
+			</fieldset>
+
+						
+			<fieldset name="advanced">
+				<field name="layout" type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+
+				<field name="moduleclass_sfx" type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="owncache" type="list" default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+
+				<field name="cache_time" type="text" default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>
