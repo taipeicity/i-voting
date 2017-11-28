@@ -21,8 +21,9 @@
 |securimage||
 
 2-3. 其他說明
-php需安裝php-xml, php-pdo, php-mbstring
-	
+* php需安裝php-xml, php-pdo, php-mbstring
+* 投票模組須使用到編輯器，建議可使用JCE編輯工具 下載網址 https://www.joomlacontenteditor.net/downloads/editor/core
+
 ### 3.功能項目
 
 * 投票結果顯示機制(surveyforce)
