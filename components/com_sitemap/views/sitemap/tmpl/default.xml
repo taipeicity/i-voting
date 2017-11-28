@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_SITEMAP_DEFAULT_VIEW_TITLE">
+		<message>COM_SITEMAP_DEFAULT_VIEW_DESC</message>
+	</layout>
+	<fields name="params">
+		<fieldset name="basic">
+			<field
+		    	name="id"
+		    	label="請選擇語系"
+		    	required="true"
+		    	type="sql"
+		    	key_field="id"
+		    	value_field="title"
+		    	query="SELECT s.id , s.title
+				FROM #__sitemap AS s"
+			/>
+		</fieldset>
+	</fields>
+</metadata>

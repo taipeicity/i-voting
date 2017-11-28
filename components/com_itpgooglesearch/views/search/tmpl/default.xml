@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_ITPGOOGLESEARCH_VIEW_DEFAULT_TITLE" option="COM_ITPGOOGLESEARCH_FORM_VIEW_DEFAULT_OPTION">
+		<message>
+            <![CDATA[COM_ITPGOOGLESEARCH_FORM_VIEW_DEFAULT_DESC]]>
+		</message>
+	</layout>
+	<fields name="params">
+		<fieldset name="basic" addfieldpath="/administrator/components/com_content/models/fields">
+			<field
+				name="lang"
+				type="list"
+				default="0"
+				label="語系">
+				<option
+					value="ch">中文
+				</option>
+				<option
+					value="en">英文
+				</option>
+			</field>
+		</fieldset>
+	</fields>
+</metadata>
