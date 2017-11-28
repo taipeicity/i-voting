@@ -6,19 +6,17 @@
   
 2.開發環境
 2-1.部屬環境
-
-	|項目|版本|
-	|---|---|
-	|CentOS|7+|
-	|Apache|2.4+|
-	|Mariadb|5.5+|
-	|PHP|5.4+|
+|項目|版本|
+|---|---|
+|CentOS|7+|
+|Apache|2.4+|
+|Mariadb|5.5+|
+|PHP|5.4+|
 
 2-2.第三方函數庫
-
-	|項目|版本|
-	|---|---|
-	|securimage||
+|項目|版本|
+|---|---|
+|securimage||
 
 2-3. 其他說明
 php需安裝php-xml, php-pdo, php-mbstring
