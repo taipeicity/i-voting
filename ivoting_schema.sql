@@ -419,3 +419,17 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_sub_count` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票數統計-子選項' AUTO_INCREMENT=1169837 ;
 
 -- --------------------------------------------------------
+
+
+--
+-- 資料表格式： `efa_sitemap`
+--
+CREATE TABLE IF NOT EXISTS `efa_sitemap` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `catid` int(11) unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `exclude` varchar(255) NOT NULL,
+  `editor` text NOT NULL,
+  `menu` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
