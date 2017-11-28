@@ -6,7 +6,8 @@ Change Log
 - 新增return返回上一頁功能
 - 新增scroll捲軸回至頂功能
 - 新增sitemap網站地圖功能
-- 新增iptgooglesearch Google搜尋功能  
+- 新增iptgooglesearch Google搜尋功能
+- 修正ivoting_schema.sql檔案
 
 [v1.2] (2017-9-19)
 
