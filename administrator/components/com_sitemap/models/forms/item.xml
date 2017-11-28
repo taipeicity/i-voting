@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field id="sitemap_title" name="title" type="text" size="40" required="true" description="此欄位用來區分不同語系，可經由選單中管理介面選擇"/>
+		<field name="menu" label="選單"  type="menu" width="40"/>
+		<field name="exclude" type="text" size="40"/>
+		<field name="editor" type="editor" filter="safehtml"/>
+		<field name="id" type="hidden"/>
+		<field name="catid" type="hidden" />
+	</fieldset>
+</form>

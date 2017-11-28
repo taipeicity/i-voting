@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <fieldset name="global" label="COM_ITPGOOGLESEARCH_GLOBAL_TITLE" description="COM_ITPGOOGLESEARCH_GLOBAL_PARAMS">
+        <field name="search_engine_id" type="text" default="" class="span6" label="COM_ITPGOOGLESEARCH_ID" description="COM_ITPGOOGLESEARCH_ID_DESC" />
+        <field name="display_search_form" type="radio" default="1" label="COM_ITPGOOGLESEARCH_DISPLAY_SEARCH_FORM" description="COM_ITPGOOGLESEARCH_DISPLAY_SEARCH_FORM_DESC" class="btn-group">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field name="link_target" type="list" default="_blank" label="COM_ITPGOOGLESEARCH_LINK_TARGET" description="COM_ITPGOOGLESEARCH_LINK_TARGET_DESC">
+            <option value="_self">COM_ITPGOOGLESEARCH_CURRENT_TAB</option>
+            <option value="_blank">COM_ITPGOOGLESEARCH_NEW_TAB</option>
+        </field>
+    </fieldset>
+    <fieldset name="english" label="English" description="COM_ITPGOOGLESEARCH_GLOBAL_PARAMS">
+        <field name="en_search_engine_id" type="text" default="" class="span6" label="COM_ITPGOOGLESEARCH_ID" description="COM_ITPGOOGLESEARCH_ID_DESC" />
+        <field name="en_display_search_form" type="radio" default="1" label="COM_ITPGOOGLESEARCH_DISPLAY_SEARCH_FORM" description="COM_ITPGOOGLESEARCH_DISPLAY_SEARCH_FORM_DESC" class="btn-group">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field name="en_link_target" type="list" default="_blank" label="COM_ITPGOOGLESEARCH_LINK_TARGET" description="COM_ITPGOOGLESEARCH_LINK_TARGET_DESC">
+            <option value="_self">COM_ITPGOOGLESEARCH_CURRENT_TAB</option>
+            <option value="_blank">COM_ITPGOOGLESEARCH_NEW_TAB</option>
+        </field>
+    </fieldset>
+</config>

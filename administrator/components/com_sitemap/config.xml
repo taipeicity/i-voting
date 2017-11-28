@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="component"
+		label="COM_SITEMAP_LABEL_1"
+		description="COM_SITEMAP_DESC_1">
+		<field
+			id="list_test1"
+			name="test1"
+			type="list"
+			label="COM_SITEMAP_FIELD_TEST1_LABEL"
+			description="COM_SITEMAP_FIELD_TEST1_DESC"
+			default="0"
+			class="inputbox">
+			<option
+				value="1">COM_SITEMAP_FIELD_VALUE_1</option>
+			<option
+				value="2">COM_SITEMAP_FIELD_VALUE_2</option>
+		</field>
+
+		<field
+			name="input_test2"
+			type="text"
+			label="COM_SITEMAP_FIELD_TEST2_LABEL"
+			description="COM_SITEMAP_FIELD_TEST2_DESC" />
+
+	</fieldset>
+
+	<fieldset
+		name="permissions"
+		label="COM_SITEMAP_LABEL_2"
+		description="COM_SITEMAP_DESC_2"
+		>
+
+		<field
+			name="rules"
+			type="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			class="inputbox"
+			filter="rules"
+			validate="rules"
+			component="com_sitemap"
+			section="component" />
+	</fieldset>
+</config>

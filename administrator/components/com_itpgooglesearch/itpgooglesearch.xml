@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.2" method="upgrade">
+	<name>COM_ITPGOOGLESEARCH</name>
+	<author>Todor Iliev</author>
+	<authorEmail>todor@itprism.com</authorEmail>
+	<authorUrl>http://itprism.com</authorUrl>
+	<copyright>Copyright (C) 2014 Todor Iliev ( ITPrism.com )</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html</license>
+	<version>2.5</version>
+	<creationDate>11 April, 2014</creationDate>
+	<description><![CDATA[
+	<p><a href="http://itprism.com/free-joomla-extensions/google-search-component" target="_blank">ITPGoogleSearch</a> is a component that adds a search engine on your site. The search engine is powered by Google.</p>
+	<p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
+	<p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
+	<p>Please, <a href="http://extensions.joomla.org/extensions/search-a-indexing/web-search/12620" target="_blank">vote for the extension</a> on Joomla! extensions directory.</p>
+	]]></description>
+	
+	<media destination="com_itpgooglesearch" folder="media">
+		<filename>index.html</filename>
+		<folder>images</folder>
+	</media>
+	
+	<!-- Site Main File Copy Section -->
+	<files folder="site">
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
+		<filename>itpgooglesearch.php</filename>
+		<filename>router.php</filename>
+
+		<folder>views</folder>
+		<folder>models</folder>
+        <folder>language</folder>
+    </files>
+
+	<administration>
+		<menu link="option=com_itpgooglesearch">COM_ITPGOOGLESEARCH</menu>
+	
+		<files folder="admin">
+            <folder>helpers</folder>		    				
+            <folder>language</folder>
+			<folder>libraries</folder>
+			<folder>views</folder>		
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>config.xml</filename> 
+	        <filename>itpgooglesearch.php</filename>
+	    </files>
+		
+    </administration>
+</extension>
