@@ -1,4 +1,12 @@
 Change Log
+[v1.5] (2018-02-09)
+- DB Scheme新增unit(科室單位)資料表及users資料表新增欄位
+- 修改administrator/components/com_surveyforce/surveyforce.xml
+
+
+[v1.4] (2018-01-26)
+- 已完成投票增加搜尋及篩選功能
+- DB Schema新增投票人資料填寫驗證的資料表及資料
 
 [v1.3] (2017-11-28)
 
