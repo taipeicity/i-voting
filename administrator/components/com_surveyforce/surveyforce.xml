@@ -16,37 +16,9 @@
 	<authorUrl>www.joomplace.com</authorUrl>
 	<version>3.2.1.001</version>
 	<description>Survey Force Deluxe component.</description>
-        
-	<scriptfile>script.php</scriptfile>
-        	
-	<files folder="site">	
-		<filename>frontend.zip</filename>
-		<folder>plugins</folder>			
-	</files>
-	
+
 	<administration>
-		<menu img="components/com_surveyforce/assets/images/jp_menu_pic.gif">COM_SURVEYFORCE</menu>
-		<submenu>			
-			<menu link="option=com_surveyforce&amp;view=categories" img="class:content">COM_SURVEYFORCE_MENU_CATEGORIES</menu>
-			<menu link="option=com_surveyforce&amp;view=surveys" img="class:content">COM_SURVEYFORCE_MENU_SURVEYS</menu>
-			<menu link="option=com_surveyforce&amp;view=listusers" img="class:user">COM_SURVEYFORCE_MENU_MANAGE_USERS</menu>
-			<menu link="option=com_surveyforce&amp;view=authors" img="class:user">COM_SURVEYFORCE_MENU_MANAGE_AUTHORS</menu>
-			<menu link="option=com_surveyforce&amp;view=emails" img="class:messages">COM_SURVEYFORCE_MENU_MANAGE_EMAILS</menu>
-			<menu link="option=com_surveyforce&amp;view=reports" img="class:stats">COM_SURVEYFORCE_MENU_REPORTS</menu>
-		</submenu>
-        
-		<files folder="admin">
-			<filename>backend.zip</filename>
-		</files>
-		
+		<menu link="option=com_surveyforce">COM_SURVEYFORCE</menu>
 	</administration>
 
-	<media folder="media" destination="com_surveyforce">
-		<folder>gen_images</folder>
-		<filename>index.html</filename>
-	</media>
-        
-	<updateservers>
-		<server type="extension" priority="1" name="Survey Force Update Site">http://www.joomplace.com/updates/updates.xml</server>
-	</updateservers>
 </extension>

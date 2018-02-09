@@ -433,3 +433,33 @@ CREATE TABLE IF NOT EXISTS `efa_sitemap` (
   `menu` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+
+--
+-- 資料表格式： `efa_unit`
+--
+CREATE TABLE IF NOT EXISTS `efa_unit` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '編號',
+  `title` varchar(100) DEFAULT NULL COMMENT '科室名稱',
+  `parent_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `level` int(10) unsigned NOT NULL DEFAULT '0',
+  `state` tinyint(4) NOT NULL,
+  `ordering` int(10) unsigned NOT NULL,
+  `publish_up` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `publish_down` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='科室單位管理' AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+
+--
+-- 資料表補欄位： `efa_users`
+--
+ALTER TABLE  `efa_users` ADD  `unit_id` INT( 10 ) UNSIGNED NOT NULL AFTER  `requireReset`
