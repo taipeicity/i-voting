@@ -1492,3 +1492,29 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_fields` (
   `field_title` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分析資料選項';
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `efa_mail_record`
+--
+
+CREATE TABLE IF NOT EXISTS `efa_mail_record` (
+  `id` int(10) unsigned NOT NULL,
+  `from` varchar(100) NOT NULL,
+  `fromname` varchar(50) NOT NULL,
+  `recipient` text NOT NULL,
+  `subject` varchar(200) NOT NULL,
+  `body` text NOT NULL,
+  `mode` tinyint(4) NOT NULL,
+  `cc` text NOT NULL,
+  `bcc` text NOT NULL,
+  `attachment` varchar(200) NOT NULL,
+  `replyto` text NOT NULL,
+  `replytoname` varchar(50) NOT NULL,
+  `status` tinyint(4) NOT NULL,
+  `created` datetime NOT NULL,
+  `repeate_time` datetime NOT NULL,
+  `repeate_num` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
