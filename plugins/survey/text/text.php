@@ -1,4 +1,12 @@
 <?php
+
+/**
+ *   @package         Surveyforce
+ *   @version           1.1-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 /**
  * 文字式
  */
@@ -8,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 class plgSurveyText {
 
 	// 讀取選項清單
-	public function onGetAdminOptions($_question_id) {
+	public static function onGetAdminOptions($_question_id) {
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 
@@ -27,8 +35,9 @@ class plgSurveyText {
 		ob_clean();
 
 		return $options;
+
 	}
-	
+
 	// 儲存選項
 	public function onSaveQuestion($_question_id) {
 		$config = JFactory::getConfig();
@@ -53,13 +62,13 @@ class plgSurveyText {
 				$query = $db->getQuery(true);
 
 				if ($id) { // 修改
-					$fields = array(
+					$fields = array (
 						$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 						$db->quoteName('ftext') . ' = ' . $db->quote($option_ftext[$key]),
 						$db->quoteName('ordering') . ' = ' . $db->quote($option_order[$key])
 					);
 
-					$conditions = array(
+					$conditions = array (
 						$db->quoteName('id') . ' = ' . $db->quote($id)
 					);
 
@@ -69,15 +78,15 @@ class plgSurveyText {
 
 					$db->execute();
 				} else { // 新增
-					$columns = array('quest_id', 'ftext', 'ordering');
+					$columns = array ('quest_id', 'ftext', 'ordering');
 
-					$values = array(
+					$values = array (
 						$db->quote($_question_id),
 						$db->quote($option_ftext[$key]),
 						$db->quote($option_order[$key])
 					);
 
-					$query->insert($db->quoteName('#__survey_force_fields'))->columns( $db->quoteName($columns) )->values(implode(',', $values));
+					$query->insert($db->quoteName('#__survey_force_fields'))->columns($db->quoteName($columns))->values(implode(',', $values));
 
 					$db->setQuery($query);
 					$db->execute();
@@ -116,7 +125,7 @@ class plgSurveyText {
 
 				$query = $db->getQuery(true);
 				$query->update($db->quoteName('#__survey_force_fields'));
-				$query->set($db->quoteName('file1') . " = ". $db->quote($new_file));
+				$query->set($db->quoteName('file1') . " = " . $db->quote($new_file));
 				$query->where($db->quoteName('id') . " = '{$id}'");
 
 				$db->setQuery($query);
@@ -143,7 +152,7 @@ class plgSurveyText {
 			}
 
 			$query = $db->getQuery(true);
-			$conditions = array(
+			$conditions = array (
 				$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 				$db->quoteName('id') . ' IN (' . $del_option_ids . ')'
 			);
@@ -153,12 +162,11 @@ class plgSurveyText {
 			$db->setQuery($query);
 			$db->execute();
 		}
+
 	}
 
-
-
 	// 前台讀取選項表單與JS
-	public function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
+	public static function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
 
 		ob_start();
 		include_once(JPATH_SITE . "/plugins/survey/text/site/html.php");
@@ -167,11 +175,8 @@ class plgSurveyText {
 		ob_clean();
 
 		return $html;
+
 	}
-
-
-
-	
 
 	// 檢查欄位是否有填寫、格式是否正確、是否是題目其中之一
 	public function onCheckOptionField($_question, $_post) {
@@ -179,44 +184,40 @@ class plgSurveyText {
 		$query = $db->getQuery(true);
 
 		unset($result);
-		$result = array();
+		$result = array ();
 
 		unset($msges);
-		$msges = array();
+		$msges = array ();
 
 
 		unset($option_ids);
-		$option_ids = array();
-		if ($_question->is_multi) {		// 複選
+		$option_ids = array ();
+		if ($_question->is_multi) {  // 複選
 			$selected_option_count = count($_post["selected_option"]);
 
 			if ($_question->multi_limit > 0) { // 限定應投幾項
-				if ( $selected_option_count != $_question->multi_limit ) {
-					$msges[] = "限定應投". $_question->multi_limit. "項";
+				if ($selected_option_count != $_question->multi_limit) {
+					$msges[] = "限定應投" . $_question->multi_limit . "項";
 				} else {
-					foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+					foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 						$option_ids[] = $option_id;
 					}
 				}
-
-			} else {	// 可投幾項
-				if ($selected_option_count < $_question->multi_min ||  $selected_option_count > $_question->multi_max ) {
-					$msges[] = "可投". $_question->multi_min. "至". $_question->multi_max. "項。";
+			} else { // 可投幾項
+				if ($selected_option_count < $_question->multi_min || $selected_option_count > $_question->multi_max) {
+					$msges[] = "可投" . $_question->multi_min . "至" . $_question->multi_max . "項。";
 				} else {
-					foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+					foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 						$option_ids[] = $option_id;
 					}
 				}
-
 			}
-
-		} else {		// 單選
-			if ( $_post["selected_option"] == "" ) {
+		} else {  // 單選
+			if ($_post["selected_option"] == "") {
 				$msges[] = "請選擇其中一項。";
-			} else {	// 記錄選項ID
+			} else { // 記錄選項ID
 				$option_ids[] = $_post["selected_option"];
 			}
-
 		}
 
 		// 是否是題目其中之一
@@ -230,8 +231,8 @@ class plgSurveyText {
 			$db->setQuery($query);
 			$question_options = $db->loadColumn();
 
-			foreach ($option_ids as $option_id) {		// 是否有在陣列中
-				if ( !in_array($option_id, $question_options) ) {
+			foreach ($option_ids as $option_id) {  // 是否有在陣列中
+				if (!in_array($option_id, $question_options)) {
 					$msges[] = "所選擇的選項不屬於該題目之一。";
 					break;
 				}
@@ -253,7 +254,6 @@ class plgSurveyText {
 
 	}
 
-
 	// 儲存使用者的答案 (依efa_survey_force_vote_detail欄位做回傳)
 	public function onSaveUserOption($_question, $_post) {
 		$db = JFactory::getDBO();
@@ -270,21 +270,18 @@ class plgSurveyText {
 		$question_options = $db->loadAssocList('id');
 
 		unset($answers);
-		$answers = array();
-		if ($_question->is_multi) {		// 複選
+		$answers = array ();
+		if ($_question->is_multi) {  // 複選
 			$selected_option_count = count($_post["selected_option"]);
 
-			foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+			foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 				$option_ids[] = $option_id;
-				array_push( $answers, array("field_id" => $option_id, "other" =>  JFilterOutput::cleanText( $_post["other_field_". $option_id]), "logstr" => $question_options[$option_id]["ftext"] ) );
+				array_push($answers, array ("field_id" => $option_id, "other" => JFilterOutput::cleanText($_post["other_field_" . $option_id]), "logstr" => $question_options[$option_id]["ftext"]));
 			}
-
-
-		} else {		// 單選
+		} else {  // 單選
 			$option_id = $_post["selected_option"];
 
-			array_push( $answers, array("field_id" => $option_id, "other" =>  JFilterOutput::cleanText( $_post["other_field_". $option_id]), "logstr" => $question_options[$_post["selected_option"]]["ftext"] ) );
-
+			array_push($answers, array ("field_id" => $option_id, "other" => JFilterOutput::cleanText($_post["other_field_" . $option_id]), "logstr" => $question_options[$_post["selected_option"]]["ftext"]));
 		}
 
 
@@ -292,8 +289,6 @@ class plgSurveyText {
 
 	}
 
-
-	
 	// 後台列印選項
 	public function onGetAdminPrintOptions($_question_id) {
 		$db = JFactory::getDBO();
@@ -316,8 +311,8 @@ class plgSurveyText {
 			echo '</tr>';
 			foreach ($options as $key => $option) {
 				echo '<tr>';
-				echo '<td>'. ($key+1). '</td>';
-				echo '<td>'. $option->ftext. '</td>';
+				echo '<td>' . ($key + 1) . '</td>';
+				echo '<td>' . $option->ftext . '</td>';
 				echo '</tr>';
 			}
 			echo '</table>';
@@ -328,7 +323,7 @@ class plgSurveyText {
 		}
 
 		return $content;
-	}
 
+	}
 
 }

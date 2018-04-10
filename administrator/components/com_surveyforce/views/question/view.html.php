@@ -88,7 +88,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 
 	}
 
-	protected function addToolbar() {
+    protected function addToolbar() {
 		$canDo = JHelperContent::getActions('com_surveyforce');
 
 		JFactory::getApplication()->input->set('hidemainmenu', true);
@@ -100,7 +100,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 		$created_user = JFactory::getUser($this->survey_item->created_by);
 		$created_unit_id = $created_user->get('unit_id');
 
-		// rene 審核設定取得
+		// 審核設定取得
 		$self_gps = JUserHelper::getUserGroups($user->get('id'));
 		$core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review');
 
@@ -114,16 +114,11 @@ class SurveyforceViewQuestion extends JViewLegacy {
 
 				// 未送審前 才可儲存
 				if ($this->survey_item->is_complete == 0 && $this->survey_item->is_checked == 0) {
-
 					JToolBarHelper::apply('question.apply', 'JTOOLBAR_APPLY');
 					JToolBarHelper::save('question.save', 'JTOOLBAR_SAVE');
 					JToolBarHelper::cancel('question.cancel', 'JTOOLBAR_CANCEL');
-				}
-
-
-				// 送審後 只有 同單位審核者 或 最高權限 才可新增和刪除
-				if (( ($this->survey_item->checked_by == $user_id && in_array($core_review, $self_gps)) || $canDo->get('core.own')) && $this->survey_item->is_complete == 1 && $this->survey_item->is_checked == 0) {
-
+				}else if (( ($this->survey_item->checked_by == $user_id && in_array($core_review, $self_gps)) || $canDo->get('core.own')) && $this->survey_item->is_complete == 1 && $this->survey_item->is_checked == 0) {
+                    // 送審後 只有 同單位審核者 或 最高權限 才可新增和刪除
 					JToolBarHelper::apply('question.apply', 'JTOOLBAR_APPLY');
 					JToolBarHelper::save('question.save', 'JTOOLBAR_SAVE');
 					JToolBarHelper::cancel('question.cancel', 'JTOOLBAR_CANCEL');

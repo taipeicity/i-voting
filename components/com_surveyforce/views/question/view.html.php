@@ -1,11 +1,11 @@
 <?php
 
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package            Surveyforce
+ * @version            1.3-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 defined('_JEXEC') or die('Restricted access');
 
@@ -22,33 +22,32 @@ class SurveyforceViewQuestion extends JViewLegacy {
 	}
 
 	public function display($tpl = null) {
-		$model = $this->getModel();
+		$model   = $this->getModel();
 		$session = &JFactory::getSession();
 
-		$config = JFactory::getConfig();
-		$app = JFactory::getApplication();
-		$this->itemid = $app->input->getInt('Itemid');
-		$this->survey_id = $app->input->getInt('sid');
+		$config            = JFactory::getConfig();
+		$app               = JFactory::getApplication();
+		$this->itemid      = $app->input->getInt('Itemid');
+		$this->survey_id   = $app->input->getInt('sid');
 		$this->question_id = $app->input->getInt('qid', 0);
 
 
-
-		$this->state = $this->get('state');
+		$this->state  = $this->get('state');
 		$this->params = $this->state->get('params');
 
 		$this->survey = $this->get('Survey');
 
 
-
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
 			JError::raiseError(500, implode('<br />', $errors));
+
 			return false;
 		}
 
 		// 檢查
 		$category_link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$this->itemid}", false);
-		$intro_link = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$this->survey_id}&Itemid={$this->itemid}", false);
+		$intro_link    = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$this->survey_id}&Itemid={$this->itemid}", false);
 
 		// 檢查是否閒置過久
 		if (SurveyforceVote::isSurveyExpired($this->survey_id) == false) {
@@ -62,6 +61,19 @@ class SurveyforceViewQuestion extends JViewLegacy {
 			$app->redirect($category_link, $msg);
 		}
 
+		// 檢查投票模式是否正確
+		$result = json_decode(SurveyforceVote::checkVotePattern($this->survey_id), true);
+		if ($result['status']) {
+			$app->redirect($category_link, $result['msg']);
+		}
+
+		// 檢查未公開議題是否有token碼
+		if (SurveyforceVote::getSurveyItem($this->survey_id)->is_public == 0) {
+			if (SurveyforceVote::checkSurveyStep($this->survey_id, "token") == false) {
+				$msg = "該議題不存在，請重新選擇正確的議題。";
+				$app->redirect($category_link, $msg);
+			}
+		}
 
 		// 檢查是否有依序執行步驟
 		if (SurveyforceVote::checkSurveyStep($this->survey_id, "question") == false) {
@@ -70,9 +82,8 @@ class SurveyforceViewQuestion extends JViewLegacy {
 		}
 
 
-
 		// 取得所有題目
-		$this->questions = $model->getQuestions($this->survey_id);
+		$this->questions     = $model->getQuestions($this->survey_id);
 		$this->questions_num = count($this->questions);
 		if ($this->questions_num == 0) {
 			$msg = "該議題並無任何題目，請重新選擇其他議題進行投票。";
@@ -120,7 +131,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 		// 取得子選項
 		$this->sub_options = $model->getSubOptions($this->question_id);
 
-		$this->intro_link = $intro_link;
+		$this->intro_link    = $intro_link;
 		$this->category_link = $category_link;
 
 		$document = JFactory::getDocument();
@@ -140,6 +151,19 @@ class SurveyforceViewQuestion extends JViewLegacy {
 		if ($this->question->question_type == "imgcat") {
 			$this->cats = $model->getQuestionCats($this->question_id);
 			$this->setLayout("imgcat");
+		}
+
+		// 取得分析題目的下拉選單
+		if (SurveyforceVote::getSurveyData($this->survey_id, "is_analyze") == 1) {
+			$this->analyze_params = json_decode(SurveyforceVote::getSurveyData($this->survey_id, "analyze_column"), true);
+
+			// 確認是否填過分析欄位
+			$analyze_answers = SurveyforceVote::getSurveyData($this->survey_id, "analyze_answers");
+			if (empty($analyze_answers)) {
+				$this->analyze_check = true;
+			} else {
+				$this->analyze_check = false;
+			}
 		}
 
 

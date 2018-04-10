@@ -1,11 +1,11 @@
 <?php
 
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package            Surveyforce
+ * @version            1.2-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 // No direct access.
 defined('_JEXEC') or die;
@@ -19,20 +19,24 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 	/**
 	 * Proxy for getModel.
-	 * @since	1.6
+	 *
+	 * @since    1.6
 	 */
 	public function getModel($name = 'intro', $prefix = '', $config = array ('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
+
 		return $model;
 
 	}
 
 	public function start_vote() {
-		$config = JFactory::getConfig();
-		$app = JFactory::getApplication();
+		$config  = JFactory::getConfig();
+		$app     = JFactory::getApplication();
+		$session = &JFactory::getSession();
 
 		$survey_id = $app->input->getInt('sid', 0);
-		$itemid = $app->input->getInt('Itemid', 0);
+		$itemid    = $app->input->getInt('Itemid', 0);
+
 
 		$expire_minute = $config->get('expire_minute', 30);
 
@@ -45,14 +49,16 @@ class SurveyforceControllerIntro extends JControllerForm {
 			$msg = "該議題目前未在可投票時間內，請重新選擇。";
 
 			$this->setRedirect($return_link, $msg);
+
 			return;
 		}
 
 
-
-
 		// 設定已通過verify步驟
 		SurveyforceVote::setSurveyStep($survey_id, "intro", true);
+		if (SurveyforceVote::getSurveyItem($survey_id)->is_public == 0) {
+			SurveyforceVote::setSurveyStep($survey_id, "token");
+		}
 
 		// 寫入議題資料-標題、驗證方式
 		$survey_item = SurveyforceVote::getSurveyItem($survey_id);
@@ -67,6 +73,12 @@ class SurveyforceControllerIntro extends JControllerForm {
 		SurveyforceVote::setSurveyData($survey_id, "is_lottery", $survey_item->is_lottery);
 		SurveyforceVote::setSurveyData($survey_id, "vote_num_params", $survey_item->vote_num_params);
 		SurveyforceVote::setSurveyData($survey_id, "expire_time", time() + ($expire_minute * 60));
+		SurveyforceVote::setSurveyData($survey_id, "vote_pattern", $survey_item->vote_pattern);
+		SurveyforceVote::setSurveyData($survey_id, "is_analyze", $survey_item->is_analyze);
+
+		if ($survey_item->is_analyze == 1) {
+			SurveyforceVote::setSurveyData($survey_id, "analyze_column", json_encode(SurveyforceVote::getAnalyzeColumn($survey_id)));
+		}
 
 		// 若為不驗證(圖形驗證)，且沒有提供抽獎，則略過個資頁
 		if ($survey_item->verify_type == '["none"]' && $survey_item->is_lottery == 0) {
@@ -83,8 +95,6 @@ class SurveyforceControllerIntro extends JControllerForm {
 		}
 
 
-
-
 		// 清空所有驗證的保留欄位資料
 		$session->clear('verify_reserve_' . $survey_id);
 		$session->clear('verify_google_' . $survey_id);
@@ -95,16 +105,14 @@ class SurveyforceControllerIntro extends JControllerForm {
 	}
 
 	public function check_intro_form() {
-		$model = $this->getModel();
+		$model   = $this->getModel();
 		$session = &JFactory::getSession();
-		$config = JFactory::getConfig();
-		$app = JFactory::getApplication();
+		$config  = JFactory::getConfig();
+		$app     = JFactory::getApplication();
 
 
 		$survey_id = $app->input->getInt('sid', 0);
-		$itemid = $app->input->getInt('Itemid', 0);
-
-
+		$itemid    = $app->input->getInt('Itemid', 0);
 
 
 		$return_link = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$survey_id}&Itemid={$itemid}", false);
@@ -114,6 +122,7 @@ class SurveyforceControllerIntro extends JControllerForm {
 			$msg = "該議題已開始進行投票，請直接進行投票。";
 
 			$this->setRedirect($return_link, $msg);
+
 			return;
 		}
 
@@ -155,6 +164,7 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 		if (count($msges) > 0) {
 			$this->setRedirect($return_link, implode("<br>", $msges));
+
 			return;
 		}
 
@@ -181,10 +191,31 @@ class SurveyforceControllerIntro extends JControllerForm {
 		}
 
 
-
 		$this->setRedirect($return_link, implode("<br>", $msges));
+
 		return;
 
+	}
+
+	public function other_data() {
+
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+		$app      = JFactory::getApplication();
+		$config   = JFactory::getConfig();
+
+		$original_name = $app->input->getString('original_name');
+		$survey_id = $app->input->getInt('survey_id');
+		$file_name = $app->input->getString('file_name');
+		$path     = $config->get('ivoting_path') . '/survey/pdf/' . $survey_id . '/' . $file_name . '.pdf';
+
+		header('Cache-Control: public, must-revalidate');
+		header('Content-Type: application/octet-stream');
+		header('Content-Length: ' . (string) (filesize($path)));
+		header('Content-Disposition: attachment; filename="' . $original_name . '"');
+		readfile($path);
+
+		exit;
 	}
 
 }

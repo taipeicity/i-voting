@@ -1,11 +1,11 @@
 <?php
 
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package            Surveyforce
+ * @version            1.2-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 // No direct access.
 defined('_JEXEC') or die;
@@ -20,35 +20,37 @@ class SurveyforceControllerQuestion extends JControllerForm {
 
 	/**
 	 * Proxy for getModel.
-	 * @since	1.6
+	 *
+	 * @since    1.6
 	 */
 	public function getModel($name = 'question', $prefix = '', $config = array ('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
+
 		return $model;
 
 	}
 
 	public function check_question_form() {
-		$model = $this->getModel();
-		$config = JFactory::getConfig();
+		$model   = $this->getModel();
+		$config  = JFactory::getConfig();
 		$session = &JFactory::getSession();
-		$app = JFactory::getApplication();
-		$params = $app->getParams();
+		$app     = JFactory::getApplication();
+		$params  = $app->getParams();
 
 		$survey_id = $app->input->getInt('sid', 0);
-		$itemid = $app->input->getInt('Itemid', 0);
+		$itemid    = $app->input->getInt('Itemid', 0);
 		$client_ip = JHtml::_('utility.getUserIP');
 
 
-
 		$category_link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$itemid}", false);
-		$intro_link = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$survey_id}&Itemid={$itemid}", false);
+		$intro_link    = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$survey_id}&Itemid={$itemid}", false);
 
 
 		// 檢查是否閒置過久
 		if (SurveyforceVote::isSurveyExpired($survey_id) == false) {
 			$msg = "網頁已閒置過久，請重新點選議題進行投票。";
 			$this->setRedirect($category_link, $msg);
+
 			return;
 		}
 
@@ -57,6 +59,7 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		if (SurveyforceVote::isSurveyValid($survey_id) == false) {
 			$msg = "該議題目前未在可投票時間內，請重新選擇。";
 			$this->setRedirect($category_link, $msg);
+
 			return;
 		}
 
@@ -64,17 +67,28 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		if (SurveyforceVote::checkSurveyStep($survey_id, "statement") == false) {
 			$msg = "該議題未從投票啟始頁進入，請重新執行。";
 			$this->setRedirect($intro_link, $msg);
+
 			return;
 		}
 
+		// 檢查未公開議題是否有依序執行步驟
+		if (SurveyforceVote::getSurveyItem($survey_id)->is_public == 0) {
+			if (SurveyforceVote::checkSurveyStep($survey_id, "token") == false) {
+				$msg = "該議題為未公開投票，請重新點選議題進行投票。";
+				$app->redirect($category_link, $msg);
+
+				return;
+			}
+		}
 
 
 		// 檢查題目是否是議題其中之一
 		$question_id = $app->input->getInt('qid', 0);
-		$result = json_decode($this->checkQuestionInSurvey($survey_id, $question_id));
+		$result      = json_decode($this->checkQuestionInSurvey($survey_id, $question_id));
 		if ($result->status == 0) {
 
 			$this->setRedirect($category_link, $result->msg);
+
 			return;
 		} else {
 			$question_item = $result->question_item;  // 回傳題目內容
@@ -86,9 +100,8 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		$className = 'plgSurvey' . ucfirst($question_item->question_type);
 
 
-
 		// 檢查選項是否有填寫及是否是題目其中之一
-		$post = $app->input->getArray($_POST);
+		$post        = $app->input->getArray($_POST);
 		$return_link = JRoute::_("index.php?option=com_surveyforce&view=question&sid={$survey_id}&qid={$question_id}&Itemid={$itemid}", false);
 		unset($msges);
 		$msges = array ();
@@ -104,9 +117,35 @@ class SurveyforceControllerQuestion extends JControllerForm {
 
 		if (count($msges) > 0) {
 			$this->setRedirect($return_link, implode("<br>", $msges));
+
 			return;
 		}
 
+
+		// 記錄分析欄位
+		unset($analyze_answers);
+		$analyze_answers = SurveyforceVote::getSurveyData($survey_id, "analyze_answers");
+		if (empty($analyze_answers)) { // 無資料再記錄
+			foreach ($post as $column => $item) {
+				if (preg_match("/analyze\_/", $column)) {
+					if (!empty($item)) {
+						$analyze_answers[$column] = $item;
+					} else {
+						$analyze_columns = json_decode(SurveyforceVote::getSurveyData($survey_id, "analyze_column"));
+						foreach ($analyze_columns as $analyze_column) {
+							if ($analyze_column->qid == $column && $analyze_column->required == 1) {
+								$previous_question_link = JRoute::_("index.php?option=com_surveyforce&view=question&sid={$survey_id}&qid={$question_id}&Itemid={$itemid}", false);
+								$this->setRedirect($previous_question_link, "請填寫必填選項");
+
+								return;
+
+							}
+						}
+					}
+				}
+			}
+			SurveyforceVote::setSurveyData($survey_id, "analyze_answers", $analyze_answers);
+		}
 
 		// 記錄答案 (一樣依題目ID做記錄)
 		unset($option_answers);
@@ -118,17 +157,16 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		SurveyforceVote::setSurveyData($survey_id, "option_answers", $option_answers);
 
 
-
 		// 檢查所有題目是否都已做過，若尚未，則轉入該題目。
 		$questions = $model->getQuestions($survey_id);
 		foreach ($questions as $question) {
 			if (!array_key_exists($question->id, $option_answers)) {
 				$next_question_link = JRoute::_("index.php?option=com_surveyforce&view=question&sid={$survey_id}&qid={$question->id}&Itemid={$itemid}", false);
 				$this->setRedirect($next_question_link);
+
 				return;
 			}
 		}
-
 
 
 		// 代表題目都已完成，進行送入票箱的檢查
@@ -142,14 +180,15 @@ class SurveyforceControllerQuestion extends JControllerForm {
 				$link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$itemid}", false);
 
 				$this->setRedirect($link, $result->msg);
+
 				return;
 			}
 
 
 			// 先鎖住程式執行
 			$ivoting_save_path = $config->get('ivoting_save_path');
-			$agent_path = $config->get('agent_path');
-			$ivoting_path = $config->get('ivoting_path');
+			$agent_path        = $config->get('agent_path');
+			$ivoting_path      = $config->get('ivoting_path');
 
 			$verify_identify = SurveyforceVote::getSurveyData($survey_id, "verify_identify");  // 取出驗證方式的識別碼
 			$vote_num_params = SurveyforceVote::getSurveyData($survey_id, "vote_num_params");
@@ -158,6 +197,7 @@ class SurveyforceControllerQuestion extends JControllerForm {
 					if (!$model->insertVoteLock($survey_id, $identify, $type)) {
 						$msg = "相同驗證資料投票中，請稍後重試。";
 						$this->setRedirect($return_link, $msg);
+
 						return;
 					}
 				}
@@ -172,14 +212,15 @@ class SurveyforceControllerQuestion extends JControllerForm {
 					$result = json_decode($this->checkIsVote($agent_path, $survey_id, $identify, $type, $vote_num_params, $client_ip));
 					if ($result->status == 0) {  // 已投過票
 						$this->setRedirect($category_link, $result->msg);
+
 						return;
 					}
 				}
 			} else {
 				$this->setRedirect($intro_link, "請確認已通過議題驗證。");
+
 				return;
 			}
-
 
 
 			// 送進票箱
@@ -187,16 +228,17 @@ class SurveyforceControllerQuestion extends JControllerForm {
 				$result = json_decode($this->markVote($agent_path, $survey_id, $identify, $type, $client_ip));
 				if ($result->status == 0) {
 					$this->setRedirect($return_link, $result->msg);
+
 					return;
 				}
 			}
-
 
 
 			// 取票號
 			$result = json_decode($this->getTicket($agent_path, $survey_id));
 			if ($result->status == 0) {
 				$this->setRedirect($return_link, $result->msg);
+
 				return;
 			} else {
 				$ticket_num = $result->ticket_num;
@@ -205,9 +247,18 @@ class SurveyforceControllerQuestion extends JControllerForm {
 
 			// 將選票的內容寫入DB
 			$created = JFactory::getDate()->toSql();
-			$result = json_decode($this->insertVoteToDB($survey_id, $ticket_num, $option_answers, $created));
+			$result  = json_decode($this->insertVoteToDB($survey_id, $ticket_num, $option_answers, $created));
 			if ($result->status == 0) {
 				$this->setRedirect($return_link, $result->msg);
+
+				return;
+			}
+
+			// 分析欄位內容寫入DB
+			$result = json_decode($this->insertAnalyzeToDB($survey_id, $analyze_answers, $created));
+			if ($result->status == 0) {
+				$this->setRedirect($return_link, $result->msg);
+
 				return;
 			}
 
@@ -216,12 +267,16 @@ class SurveyforceControllerQuestion extends JControllerForm {
 			$result = json_decode($this->insertVoteToLog($survey_id, $ticket_num, $option_answers, $created, $client_ip, $ivoting_save_path, SurveyforceVote::getSurveyData($survey_id, "is_public")));
 			if ($result->status == 0) {
 				$this->setRedirect($intro_link, $result->msg);
+
 				return;
 			}
 		}
 
 		// 設定已通過question步驟
 		SurveyforceVote::setSurveyStep($survey_id, "question", true);
+		if (SurveyforceVote::getSurveyItem($survey_id)->is_public == 0) {
+			SurveyforceVote::setSurveyStep($survey_id, "token");
+		}
 
 		if (!$prac) {
 			// 寫入票號至Session
@@ -250,8 +305,6 @@ class SurveyforceControllerQuestion extends JControllerForm {
 			// 刪除驗證方式 (避免按上一頁返回)
 			SurveyforceVote::setSurveyData($survey_id, "verify_identify", null);
 		}
-
-
 
 
 		$link = JRoute::_("index.php?option=com_surveyforce&view=finish&sid={$survey_id}&Itemid={$itemid}", false);
@@ -296,13 +349,9 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		unset($result);
 
 		// Agent API - 檢查是否已投票
-		$api_request_url = $_agent_path . "/server_poll.php";
+		$api_request_url        = $_agent_path . "/server_poll.php";
 		$api_request_parameters = array (
-			'survey_id' => $_survey_id,
-			'identify' => $_identify,
-			'verify_type' => $_verify_type,
-			'vote_num_params' => $_vote_num_params,
-			'client_ip' => $_client_ip
+			'survey_id' => $_survey_id, 'identify' => $_identify, 'verify_type' => $_verify_type, 'vote_num_params' => $_vote_num_params, 'client_ip' => $_client_ip
 		);
 
 		$api_result = SurveyforceVote::curlAPI($api_request_url, "GET", $api_request_parameters);
@@ -328,12 +377,9 @@ class SurveyforceControllerQuestion extends JControllerForm {
 	public function markVote($_agent_path, $_survey_id, $_identify, $_verify_type, $_client_ip) {
 		unset($result);
 
-		$api_request_url = $_agent_path . "/server_poll.php";
+		$api_request_url        = $_agent_path . "/server_poll.php";
 		$api_request_parameters = array (
-			'survey_id' => $_survey_id,
-			'identify' => $_identify,
-			'verify_type' => $_verify_type,
-			'client_ip' => $_client_ip
+			'survey_id' => $_survey_id, 'identify' => $_identify, 'verify_type' => $_verify_type, 'client_ip' => $_client_ip
 		);
 
 		$api_result = SurveyforceVote::curlAPI($api_request_url, "PUT", $api_request_parameters);
@@ -357,7 +403,7 @@ class SurveyforceControllerQuestion extends JControllerForm {
 
 	// Agent API - 取票號
 	public function getTicket($_agent_path, $_survey_id) {
-		$api_request_url = $_agent_path . "/server_ticket.php";
+		$api_request_url        = $_agent_path . "/server_ticket.php";
 		$api_request_parameters = array (
 			'survey_id' => $_survey_id
 		);
@@ -411,6 +457,7 @@ class SurveyforceControllerQuestion extends JControllerForm {
 
 
 		$result = array ("status" => 1, "msg" => "");
+
 		return json_encode($result);
 
 	}
@@ -422,9 +469,9 @@ class SurveyforceControllerQuestion extends JControllerForm {
 		$result = array ("status" => 1, "msg" => "");
 
 		// log分日期存放
-		$today = JHtml::_('date', $_created, "Ymd");
+		$today       = JHtml::_('date', $_created, "Ymd");
 		$withIP_file = $_ivoting_save_path . "/log/withIP/" . $_survey_id . "_" . $today . ".log";
-		$noIP_file = $_ivoting_save_path . "/log/noIP/" . $_survey_id . "_" . $today . ".log";
+		$noIP_file   = $_ivoting_save_path . "/log/noIP/" . $_survey_id . "_" . $today . ".log";
 
 
 		// 寫入選項名稱 ( 不寫開放式欄位 )
@@ -441,31 +488,51 @@ class SurveyforceControllerQuestion extends JControllerForm {
 			}
 		}
 
-
 		// 寫入含IP log
-		$fp = fopen($withIP_file, "a+");
-		if ($fp) {
-			flock($fp, LOCK_EX);
-			$log_str = sprintf("%s\t%s\t%s\t%s\r\n", JHtml::_('date', $_created, "Y-m-d H:i:s"), $_ticket_num, $question_str, $_client_ip);
-			fputs($fp, $log_str);
-			flock($fp, LOCK_UN);
-			fclose($fp);
-		} else {
-			$result = array ("status" => 0, "msg" => "無法新增記錄檔。");
-			JHtml::_('utility.recordLog', "vote_log.php", "Can not open file:" . $withIP_file, JLog::ERROR);
+		try {
+			$fp = fopen($withIP_file, "a+");
+			if ($fp) {
+				flock($fp, LOCK_EX);
+				$log_str = sprintf("%s\t%s\t%s\t%s\r\n", JHtml::_('date', $_created, "Y-m-d H:i:s"), $_ticket_num, $question_str, $_client_ip);
+				fputs($fp, $log_str);
+				flock($fp, LOCK_UN);
+				fclose($fp);
+			} else {
+				$result = array ("status" => 0, "msg" => "無法新增記錄檔。");
+				JHtml::_('utility.recordLog', "vote_log.php", "Can not open file:" . $withIP_file, JLog::ERROR);
+			}
+		} catch (Exception $e) {
+			JHtml::_('utility.recordLog', "vote_log.php", sprintf("無法新增記錄檔：%s", $e), JLog::ERROR);
 		}
 
 		// 寫入不含IP log
-		$str = sprintf("%s\t%s\t%s\r\n", JHtml::_('date', $_created, "Y-m-d H:i:s"), $_ticket_num, $question_str);
-		$fp = fopen($noIP_file, "a+");
-		if ($fp) {
-			flock($fp, LOCK_EX);
-			fputs($fp, $str);
-			flock($fp, LOCK_UN);
-			fclose($fp);
+		try {
+			$str = sprintf("%s\t%s\t%s\r\n", JHtml::_('date', $_created, "Y-m-d H:i:s"), $_ticket_num, $question_str);
+			$fp  = fopen($noIP_file, "a+");
+			if ($fp) {
+				flock($fp, LOCK_EX);
+				fputs($fp, $str);
+				flock($fp, LOCK_UN);
+				fclose($fp);
+			} else {
+				$result = array ("status" => 0, "msg" => "無法新增記錄檔。");
+				JHtml::_('utility.recordLog', "vote_log.php", "Can not open file:" . $noIP_file, JLog::ERROR);
+			}
+		} catch (Exception $e) {
+			JHtml::_('utility.recordLog', "vote_log.php", sprintf("無法新增記錄檔：%s", $e), JLog::ERROR);
+		}
+
+		return json_encode($result);
+
+	}
+
+	public function insertAnalyzeToDB($survey_id, $analyze_answers, $created) {
+		$model = $this->getModel();
+
+		if (!$model->insertAnalyzeData($survey_id, $analyze_answers, $created)) {
+			$result = array ("status" => 0, "msg" => "無法新增資料，請稍後再試。");
 		} else {
-			$result = array ("status" => 0, "msg" => "無法新增記錄檔。");
-			JHtml::_('utility.recordLog', "vote_log.php", "Can not open file:" . $noIP_file, JLog::ERROR);
+			$result = array ("status" => 1, "msg" => "");
 		}
 
 		return json_encode($result);

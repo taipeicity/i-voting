@@ -1,4 +1,12 @@
 <?php
+
+/**
+ *   @package         Surveyforce
+ *   @version           1.1-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 define('_JEXEC', 1);
 
 define('JPATH_BASE', '../../../../');
@@ -20,7 +28,6 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 // HTTP/1.0
 header("Pragma: no-cache");
 
-//JDEBUG ? $_PROFILER->mark( 'afterLoad' ) : null;
 $mainframe = & JFactory::getApplication('site');
 $mainframe->initialise();
 
@@ -28,14 +35,14 @@ jimport('joomla.factory');
 jimport('joomla.filesystem.file');
 
 unset($result);
-$result = array("status" => 0, "msg" => "");
+$result = array ("status" => 0, "msg" => "");
 
 $app = JFactory::getApplication();
 
 $upload_file = $app->input->files->get('text_upload_file');
 
-if ( is_array($upload_file)  && $upload_file["name"] ) {
-	if ($upload_file["error"] != 0 ) {
+if (is_array($upload_file) && $upload_file["name"]) {
+	if ($upload_file["error"] != 0) {
 		$result["msg"] = "上傳檔案失敗。";
 	}
 
@@ -45,26 +52,25 @@ if ( is_array($upload_file)  && $upload_file["name"] ) {
 	}
 
 	// 檢查副檔名
-	$allow_files = array("video/mp4");
-	if ( !in_array($upload_file["type"], $allow_files) ) {
+	$allow_files = array ("video/mp4");
+	if (!in_array($upload_file["type"], $allow_files)) {
 		$result["msg"] = "只允許上傳的影片類型為：mp4";
 	}
-	
-	
+
+
 	// 上傳
 	if ($result["msg"] == "") {
-		$file_ext = strtolower(substr($upload_file['name'], strrpos( $upload_file['name'] , '.') + 1));
-		$filepath =  "/tmp/". time(). ".". $file_ext;
-		$tmp_dest = JPATH_SITE. $filepath;
+		$file_ext = strtolower(substr($upload_file['name'], strrpos($upload_file['name'], '.') + 1));
+		$filepath = "/tmp/" . time() . "." . $file_ext;
+		$tmp_dest = JPATH_SITE . $filepath;
 
-		if (JFile::upload( $upload_file['tmp_name'], $tmp_dest )) {
+		if (JFile::upload($upload_file['tmp_name'], $tmp_dest)) {
 			$result["filepath"] = $filepath;
 			$result["status"] = 1;
 		} else {
 			$result["msg"] = "移動檔案失敗。";
 		}
 	}
-
 } else {
 	$result["msg"] = "上傳檔案失敗。";
 }

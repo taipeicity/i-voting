@@ -1,7 +1,7 @@
 <?php
 /**
 *   @package         Surveyforce
-*   @version           1.2-modified
+*   @version           1.3-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -30,7 +30,7 @@ class SurveyforceViewPlace_category extends JViewLegacy {
 
 
 		// 返回連結
-		$login_link = JRoute::_("index.php?option=com_surveyforce&view=place&Itemid={$this->itemid}", false);
+		$login_link = JRoute::_("index.php?option=com_surveyforce&view=place_login&Itemid={$this->itemid}", false);
 
 		// 檢查是否有登入
 		if (!$session->get('place_username')) {
@@ -62,3 +62,4 @@ class SurveyforceViewPlace_category extends JViewLegacy {
     }
 
 }
+

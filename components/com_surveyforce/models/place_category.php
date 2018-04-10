@@ -44,6 +44,7 @@ class SurveyforceModelPlace_category extends JModelItem {
 		$query->where('a.is_complete = 1');
 		$query->where('a.is_checked = 1');
 		$query->where('a.is_place = 1');
+		$query->where('a.vote_pattern != 2');
 		
 		// Join Unit
 		$query->select('ut.title as unit_title');

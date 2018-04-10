@@ -1,4 +1,12 @@
 <?php
+
+/**
+ *   @package         Surveyforce
+ *   @version           1.1-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 /**
  * 影音式
  */
@@ -9,11 +17,11 @@ class plgSurveyVideo {
 
 	public function plgSurveyVideo() {
 		return true;
+
 	}
 
-
 	// 讀取選項清單
-	public function onGetAdminOptions($_question_id) {
+	public static function onGetAdminOptions($_question_id) {
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 
@@ -32,8 +40,8 @@ class plgSurveyVideo {
 		ob_clean();
 
 		return $options;
-	}
 
+	}
 
 	// 儲存選項
 	public function onSaveQuestion($_question_id) {
@@ -61,17 +69,17 @@ class plgSurveyVideo {
 				unset($matches);
 				preg_match("/^(?:http(?:s)?:\/\/)+(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $option_file1[$key], $matches);
 				$video_id = $matches[1];
-	
+
 
 				if ($id) { // 修改
-					$fields = array(
+					$fields = array (
 						$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 						$db->quoteName('ftext') . ' = ' . $db->quote($option_ftext[$key]),
 						$db->quoteName('file1') . ' = ' . $db->quote($video_id),
 						$db->quoteName('ordering') . ' = ' . $db->quote($option_order[$key])
 					);
 
-					$conditions = array(
+					$conditions = array (
 						$db->quoteName('id') . ' = ' . $db->quote($id)
 					);
 
@@ -81,24 +89,22 @@ class plgSurveyVideo {
 
 					$db->execute();
 				} else { // 新增
-					$columns = array('quest_id', 'ftext', 'file1', 'ordering');
+					$columns = array ('quest_id', 'ftext', 'file1', 'ordering');
 
-					$values = array(
+					$values = array (
 						$db->quote($_question_id),
 						$db->quote($option_ftext[$key]),
 						$db->quote($video_id),
 						$db->quote($option_order[$key])
 					);
 
-					$query->insert($db->quoteName('#__survey_force_fields'))->columns( $db->quoteName($columns) )->values(implode(',', $values));
+					$query->insert($db->quoteName('#__survey_force_fields'))->columns($db->quoteName($columns))->values(implode(',', $values));
 
 					$db->setQuery($query);
 					$db->execute();
 
 					$id = $db->insertid();
 				}
-
-
 			}
 		}
 
@@ -122,7 +128,7 @@ class plgSurveyVideo {
 			}
 
 			$query = $db->getQuery(true);
-			$conditions = array(
+			$conditions = array (
 				$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 				$db->quoteName('id') . ' IN (' . $del_option_ids . ')'
 			);
@@ -132,11 +138,11 @@ class plgSurveyVideo {
 			$db->setQuery($query);
 			$db->execute();
 		}
+
 	}
 
-
 	// 前台讀取選項表單與JS
-	public function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
+	public static function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
 
 		ob_start();
 		include_once(JPATH_SITE . "/plugins/survey/video/site/html.php");
@@ -145,8 +151,8 @@ class plgSurveyVideo {
 		ob_clean();
 
 		return $html;
-	}
 
+	}
 
 	// 檢查欄位是否有填寫、格式是否正確、是否是題目其中之一
 	public function onCheckOptionField($_question, $_post) {
@@ -154,44 +160,40 @@ class plgSurveyVideo {
 		$query = $db->getQuery(true);
 
 		unset($result);
-		$result = array();
+		$result = array ();
 
 		unset($msges);
-		$msges = array();
+		$msges = array ();
 
 
 		unset($option_ids);
-		$option_ids = array();
-		if ($_question->is_multi) {		// 複選
+		$option_ids = array ();
+		if ($_question->is_multi) {  // 複選
 			$selected_option_count = count($_post["selected_option"]);
 
 			if ($_question->multi_limit > 0) { // 限定應投幾項
-				if ( $selected_option_count != $_question->multi_limit ) {
-					$msges[] = "限定應投". $_question->multi_limit. "項";
+				if ($selected_option_count != $_question->multi_limit) {
+					$msges[] = "限定應投" . $_question->multi_limit . "項";
 				} else {
-					foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+					foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 						$option_ids[] = $option_id;
 					}
 				}
-
-			} else {	// 可投幾項
-				if ($selected_option_count < $_question->multi_min ||  $selected_option_count > $_question->multi_max ) {
-					$msges[] = "可投". $_question->multi_min. "至". $_question->multi_max. "項。";
+			} else { // 可投幾項
+				if ($selected_option_count < $_question->multi_min || $selected_option_count > $_question->multi_max) {
+					$msges[] = "可投" . $_question->multi_min . "至" . $_question->multi_max . "項。";
 				} else {
-					foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+					foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 						$option_ids[] = $option_id;
 					}
 				}
-
 			}
-
-		} else {		// 單選
-			if ( $_post["selected_option"] == "" ) {
+		} else {  // 單選
+			if ($_post["selected_option"] == "") {
 				$msges[] = "請選擇其中一項。";
-			} else {	// 記錄選項ID
+			} else { // 記錄選項ID
 				$option_ids[] = $_post["selected_option"];
 			}
-
 		}
 
 		// 是否是題目其中之一
@@ -205,8 +207,8 @@ class plgSurveyVideo {
 			$db->setQuery($query);
 			$question_options = $db->loadColumn();
 
-			foreach ($option_ids as $option_id) {		// 是否有在陣列中
-				if ( !in_array($option_id, $question_options) ) {
+			foreach ($option_ids as $option_id) {  // 是否有在陣列中
+				if (!in_array($option_id, $question_options)) {
 					$msges[] = "所選擇的選項不屬於該題目之一。";
 					break;
 				}
@@ -228,7 +230,6 @@ class plgSurveyVideo {
 
 	}
 
-
 	// 儲存使用者的答案 (依efa_survey_force_vote_detail欄位做回傳)
 	public function onSaveUserOption($_question, $_post) {
 		$db = JFactory::getDBO();
@@ -245,25 +246,22 @@ class plgSurveyVideo {
 		$question_options = $db->loadAssocList('id');
 
 		unset($answers);
-		$answers = array();
-		if ($_question->is_multi) {		// 複選
+		$answers = array ();
+		if ($_question->is_multi) {  // 複選
 			$selected_option_count = count($_post["selected_option"]);
 
-			foreach ($_post["selected_option"] as $option_id) {		// 記錄選項ID
+			foreach ($_post["selected_option"] as $option_id) {  // 記錄選項ID
 				$option_ids[] = $option_id;
-				array_push( $answers, array("field_id" => $option_id, "logstr" => $question_options[$option_id]["ftext"]) );
+				array_push($answers, array ("field_id" => $option_id, "logstr" => $question_options[$option_id]["ftext"]));
 			}
-
-
-		} else {		// 單選
-			array_push( $answers, array("field_id" => $_post["selected_option"], "logstr" => $question_options[$_post["selected_option"]]["ftext"]) );
+		} else {  // 單選
+			array_push($answers, array ("field_id" => $_post["selected_option"], "logstr" => $question_options[$_post["selected_option"]]["ftext"]));
 		}
 
 
 		return $answers;
 
 	}
-
 
 	// 後台列印選項
 	public function onGetAdminPrintOptions($_question_id) {
@@ -288,11 +286,11 @@ class plgSurveyVideo {
 			echo '</tr>';
 			foreach ($options as $key => $option) {
 				echo '<tr>';
-				echo '<td>'. ($key+1). '</td>';
-				echo '<td>'. $option->ftext. '</td>';
+				echo '<td>' . ($key + 1) . '</td>';
+				echo '<td>' . $option->ftext . '</td>';
 				echo '<td>';
 				echo '<video width="320px" controls>';
-				echo '<source src="'. JURI::root() . $option->file1. '"" type="video/mp4">';
+				echo '<source src="' . JURI::root() . $option->file1 . '"" type="video/mp4">';
 				echo '</video>';
 				echo '</td>';
 				echo '</tr>';
@@ -305,7 +303,7 @@ class plgSurveyVideo {
 		}
 
 		return $content;
-	}
 
+	}
 
 }

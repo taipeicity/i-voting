@@ -211,11 +211,12 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_sub_fields` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `sf_cat` int(11) NOT NULL DEFAULT '0',
   `title` varchar(250) NOT NULL DEFAULT '' COMMENT '標題',
   `desc` text NOT NULL COMMENT '完整描述',
   `short_desc` text COMMENT '簡短描述',
+  `vote_way` text NOT NULL COMMENT '投票方式',
   `voters_eligibility` text NOT NULL COMMENT '投票人資格',
   `voters_authentication` text NOT NULL COMMENT '投票人驗證方式',
   `verify_precautions` text NOT NULL COMMENT '驗證方式注意事項說明',
@@ -246,7 +247,9 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `sms_user` varchar(200) NOT NULL COMMENT '加密後的帳號',
   `sms_passwd` varchar(200) NOT NULL COMMENT '加密後的密碼',
   `is_public` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否公開',
+  `un_public_tmpl` tinyint(4) unsigned NOT NULL COMMENT '非公開投票版型',
   `is_define` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否成案',
+  `proposal_process` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT '提案流程',
   `vote_pattern` tinyint(4) NOT NULL DEFAULT '1' COMMENT '投票模式',
   `hits` int(10) unsigned NOT NULL DEFAULT '0',
   `asset_id` int(10) NOT NULL DEFAULT '0',
@@ -280,8 +283,9 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `is_lottery` tinyint(3) unsigned NOT NULL COMMENT '是否抽獎',
   `is_place` tinyint(4) NOT NULL COMMENT '是否有現地投票',
   `place_image` varchar(50) NOT NULL COMMENT '掃描標的物圖片',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=97 ;
+  `is_analyze` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分析功能',
+  PRIMARY KEY (`id`);
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -290,14 +294,14 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_verify_result` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL,
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
   `verify_method` varchar(50) NOT NULL COMMENT '驗證方式',
   `state` tinyint(4) NOT NULL COMMENT '驗證狀態',
   `client_ip` varchar(50) NOT NULL,
   `created` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='驗證結果記錄' AUTO_INCREMENT=1325 ;
+  PRIMARY KEY (`id`);
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='驗證結果記錄';
 
 -- --------------------------------------------------------
 
@@ -306,12 +310,13 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_verify_result` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_vote` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL,
   `ticket_num` varchar(255) NOT NULL COMMENT '票號',
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
+  `is_lottery` tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否參加過抽獎?',
   `created` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票箱' AUTO_INCREMENT=732 ;
+  PRIMARY KEY (`id`);
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='票箱';
 
 -- --------------------------------------------------------
 
@@ -319,8 +324,9 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote` (
 -- 資料表格式： `efa_survey_force_vote_count`
 --
 
+
 CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_count` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL,
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
   `question_id` int(10) unsigned NOT NULL COMMENT '題目ID',
   `question_title` text NOT NULL COMMENT '題目名稱',
@@ -331,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_count` (
   `created` datetime NOT NULL COMMENT '建立時間',
   PRIMARY KEY (`id`),
   KEY `survey_id` (`survey_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票數統計' AUTO_INCREMENT=2400648 ;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='票數統計';
 
 -- --------------------------------------------------------
 
@@ -350,7 +356,9 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_detail` (
   `is_place` tinyint(3) unsigned NOT NULL COMMENT '是否為現地投票',
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票箱及選項' AUTO_INCREMENT=4435 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票箱及選項' AUTO_INCREMENT=1 ;
+
+
 
 -- --------------------------------------------------------
 
@@ -381,7 +389,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_paper` (
   `vote_num` int(10) unsigned NOT NULL COMMENT '票數',
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='紙本票數' AUTO_INCREMENT=296 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='紙本票數' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -398,7 +406,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_place` (
   `vote_num` int(10) unsigned NOT NULL COMMENT '票數',
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='現地票數' AUTO_INCREMENT=268046 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='現地票數' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -416,7 +424,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_sub_count` (
   `created` datetime NOT NULL COMMENT '建立時間',
   PRIMARY KEY (`id`),
   KEY `survey_id` (`survey_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票數統計-子選項' AUTO_INCREMENT=1169837 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='票數統計-子選項' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1400,6 +1408,7 @@ INSERT INTO `efa_googlecount` (`id`, `t_count`, `total`, `lang`) VALUES
 --
 -- 資料表格式： `efa_unit`
 --
+
 CREATE TABLE IF NOT EXISTS `efa_unit` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '編號',
   `title` varchar(100) DEFAULT NULL COMMENT '科室名稱',
@@ -1416,7 +1425,7 @@ CREATE TABLE IF NOT EXISTS `efa_unit` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='科室單位管理' AUTO_INCREMENT=1 ;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
 
 
 --
@@ -1424,4 +1433,62 @@ CREATE TABLE IF NOT EXISTS `efa_unit` (
 --
 ALTER TABLE  `efa_users` ADD  `unit_id` INT( 10 ) UNSIGNED NOT NULL AFTER  `requireReset`;
 
+-----------------------------------------------------------
+
+--
+-- 資料表格式： `efa_survey_force_analyze`
+--
+
+CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze` (
+  `id` int(11) NOT NULL,
+  `surv_id` int(11) NOT NULL,
+  `quest_id` int(11) NOT NULL,
+  `publish` tinyint(4) NOT NULL DEFAULT '0',
+  `required` tinyint(4) NOT NULL DEFAULT '0',
+  `order` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分析資料題目設定參數';
+
+-----------------------------------------------------------
+
+--
+-- 資料表結構 `efa_survey_force_analyze_count`
+--
+
+CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_count` (
+  `id` int(11) unsigned NOT NULL,
+  `survey_id` int(11) unsigned NOT NULL COMMENT '議題ID',
+  `quest_id` int(11) unsigned NOT NULL COMMENT '題目ID',
+  `quest_title` text NOT NULL COMMENT '題目名稱',
+  `field_id` int(11) unsigned NOT NULL COMMENT '選項ID',
+  `field_title` text NOT NULL COMMENT '選項名稱',
+  `count` int(11) unsigned NOT NULL COMMENT '票數',
+  `created` datetime NOT NULL COMMENT '建立時間',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分析資料票數統計';
+
 -- --------------------------------------------------------
+
+--
+-- 資料表結構 `efa_survey_force_analyze_quests`
+--
+
+CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_quests` (
+  `id` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `state` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分析資料題目';
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `efa_survey_force_analyze_fields`
+--
+
+CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_fields` (
+  `id` int(11) NOT NULL,
+  `quest_id` int(11) NOT NULL,
+  `field_title` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='分析資料選項';

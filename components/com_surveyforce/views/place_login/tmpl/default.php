@@ -1,7 +1,7 @@
 <?php
 /**
 *   @package         Surveyforce
-*   @version           1.2-modified
+*   @version           1.3-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -23,7 +23,7 @@ $itemid = $app->input->getInt('Itemid');
 	<div class="place">
 		<form id="place_form" method="post" action="<?php echo JRoute::_('index.php?option=com_surveyforce&task=place_login.check_login_form&Itemid='. $this->itemid, false); ?>" >
 
-			<table class="formtable" width="100%">
+			<table class="formtable entity_verify">
 				<tr>
 					<th>
 						<label for="username">帳號：</label>

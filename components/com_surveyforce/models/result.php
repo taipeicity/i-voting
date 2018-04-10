@@ -314,4 +314,104 @@ class SurveyforceModelResult extends JModelItem {
 		return $row;
 
 	}
+
+	public function getQuestField($option_answers){
+
+		$app = JFactory::getApplication();
+		$sid = $this->state->get('survey.id');
+
+		$qtype = array ("select", "number", "table");
+		//練習模式取得題目及選項
+		require_once(JPATH_COMPONENT . '/models/question.php');
+		$Questions = SurveyforceModelQuestion::getQuestions($sid);
+		foreach ($Questions as $num => $qid) {
+
+			$Question = SurveyforceModelQuestion::getQuestion($qid->id); //題目名稱：$Question->sf_qtext
+			$Options  = SurveyforceModelQuestion::getOptions($qid->id); //選項名稱：$Options->ftext
+
+			$options[$Question->id]              = new stdClass(); //仿照正式區的資料格式存入資料
+			$options[$Question->id]->quest_title = $Question->sf_qtext;
+			$options[$Question->id]->quest_type  = $Question->question_type;
+			foreach ($Options as $Option) {
+				$options[$Question->id]->field_title[$Option->id] = $Option->ftext;
+			}
+			//依據不同題目類型寫入題目及選項資料
+			if (in_array($Question->question_type, $qtype)) {  //有子選項
+				$SubOptions = SurveyforceModelQuestion::getSubOptions($qid->id); //子選項名稱：$SubOption->title
+				foreach ($Options as $serial => $Option) {
+					foreach ($SubOptions as $SubOption) {
+						$join = $option_answers[$qid->id][$serial]["field_id"] . "_" . $option_answers[$qid->id][$serial]["sub_field_id"];
+						$OSO  = $Option->id . "_" . $SubOption->id;
+						if ($OSO == $join) {
+							$sub_options[$join]                  = new stdClass();
+							$sub_options[$join]->field_id        = $Option->id;
+							$sub_options[$join]->sub_field_id    = $SubOption->id;
+							$sub_options[$join]->sub_field_title = $SubOption->title;
+							$sub_options[$join]->count           = "1";
+						}
+					}
+				}
+			} else { //無子選項
+				foreach ($options[$Question->id]->field_title as $field_id => $field_title) {
+					foreach ($option_answers[$Question->id] as $field) {
+						if ($field["field_id"] == $field_id) {
+							$options[$Question->id]->count[$field_id] = "1";
+						}
+					}
+				}
+			}
+		}
+
+		$items["options"] = $options;
+		$items["sub_options"] = $sub_options;
+
+
+		return $items;
+
+	}
+
+	public function getRank(){
+
+		$sid = $this->state->get('survey.id');
+
+		$db = $this->getDBO();
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->quoteName('#__survey_force_vote_total_count'));
+		$query->where($db->quoteName('survey_id') . ' = ' . $db->quote($sid));
+		$query->where($db->quoteName('sub_field_id') . ' = ' . $db->quote(0));
+
+		$db->setQuery($query);
+
+		$rows =  $db->loadObjectList();
+
+		foreach ($rows as $row) {
+			$rank[$row->field_id] = $row->rank;
+		}
+
+		return $rank;
+	}
+
+	public function getRankSub(){
+
+		$sid = $this->state->get('survey.id');
+
+		$db = $this->getDBO();
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->quoteName('#__survey_force_vote_total_count'));
+		$query->where($db->quoteName('survey_id') . ' = ' . $db->quote($sid));
+		$query->where($db->quoteName('sub_field_id') . ' > ' . $db->quote(0));
+
+		$db->setQuery($query);
+		$rows =  $db->loadObjectList();
+
+		foreach ($rows as $row) {
+			$sub_rank[$row->field_id][$row->sub_field_id] = $row->rank;
+		}
+
+		return $sub_rank;
+	}
 }

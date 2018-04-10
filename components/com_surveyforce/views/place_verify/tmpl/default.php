@@ -1,7 +1,7 @@
 <?php
 /**
 *   @package         Surveyforce
-*   @version           1.2-modified
+*   @version           1.3-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -21,13 +21,13 @@ defined('_JEXEC') or die('Restricted access');
 			<img class="sample_image" src="<?php echo JURI::root(). $this->item->place_image; ?>" alt="掃描標的物圖片">
 		</div>
 		<form id="verify_form" method="post" action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=verify&task=place_verify.check_verify_form&Itemid='. $this->itemid, false); ?>" >
-			<table class="formtable" width="100%">
+			<table class="formtable entity_login">
 				<tr>
 					<th>
-						<label for="idnum">身分證字號：</label>
+						<label for="idnum">身分證字號/居留證號驗證：</label>
 					</th>
 					<td>
-						<input type="text" id="idnum" name="idnum" placeholder="例：A234567890" maxlength="10" autocomplete="off" >
+						<input type="text" id="idnum" name="idnum" placeholder="例：A234567890/AB12345678" maxlength="10" autocomplete="off" >
 						<span id="msg">&nbsp;</span>
 					</td>
 				</tr>
@@ -93,9 +93,10 @@ defined('_JEXEC') or die('Restricted access');
 				jQuery("#idnum").focus();
 				return false;
 			} else {
-				reID = /^[A-Za-z]{1}[1-2]{1}[0-9]{8}$/;
-				if (!reID.test(jQuery.trim(jQuery("#idnum").val()))) {
-					jQuery("#message_area").showMessage("身分證字號格式錯誤");
+				ID = /^[A-Za-z][1-2][0-9]{8}$/;
+				reID = /^[A-Za-z][A-Da-d][0-9]{8}$/;
+				if (!ID.test(jQuery.trim(jQuery("#idnum").val())) && !reID.test(jQuery("#idnum").val())) {
+					jQuery("#message_area").showMessage("身分證字號/居留證號格式錯誤");
 					jQuery("#idnum").val('');
 					jQuery("#idnum").focus();
 					return false;

@@ -1,4 +1,12 @@
 <?php
+
+/**
+ *   @package         Surveyforce
+ *   @version           1.1-modified
+ *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ *   @license            GPL-2.0+
+ *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ */
 /**
  * 數字排序
  */
@@ -8,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 class plgSurveyNumber {
 
 	// 讀取選項清單
-	public function onGetAdminOptions($_question_id) {
+	public static function onGetAdminOptions($_question_id) {
 		$db = JFactory::getDBO();
 
 		// 取得選項
@@ -37,6 +45,7 @@ class plgSurveyNumber {
 		ob_clean();
 
 		return $options;
+
 	}
 
 	// 儲存選項
@@ -62,13 +71,13 @@ class plgSurveyNumber {
 				$query = $db->getQuery(true);
 
 				if ($id) { // 修改
-					$fields = array(
+					$fields = array (
 						$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 						$db->quoteName('ftext') . ' = ' . $db->quote($option_ftext[$key]),
 						$db->quoteName('ordering') . ' = ' . $db->quote($option_order[$key]),
 					);
 
-					$conditions = array(
+					$conditions = array (
 						$db->quoteName('id') . ' = ' . $db->quote($id)
 					);
 
@@ -78,15 +87,15 @@ class plgSurveyNumber {
 
 					$db->execute();
 				} else { // 新增
-					$columns = array('quest_id', 'ftext', 'ordering');
+					$columns = array ('quest_id', 'ftext', 'ordering');
 
-					$values = array(
+					$values = array (
 						$db->quote($_question_id),
 						$db->quote($option_ftext[$key]),
 						$db->quote($option_order[$key]),
 					);
 
-					$query->insert($db->quoteName('#__survey_force_fields'))->columns( $db->quoteName($columns) )->values(implode(',', $values));
+					$query->insert($db->quoteName('#__survey_force_fields'))->columns($db->quoteName($columns))->values(implode(',', $values));
 
 					$db->setQuery($query);
 					$db->execute();
@@ -125,7 +134,7 @@ class plgSurveyNumber {
 
 				$query = $db->getQuery(true);
 				$query->update($db->quoteName('#__survey_force_fields'));
-				$query->set($db->quoteName('file1') . " = ". $db->quote($new_file));
+				$query->set($db->quoteName('file1') . " = " . $db->quote($new_file));
 				$query->where($db->quoteName('id') . " = '{$id}'");
 
 				$db->setQuery($query);
@@ -152,7 +161,7 @@ class plgSurveyNumber {
 			}
 
 			$query = $db->getQuery(true);
-			$conditions = array(
+			$conditions = array (
 				$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id),
 				$db->quoteName('id') . ' IN (' . $del_option_ids . ')'
 			);
@@ -168,7 +177,7 @@ class plgSurveyNumber {
 		if ($post["is_new_sub_option"] == 1) {
 			// 刪除舊的項目
 			$query = $db->getQuery(true);
-			$conditions = array(
+			$conditions = array (
 				$db->quoteName('quest_id') . ' = ' . $db->quote($_question_id)
 			);
 			$query->delete($db->quoteName('#__survey_force_sub_fields'));
@@ -178,7 +187,7 @@ class plgSurveyNumber {
 			$db->execute();
 
 
-			if ($post["number_min_score"] > $post["number_min_score"]) {	// 若分數相反，則互換
+			if ($post["number_min_score"] > $post["number_min_score"]) { // 若分數相反，則互換
 				$min = (int) $post["number_max_score"];
 				$max = (int) $post["number_min_score"];
 			} else {
@@ -186,18 +195,18 @@ class plgSurveyNumber {
 				$max = (int) $post["number_max_score"];
 			}
 
-			$columns = array('quest_id', 'title', 'ordering');
+			$columns = array ('quest_id', 'title', 'ordering');
 			$count = 0;
 			for ($i = $min; $i <= $max; $i++) {
-				$query	= $db->getQuery(true);
+				$query = $db->getQuery(true);
 
-				$values = array(
+				$values = array (
 					$db->quote($_question_id),
 					$db->quote($i),
 					$db->quote($count),
 				);
 
-				$query->insert($db->quoteName('#__survey_force_sub_fields'))->columns( $db->quoteName($columns) )->values(implode(',', $values));
+				$query->insert($db->quoteName('#__survey_force_sub_fields'))->columns($db->quoteName($columns))->values(implode(',', $values));
 				$db->setQuery($query);
 				$db->execute();
 
@@ -205,13 +214,10 @@ class plgSurveyNumber {
 			}
 		}
 
-
 	}
 
-
-
 	// 前台讀取選項表單與JS
-	public function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
+	public static function onGetOptionsHtml($_question, $_options, $_sub_options = null) {
 
 		ob_start();
 		include_once(JPATH_SITE . "/plugins/survey/number/site/html.php");
@@ -220,11 +226,8 @@ class plgSurveyNumber {
 		ob_clean();
 
 		return $html;
+
 	}
-
-
-
-	
 
 	// 檢查欄位是否有填寫、格式是否正確、是否是題目其中之一
 	public function onCheckOptionField($_question, $_post) {
@@ -256,32 +259,31 @@ class plgSurveyNumber {
 
 
 		unset($result);
-		$result = array();
+		$result = array ();
 
 		unset($msges);
-		$msges = array();
+		$msges = array ();
 
 
 		unset($sub_option_value);
-		$sub_option_value = array();
+		$sub_option_value = array ();
 
 		// 檢查是否都有填寫、是否正確
 		foreach ($question_options as $option_id) {
-			if ($_post["option_field_". $option_id] == "") {
+			if ($_post["option_field_" . $option_id] == "") {
 				$msges[] = "請選擇分數。";
 			} else {
-				if ( !is_numeric($_post["option_field_". $option_id]) ) {
+				if (!is_numeric($_post["option_field_" . $option_id])) {
 					$msges[] = "請選擇分數。";
 				} else {
-					if ( $_post["option_field_". $option_id] < $question_sub_options[0] || $_post["option_field_". $option_id] > $question_sub_options[ (count($question_sub_options) - 1) ] ) {
-						$msges[] = "請選擇分數". $question_sub_options[0] . "分~". $question_sub_options[ (count($question_sub_options) - 1) ]. "分";
+					if ($_post["option_field_" . $option_id] < $question_sub_options[0] || $_post["option_field_" . $option_id] > $question_sub_options[(count($question_sub_options) - 1)]) {
+						$msges[] = "請選擇分數" . $question_sub_options[0] . "分~" . $question_sub_options[(count($question_sub_options) - 1)] . "分";
 					} else {
-						if ( in_array($_post["option_field_". $option_id], $sub_option_value) ) {
-							$msges[] = "請勿選擇重複的分數。";
+						if (in_array($_post["option_field_" . $option_id], $sub_option_value)) {
+							$msges[] = "請勿選擇重覆的分數。";
 						}
 
-						$sub_option_value[] = $_post["option_field_". $option_id];
-
+						$sub_option_value[] = $_post["option_field_" . $option_id];
 					}
 				}
 			}
@@ -300,7 +302,6 @@ class plgSurveyNumber {
 		return json_encode($result);
 
 	}
-
 
 	// 儲存使用者的答案 (依efa_survey_force_vote_detail欄位做回傳)
 	public function onSaveUserOption($_question, $_post) {
@@ -331,19 +332,17 @@ class plgSurveyNumber {
 
 
 		unset($answers);
-		$answers = array();
+		$answers = array ();
 
 		foreach ($question_options as $option_id => $option) {
 
-			array_push( $answers, array("field_id" => $option_id, "sub_field_id" =>  $question_sub_options[$_post["option_field_". $option_id]]["id"], "logstr" => $option["ftext"]. "-".  $_post["option_field_". $option_id]) );
-
+			array_push($answers, array ("field_id" => $option_id, "sub_field_id" => $question_sub_options[$_post["option_field_" . $option_id]]["id"], "logstr" => $option["ftext"] . "-" . $_post["option_field_" . $option_id]));
 		}
 
 
 		return $answers;
 
 	}
-
 
 	// 後台列印選項
 	public function onGetAdminPrintOptions($_question_id) {
@@ -377,15 +376,15 @@ class plgSurveyNumber {
 			echo '</tr>';
 			foreach ($options as $key => $option) {
 				echo '<tr>';
-				echo '<td>'. ($key+1). '</td>';
-				echo '<td>'. $option->ftext. '</td>';
+				echo '<td>' . ($key + 1) . '</td>';
+				echo '<td>' . $option->ftext . '</td>';
 				echo '</tr>';
 			}
 			echo '</table>';
 
 			if ($sub_options) {
 				echo '<hr>';
-				echo '分數設定：' . $sub_options[0]->title. " ~ ". $sub_options[(count($sub_options) - 1)]->title. '<br>';
+				echo '分數設定：' . $sub_options[0]->title . " ~ " . $sub_options[(count($sub_options) - 1)]->title . '<br>';
 			}
 
 			$content = ob_get_contents();
@@ -393,9 +392,7 @@ class plgSurveyNumber {
 		}
 
 		return $content;
+
 	}
-
-
-
 
 }

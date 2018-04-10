@@ -111,7 +111,7 @@ $model = $this->getModel();
 					unset($votes_sub);
 					foreach ($this->paper_vote as $paper_vote) {
 						$votes[$paper_vote->field_id] = $paper_vote->vote_num;
-						$votes_sub[$paper_vote->sub_field_id] = $paper_vote->vote_num;
+						$votes_sub[$paper_vote->field_id][$paper_vote->sub_field_id] = $paper_vote->vote_num;
 					}
 
 			?>
@@ -137,7 +137,7 @@ $model = $this->getModel();
 								echo "<td>". $question->question_title. "</td>";
 								echo "<td>". $question->option_title. "</td>";
 								echo "<td>". $sub_option->sub_option_title. "</td>";
-								echo "<td>". $votes_sub[$sub_option->sub_option_id]. "</td>";
+								echo "<td>". $votes_sub[$question->option_id][$sub_option->sub_option_id]. "</td>";
 								echo "</tr>";
 							}
 						} else {

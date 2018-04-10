@@ -50,7 +50,7 @@ class SurveyforceControllerPlace_verify extends JControllerForm {
 		$idnum = strtoupper($app->input->getString('idnum'));
 
 		if ($idnum == "") {
-			$msges[] = "請輸入身分證字號。";
+			$msges[] = "請輸入身分證字號/居留證號。";
 		}
 
 

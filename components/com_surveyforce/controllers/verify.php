@@ -1,11 +1,11 @@
 <?php
 
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package            Surveyforce
+ * @version            1.2-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 // No direct access.
 defined('_JEXEC') or die;
@@ -19,38 +19,41 @@ class SurveyforceControllerVerify extends JControllerForm {
 
 	/**
 	 * Proxy for getModel.
-	 * @since	1.6
+	 *
+	 * @since    1.6
 	 */
 	public function getModel($name = 'verify', $prefix = '', $config = array ('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
+
 		return $model;
 
 	}
 
 	// 檢查表單欄位
 	public function check_verify_form() {
-		$config = JFactory::getConfig();
+		$config  = JFactory::getConfig();
 		$session = &JFactory::getSession();
-		$prac = $session->get('practice_pattern');
-		$app = JFactory::getApplication();
-		$params = $app->getParams();
+		$prac    = $session->get('practice_pattern');
+		$app     = JFactory::getApplication();
+		$params  = $app->getParams();
 
 		$model = $this->getModel();
 
 
 		$survey_id = $app->input->getInt('sid', 0);
-		$itemid = $app->input->getInt('Itemid', 0);
+		$itemid    = $app->input->getInt('Itemid', 0);
 
 		$client_ip = JHtml::_('utility.getUserIP');
 
 		$category_link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$itemid}", false);
-		$intro_link = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$survey_id}&Itemid={$itemid}", false);
+		$intro_link    = JRoute::_("index.php?option=com_surveyforce&view=intro&sid={$survey_id}&Itemid={$itemid}", false);
 
 
 		// 檢查是否閒置過久
 		if (SurveyforceVote::isSurveyExpired($survey_id) == false) {
 			$msg = "網頁已閒置過久，請重新點選議題進行投票。";
 			$this->setRedirect($category_link, $msg);
+
 			return;
 		}
 
@@ -59,6 +62,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 		if (SurveyforceVote::isSurveyValid($survey_id) == false) {
 			$msg = "該議題目前未在可投票時間內，請重新選擇。";
 			$this->setRedirect($category_link, $msg);
+
 			return;
 		}
 
@@ -66,11 +70,19 @@ class SurveyforceControllerVerify extends JControllerForm {
 		if (SurveyforceVote::checkSurveyStep($survey_id, "verify") == false) {
 			$msg = "該議題未從投票啟始頁進入，請重新執行。";
 			$this->setRedirect($intro_link, $msg);
+
 			return;
 		}
 
+		// 檢查未公開議題是否有依序執行步驟
+		if (SurveyforceVote::getSurveyItem($survey_id)->is_public == 0) {
+			if (SurveyforceVote::checkSurveyStep($survey_id, "token") == false) {
+				$msg = "該議題為未公開投票，請重新點選議題進行投票。";
+				$app->redirect($category_link, $msg);
 
-
+				return;
+			}
+		}
 
 
 		// 檢查欄位是否已填寫
@@ -87,6 +99,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 
 			if (SurveyforceVote::getSurveyData($survey_id, "verify_failure_time") > (time() - 10)) {
 				$this->setRedirect($return_link, "驗證失敗次數過多，請稍候再試。");
+
 				return;
 			} else {
 				SurveyforceVote::setSurveyData($survey_id, "verify_failure_num", 0);
@@ -95,11 +108,11 @@ class SurveyforceControllerVerify extends JControllerForm {
 		}
 
 		// 取出該議題的驗證方式
-		$verify_required = SurveyforceVote::getSurveyData($survey_id, "verify_required");
+		$verify_required     = SurveyforceVote::getSurveyData($survey_id, "verify_required");
 		$survey_verify_types = SurveyforceVote::getSurveyData($survey_id, "verify_type");
-		$verify_params = SurveyforceVote::getSurveyData($survey_id, "verify_params");
-		$vote_num_params = SurveyforceVote::getSurveyData($survey_id, "vote_num_params");
-		$post = $app->input->getArray($_POST);
+		$verify_params       = SurveyforceVote::getSurveyData($survey_id, "verify_params");
+		$vote_num_params     = SurveyforceVote::getSurveyData($survey_id, "vote_num_params");
+		$post                = $app->input->getArray($_POST);
 
 		// 檢查所選的驗證方式是否有被修改
 		if ($survey_verify_types) {
@@ -134,6 +147,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 			}
 		} else {
 			$this->setRedirect($intro_link, "驗證方式失效，請重新操作。");
+
 			return;
 		}
 
@@ -155,10 +169,9 @@ class SurveyforceControllerVerify extends JControllerForm {
 
 		if (count($msges) > 0) {
 			$this->setRedirect($return_link, implode("<br>", $msges));
+
 			return;
 		}
-
-
 
 
 		// 將所有選擇的驗證方式進行資料驗證 及 是否有投過票
@@ -171,7 +184,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 			$verify2nd = array ();
 
 			foreach ($select_verify_types as $type) {
-				$className = 'plgVerify' . ucfirst($type);
+				$className   = 'plgVerify' . ucfirst($type);
 				$verify_name = $className::onGetVerifyName(); // 取得驗證名稱
 				// 先取得該驗證方式是 先判斷是否投票再資料驗證?  或是 先資料驗證再判斷是否投票?
 				unset($identify);
@@ -209,6 +222,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 				} else {  // 若沒有回傳，則為先資料驗證再判斷是否投票
 					// 驗證資料是否正確
 					$result_check_data = json_decode($className::onVerifyData($survey_id, $post, $verify_params));
+
 					if ($result_check_data->status == 0) {  // 驗證失敗
 						$msges[] = $result_check_data->msg;
 
@@ -244,17 +258,18 @@ class SurveyforceControllerVerify extends JControllerForm {
 		if ($verify_failure_num >= 3) {
 			SurveyforceVote::setSurveyData($survey_id, "verify_failure_time", time());
 			$this->setRedirect($return_link, "資料驗證失敗，由於驗證失敗次數過多，請稍候再試。");
+
 			return;
 		}
 
 		if (count($msges) > 0) {
 			$this->setRedirect($return_link, implode("<br>", $msges));
+
 			return;
 		}
 
 		// 記錄第1頁所有驗證方式的identify
 		SurveyforceVote::setSurveyData($survey_id, "verify_identify", $verify_identify);
-
 
 
 		// 進入第2驗證頁
@@ -264,6 +279,7 @@ class SurveyforceControllerVerify extends JControllerForm {
 
 			$link = JRoute::_("index.php?option=com_surveyforce&view=verify2nd&sid={$survey_id}&Itemid={$itemid}", false);
 			$this->setRedirect($link);
+
 			return;
 		} else { // 單一頁驗證，通過後轉至個資
 			// 設定已通過verify步驟
@@ -275,26 +291,24 @@ class SurveyforceControllerVerify extends JControllerForm {
 
 			$link = JRoute::_("index.php?option=com_surveyforce&view=question&sid={$survey_id}&Itemid={$itemid}", false);
 			$this->setRedirect($link);
+
 			return;
 		}
 
 	}
 
 	// 判斷是否有無投過票
-	public function check_poll($_agent_path, $_survey_id, $_identify, $_verify_type, $_verify_type_name, $_vote_num_params, $_client_ip) {
+	public function check_poll($_agent_path, $_survey_id, $_identify, $_verify_type, $_verify_type_name,
+	                           $_vote_num_params, $_client_ip) {
 		unset($result);
 
 		$session = &JFactory::getSession();
-		$prac = $session->get('practice_pattern');
+		$prac    = $session->get('practice_pattern');
 
 		$api_request_url = $_agent_path . "/server_poll.php";
 		unset($api_request_parameters);
 		$api_request_parameters = array (
-			'survey_id' => $_survey_id,
-			'identify' => $_identify,
-			'verify_type' => $_verify_type,
-			'vote_num_params' => $_vote_num_params,
-			'client_ip' => $_client_ip
+			'survey_id' => $_survey_id, 'identify' => $_identify, 'verify_type' => $_verify_type, 'vote_num_params' => $_vote_num_params, 'client_ip' => $_client_ip
 		);
 
 		$api_result = SurveyforceVote::curlAPI($api_request_url, "GET", $api_request_parameters);

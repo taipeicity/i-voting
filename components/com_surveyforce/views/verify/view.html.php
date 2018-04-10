@@ -2,7 +2,7 @@
 
 /**
  *   @package         Surveyforce
- *   @version           1.2-modified
+ *   @version           1.3-modified
  *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  *   @license            GPL-2.0+
  *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -33,6 +33,7 @@ class SurveyforceViewVerify extends JViewLegacy {
 		$this->params = $this->state->get('params');
 
 		$this->item = $this->get('Item');
+		$this->preview = false;
 
 		// 網頁標題
 		$document = JFactory::getDocument();
@@ -59,6 +60,20 @@ class SurveyforceViewVerify extends JViewLegacy {
 		if (SurveyforceVote::isSurveyValid($this->survey_id) == false) {
 			$msg = "該議題目前未在可投票時間內，請重新選擇。";
 			$app->redirect($category_link, $msg);
+		}
+
+		// 檢查投票模式是否正確
+		$result = json_decode(SurveyforceVote::checkVotePattern($this->survey_id), true);
+		if ($result['status']) {
+			$app->redirect($category_link, $result['msg']);
+		}
+
+		// 檢查未公開議題是否有token碼
+		if (SurveyforceVote::getSurveyItem($this->survey_id)->is_public == 0) {
+			if (SurveyforceVote::checkSurveyStep($this->survey_id, "token") == false) {
+				$msg = "該議題不存在，請重新選擇正確的議題。";
+				$app->redirect($category_link, $msg);
+			}
 		}
 
 		// 檢查是否有依序執行步驟

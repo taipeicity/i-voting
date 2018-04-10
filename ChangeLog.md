@@ -1,4 +1,17 @@
 Change Log
+[v1.6] (2018-04-10)
+- 抽獎流程優化
+- 投票議題欄位修改
+- 調整投票議題預覽功能
+- 投票題目選項提示調整
+- 新增投票行為分析功能
+- 補票功能擴充
+- 新增議題複製功能
+- 新增查詢投票功能
+- 新增非公開投票版型設定
+- 非公開投票鎖定觀看
+- DB Scheme新增分析功能相關的資料表
+
 [v1.5] (2018-02-09)
 - DB Scheme新增unit(科室單位)資料表及users資料表新增欄位
 - 修改administrator/components/com_surveyforce/surveyforce.xml

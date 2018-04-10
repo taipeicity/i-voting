@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    @package         Surveyforce
+    @version           1.0-modified
+    @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+    @license            GPL-2.0+
+    @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+-->
+<form>
+    <fieldset>
+
+        <field name="id" type="hidden"/>
+
+        <field name="title" type="text" class="input-xlarge" size="30" label="分析題目" required="true"
+               labelclass="control-label"/>
+
+        <field name="state" type="radio" class="btn-group" labelclass="control-label" label="發佈狀態" default="0">
+            <option value="1">發布</option>
+            <option value="0">不發布</option>
+        </field>
+
+    </fieldset>
+</form>

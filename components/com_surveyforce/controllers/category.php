@@ -1,11 +1,11 @@
 <?php
 
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package            Surveyforce
+ * @version            1.2-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 // No direct access.
 defined('_JEXEC') or die;
@@ -19,41 +19,57 @@ class SurveyforceControllerCategory extends JControllerForm {
 
 	/**
 	 * Proxy for getModel.
-	 * @since	1.6
+	 *
+	 * @since    1.6
 	 */
 	public function getModel($name = 'category', $prefix = '', $config = array ('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
+
 		return $model;
 
 	}
 
-	public function completed_form() {
-		// 檢查Token
+	public function category_completed() {
+
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$session = &JFactory::getSession();
-		$session->clear('completed_form');
+		$app     = JFactory::getApplication();
+		$session = JFactory::getSession();
 
-		$app = JFactory::getApplication();
-		$params = $app->getParams();
-		$completed_mymuid = $params->get('completed_mymuid');
+		$action = $app->input->getString("action");
 
-		if (!$app->input->getVar('survey_search') && !$app->input->getInt('condition')) {
-			$link = JRoute::_("index.php?option=com_surveyforce&view=category&layout=completed&Itemid=" . $completed_mymuid, false);
-			$msg = "請輸入關鍵字。";
-			$this->setRedirect($link, $msg);
-			return;
+		switch ($action) {
+			case "radio":
+				$condition = $app->input->getString("condition");
+				$session->set('completed.radio', $condition);
+				$session->clear('completed.search');
+				break;
+			case "search":
+				$condition = $app->input->getString("survey_search");
+				$session->set('completed.search', $condition);
+				$session->clear('completed.radio');
+				break;
+			default:
+				header("HTTP/1.0 404 Not Found");
+				break;
 		}
 
-		unset($completed_form);
+		$link = JRoute::_("index.php?option=com_surveyforce&view=category&layout=completed", false);
+		$this->setRedirect($link);
 
-		$completed_form['search'] = $app->input->getVar('survey_search');
-		$completed_form['condition'] = $app->input->getInt('condition');
+	}
 
-		$session->set('completed_form', json_encode($completed_form));
+	public function category_soon() {
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$this->setRedirect(JRoute::_("index.php?option=com_surveyforce&view=category&layout=completed&Itemid=" . $completed_mymuid, false));
+		$app     = JFactory::getApplication();
+		$session = JFactory::getSession();
 
+		$condition = $app->input->getInt("condition");
+		$session->set('soon.radio', $condition);
+
+		$link = JRoute::_("index.php?option=com_surveyforce&view=category&layout=soon", false);
+		$this->setRedirect($link);
 	}
 
 }
