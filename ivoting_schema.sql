@@ -284,7 +284,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `is_place` tinyint(4) NOT NULL COMMENT '是否有現地投票',
   `place_image` varchar(50) NOT NULL COMMENT '掃描標的物圖片',
   `is_analyze` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分析功能',
-  PRIMARY KEY (`id`);
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_verify_result` (
   `state` tinyint(4) NOT NULL COMMENT '驗證狀態',
   `client_ip` varchar(50) NOT NULL,
   `created` datetime NOT NULL,
-  PRIMARY KEY (`id`);
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='驗證結果記錄';
 
 -- --------------------------------------------------------
@@ -315,7 +315,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote` (
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
   `is_lottery` tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否參加過抽獎?',
   `created` datetime NOT NULL,
-  PRIMARY KEY (`id`);
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='票箱';
 
 -- --------------------------------------------------------
