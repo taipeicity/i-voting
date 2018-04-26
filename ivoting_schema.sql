@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_sub_fields` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `sf_cat` int(11) NOT NULL DEFAULT '0',
   `title` varchar(250) NOT NULL DEFAULT '' COMMENT '標題',
   `desc` text NOT NULL COMMENT '完整描述',
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_verify_result` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_vote` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ticket_num` varchar(255) NOT NULL COMMENT '票號',
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
   `is_lottery` tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否參加過抽獎?',
@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_vote` (
 
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_vote_count` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `survey_id` int(10) unsigned NOT NULL COMMENT '議題ID',
   `question_id` int(10) unsigned NOT NULL COMMENT '題目ID',
   `question_title` text NOT NULL COMMENT '題目名稱',
@@ -1440,7 +1440,7 @@ ALTER TABLE  `efa_users` ADD  `unit_id` INT( 10 ) UNSIGNED NOT NULL AFTER  `requ
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `surv_id` int(11) NOT NULL,
   `quest_id` int(11) NOT NULL,
   `publish` tinyint(4) NOT NULL DEFAULT '0',
@@ -1456,7 +1456,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_count` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `survey_id` int(11) unsigned NOT NULL COMMENT '議題ID',
   `quest_id` int(11) unsigned NOT NULL COMMENT '題目ID',
   `quest_title` text NOT NULL COMMENT '題目名稱',
@@ -1474,7 +1474,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_count` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_quests` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` text NOT NULL,
   `state` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -1487,7 +1487,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_quests` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_fields` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `quest_id` int(11) NOT NULL,
   `field_title` text NOT NULL,
   PRIMARY KEY (`id`)
@@ -1500,7 +1500,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_analyze_fields` (
 --
 
 CREATE TABLE IF NOT EXISTS `efa_mail_record` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `from` varchar(100) NOT NULL,
   `fromname` varchar(50) NOT NULL,
   `recipient` text NOT NULL,
