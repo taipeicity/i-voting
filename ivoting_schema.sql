@@ -1431,8 +1431,9 @@ CREATE TABLE IF NOT EXISTS `efa_unit` (
 --
 -- 資料表補欄位： `efa_users`
 --
-ALTER TABLE  `efa_users` ADD  `unit_id` INT( 10 ) UNSIGNED NOT NULL AFTER  `requireReset`;
 
+ALTER TABLE  `efa_users` ADD  `unit_id` TINYINT( 4 ) UNSIGNED NOT NULL;
+ALTER TABLE  `efa_users` ADD  `cross_unit` TINYINT( 4 ) UNSIGNED NOT NULL DEFAULT  '0' COMMENT  '跨單位(0:否、1:是)';
 -----------------------------------------------------------
 
 --
