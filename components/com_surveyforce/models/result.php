@@ -58,7 +58,7 @@ class SurveyforceModelResult extends JModelItem {
 
 		$query	= $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = '. (int) $id);
 		$query->where('a.published = 1');
 		$query->where('a.is_complete = 1');

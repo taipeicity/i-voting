@@ -54,7 +54,7 @@ class SurveyforceModelIntro extends JModelItem {
 
 		$query = $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $id);
 
 
@@ -76,7 +76,7 @@ class SurveyforceModelIntro extends JModelItem {
 		$query = $db->getQuery(true);
 
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $_survey_id);
 
 		$db->setQuery($query);

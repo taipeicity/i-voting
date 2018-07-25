@@ -26,7 +26,7 @@ class SurveyforceVote {
 
 		$query = $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $_survey_id);
 		$query->where('a.published = 1');
 		$query->where('a.is_complete = 1');
@@ -53,7 +53,7 @@ class SurveyforceVote {
 		$session = JFactory::getSession();
 
 		$query->select('a.id, a.vote_pattern');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.published = 1');
 		$query->where('a.is_checked = 1');
 		$query->where('a.id = ' . (int) $_survey_id);
@@ -67,8 +67,8 @@ class SurveyforceVote {
 		$query->where('(a.publish_down = ' . $nullDate . ' OR a.publish_down >= ' . $nowDate . ')');
 
 		// 進行中
-			$query->where('a.vote_start <= ' . $nowDate);
-			$query->where('a.vote_end >= ' . $nowDate);
+		$query->where('a.vote_start <= ' . $nowDate);
+		$query->where('a.vote_end >= ' . $nowDate);
 
 		$db->setQuery($query);
 
@@ -452,7 +452,7 @@ class SurveyforceVote {
 
 		$query = $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $_survey_id);
 		$query->where('a.published = 1');
 		$query->where('a.is_checked = 1');
@@ -469,6 +469,30 @@ class SurveyforceVote {
 
 		return $db->loadObject();
 
+	}
+
+	public static function getVerifyName($verify_type) {
+		$db = JFactory::getDBO();
+
+		$query = $db->getQuery(true);
+		$query->select('name, element');
+		$query->from($db->quoteName('#__extensions'));
+		$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+		$query->where($db->quoteName('access') . ' = ' . $db->quote(1));
+		$query->where($db->quoteName('enabled') . ' = ' . $db->quote(1));
+		$query->where($db->quoteName('folder') . ' = ' . $db->quote('verify'));
+		$query->order('ordering');
+
+		$db->setQuery($query);
+		$items = $db->loadAssocList('element');
+
+		unset($auths);
+		$auths = array ();
+		foreach ($verify_type as $type) {
+			$auths[] = $items[$type]["name"];
+		}
+
+		return json_encode($auths);
 	}
 
 }

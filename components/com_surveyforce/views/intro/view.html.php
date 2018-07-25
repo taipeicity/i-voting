@@ -66,8 +66,6 @@ class SurveyforceViewIntro extends JViewLegacy {
 				} else { // 公開
 					$this->item = $Item;
 				}
-			} else if ($Item->published == 0 && $Item->is_checked == 0 && preg_match('/administrator/', getallheaders()['Referer'])) { // 議題預覽
-				$this->item = $Item;
 			} else {
 				$msg = "該議題不存在，請重新選擇正確的議題。";
 				$app->redirect($category_link, $msg);
@@ -76,18 +74,6 @@ class SurveyforceViewIntro extends JViewLegacy {
 			$msg = "該議題不存在，請重新選擇正確的議題。";
 			$app->redirect($category_link, $msg);
 		}
-
-		// 處理其他參考資料
-		if (!empty($Item->other_data) && $Item->other_data != NULL) {
-			$other_data['other_data'] = $Item->other_data;
-		}
-		if (!empty($Item->other_data2) && $Item->other_data2 != NULL) {
-			$other_data['other_data2'] = $Item->other_data2;
-		}
-		if (!empty($Item->other_data3) && $Item->other_data3 != NULL) {
-			$other_data['other_data3'] = $Item->other_data3;
-		}
-		$this->data   = $other_data;
 
 		$this->print = $app->input->getBool('print');
 

@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -75,10 +75,17 @@ class SurveyforceModelAnalyzes extends JModelList {
 	function delete($cid) {
 
 		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
 
+		$query = $db->getQuery(true);
 		$query->delete('#__survey_force_analyze_quests');
 		$query->where('id IN (' . implode(',', $cid) . ')');
+
+		$db->setQuery($query);
+		$db->execute();
+
+		$query = $db->getQuery(true);
+		$query->delete('#__survey_force_analyze_fields');
+		$query->where('quest_id IN (' . implode(',', $cid) . ')');
 
 		$db->setQuery($query);
 		$db->execute();

@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -29,7 +29,9 @@ class SurveyforceViewExport extends JViewLegacy {
 
 		$this->state = $this->get('State');
 		$this->item  = $this->get('Item');
-		$orderby     = $this->item->result_orderby;
+		$this->form  = $this->get('Form');
+
+		$orderby = $this->item->result_orderby;
 
 		$model             = $this->getModel();
 		$this->fields      = $model->getFields($orderby);
@@ -55,108 +57,166 @@ class SurveyforceViewExport extends JViewLegacy {
 			}
 		}
 
-//		$this->otherDataName = $this->get('IntroOtherData');
 
 		$level_type = ["低", "中", "高"];
 		$survs      = [];
 		if ($this->item) {
 
-			$survs[] = "名稱：" . $this->item->title;
+			$questions = $this->get('Questions');
 
-			$survs[] = "議題介紹：" . (($layout == "default") ? nl2br($this->item->desc) : strip_tags($this->item->desc));
+			$survs[] = $this->form->getLabel('title') . "：" . $this->form->getValue('title');
 
-			if ($this->item->vote_way) {
-				$survs[] = "投票方式：" . (($layout == "default") ? nl2br($this->item->vote_way) : strip_tags($this->item->vote_way));
+			$survs[] = $this->form->getLabel('desc') . "：" . (($layout == "default") ? nl2br($this->form->getValue('desc')) : $this->form->getValue('desc'));
+
+			// 提案檢核階段
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_CHECK') . "</b>：<span>&nbsp;</span>";
+
+			$survs[] = $this->form->getLabel('proposer') . "：" . $this->form->getValue('proposer');
+
+			$survs[] = $this->form->getLabel('plan_quest') . "：" . (($layout == "default") ? nl2br($this->form->getValue('plan_quest')) : $this->form->getValue('plan_quest'));
+
+			$survs[] = $this->form->getLabel('plan_options') . "：" . (($layout == "default") ? nl2br($this->form->getValue('plan_options')) : $this->form->getValue('plan_options'));
+
+			if ($this->form->getValue('proposal_download')) {
+				$field_name = 'proposal_download';
+			} else {
+				$field_name = 'proposal_url';
 			}
-			$survs[] = "投票人資格：" . (($layout == "default") ? nl2br($this->item->voters_eligibility) : strip_tags($this->item->voters_eligibility));
-			if ($this->item->is_define) {
-				$survs[] = "投票人驗證方式：" . $this->item->voters_authentication;
-				if ($this->item->verify_precautions) {
-					$survs[] = "驗證方式注意事項說明：" . (($layout == "default") ? nl2br($this->item->verify_precautions) : strip_tags($this->item->verify_precautions));
-				}
-				if (count($this->verify_type) == 1) {
-					$survs[] = "驗證強度：" . $level_type[$level];
-				}
-				$survs[] = "投票期間：" . $this->item->during_vote;
+			$survs[] = $this->form->getLabel('proposal') . "：" . $this->form->getValue($field_name);
+
+			$survs[] = $this->form->getLabel('precautions') . "：" . (($layout == "default") ? nl2br($this->form->getValue('precautions')) : $this->form->getValue('precautions'));
+
+			$survs[] = $this->form->getLabel('second_the_motion') . "：" . $this->form->getValue('second_the_motion');
+
+			$survs[] = $this->form->getLabel('deadline') . "：" . JHtml::_('date', $this->form->getValue('deadline'), "Y年m月d日 H:i");
+
+			// 提案初審階段
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_REVIEW') . "</b>：<span>&nbsp;</span>";
+
+			$survs[] = $this->form->getLabel('review_result') . "：" . (($layout == "default") ? nl2br($this->form->getValue('review_result')) : $this->form->getValue('review_result'));
+
+			$survs[] = $this->form->getLabel('review_download') . "：" . $this->form->getValue('review_download');
+
+			if ($this->form->getValue('review_download_ii')) {
+				$survs[] = $this->form->getLabel('review_download_ii') . "：" . $this->form->getValue('review_download_ii');
 			}
 
-			$survs[] = "宣傳推廣方式：" . (($layout == "default") ? nl2br($this->item->promotion) : strip_tags($this->item->promotion));
-			$survs[] = "公布方式：" . (($layout == "default") ? nl2br($this->item->announcement_method) : strip_tags($this->item->announcement_method));
-
-			if ($this->item->is_define) {
-				if (!preg_match("/(0000\-00\-00)/", $this->item->announcement_date)) {
-					$survs[] = "公布日期：" . JHtml::_('date', $this->item->announcement_date, "Y年n月j日G點i分");
-				} else {
-					$survs[] = "公布日期：不公布";
-				}
-			}
-
-			$survs[] = "目前進度：" . (($layout == "default") ? nl2br($this->item->at_present) : strip_tags($this->item->at_present));
-
+			// 提案討論階段
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_DISCUSS') . "</b>：<span>&nbsp;</span>";
 
 			if ($layout == "default") {
-				$survs[] = "討論管道：" . nl2br($this->item->discuss_source);
+				$discuss = nl2br($this->item->discuss_source);
 			} else {
-				if (preg_match_all("/https?\:\/\/.+\"/", $this->item->discuss_source)) {
-					$survs[] = "討論管道：" . SurveyforceHelper::replaceUrl($this->item->discuss_source);
+				if (preg_match_all("/https?\:\/\/.+\"/", $this->form->getValue('discuss_source'))) {
+					$discuss = SurveyforceHelper::replaceUrl($this->form->getValue('discuss_source'));
 				} else {
-					$survs[] = "討論管道：" . strip_tags($this->item->discuss_source);
+					$discuss = $this->form->getValue('discuss_source');
+				}
+			}
+			$survs[] = $this->form->getLabel('discuss_source') . "：" . $discuss;
+
+			$survs[] = $this->form->getLabel('discuss_plan_options') . "：" . (($layout == "default") ? nl2br($this->form->getValue('discuss_plan_options')) : $this->form->getValue('discuss_plan_options'));
+
+			$survs[] = $this->form->getLabel('discuss_qualifications') . "：" . (($layout == "default") ? nl2br($this->form->getValue('discuss_qualifications')) : $this->form->getValue('discuss_qualifications'));
+
+			$survs[] = $this->form->getLabel('discuss_verify') . "：" . SurveyforceHelper::getVerifyName($this->form->getValue('discuss_verify'));
+
+			$survs[] = $this->form->getLabel('discuss_vote_time') . "：" . $this->form->getValue('discuss_vote_time');
+
+			$survs[] = $this->form->getLabel('discuss_threshold') . "：" . (($layout == "default") ? nl2br($this->form->getValue('discuss_threshold')) : $this->form->getValue('discuss_threshold'));
+
+			$survs[] = $this->form->getLabel('discuss_download') . "：" . $this->form->getValue('discuss_download');
+
+			// 形成選項階段
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_OPTIONS') . "</b>：<span>&nbsp;</span>";
+
+			$survs[] = $this->form->getLabel('options_cohesion') . "：" . (($layout == "default") ? nl2br($this->form->getValue('options_cohesion')) : $this->form->getValue('options_cohesion'));
+
+			if ($layout == "default") {
+				$default = JText::_('COM_SURVEYFORCE_OPTIONS_AGREE') . "：" . $this->form->getValue('options_agree');
+				$default .= "<br>" . JText::_('COM_SURVEYFORCE_OPTIONS_OPPOSE') . "：" . $this->form->getValue('options_oppose');
+			} else {
+				$export = JText::_('COM_SURVEYFORCE_OPTIONS_AGREE') . "：" . $this->form->getValue('options_agree');
+				$export .= "," . JText::_('COM_SURVEYFORCE_OPTIONS_OPPOSE') . "：" . $this->form->getValue('options_oppose');
+			}
+			$survs[] = $this->form->getLabel('options_agree') . "：" . (($layout == "default") ? $default : $export);
+
+			$survs[] = $this->form->getLabel('options_caption') . "：" . (($layout == "default") ? nl2br($this->form->getValue('options_caption')) : $this->form->getValue('options_caption'));
+
+			// 宣傳準備與上架階段
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_LAUNCHED') . "</b>：<span>&nbsp;</span>";
+
+			foreach ($questions as $i => $question):
+				$array_ques[$question->id][$question->sf_qtext][] = $question->ftext;
+			endforeach;
+			$y        = 1;
+			$question = '';
+			foreach ($array_ques as $id => $array_que) {
+				foreach ($array_que as $title_name => $item) {
+					if (count($array_ques) > 1) {
+						$question .= "第" . $y . "題、";
+					}
+					$question .= "議題：{$title_name}";
+					$question .= "<br>";
+					$question .= "選項方案：";
+					$question .= "<br>";
+					for ($i = 0; $i < count($item); $i++) {
+						$j        = $i + 1;
+						$question .= $j . "." . $item[$i];
+					}
+					$question .= "<br>";
+					$y++;
 				}
 			}
 
+			$survs[] = "議題與選項方案" . "：" . (($layout == "default") ? nl2br($question) : $question);
+
+			$survs[] = $this->form->getLabel('voters_eligibility') . "：" . (($layout == "default") ? nl2br($this->form->getValue('voters_eligibility')) : $this->form->getValue('voters_eligibility'));
+
+			$survs[] = $this->form->getLabel('voters_authentication') . "：" . $this->form->getValue('voters_authentication');
+
+			$survs[] = "投票時間：" . $this->form->getValue('during_vote');
+
+			$survs[] = $this->form->getLabel('vote_way') . "：" . (($layout == "default") ? nl2br($this->form->getValue('vote_way')) : $this->form->getValue('vote_way'));
+
+			$survs[] = $this->form->getLabel('launched_condition') . "：" . (($layout == "default") ? nl2br($this->form->getValue('launched_condition')) : $this->form->getValue('launched_condition'));
+
+			switch ($this->form->getValue('launched_date')) {
+				case 1:
+					$announcement_date = "不公布";
+					break;
+				case 2:
+					$announcement_date = JHtml::_('date', $this->form->getValue('announcement_date'), "Y年m月d日");
+					break;
+				case 3:
+					$announcement_date = JHtml::_('date', $this->form->getValue('vote_end'), "Y年m月d日");
+					break;
+			}
+
+			$survs[] = JText::_('COM_SURVEYFORCE_LAUNCHED_DATETIME') . "：" . $announcement_date;
 
 			$results_proportion = '';
-			switch ($this->item->results_proportion) {
-				case "whole":
-					$results_proportion = "完全參採";
-					break;
-				case "part":
-					$results_proportion = "部分參採" . $this->item->part . "%";
-					break;
-				case "committee":
-					$results_proportion = "送請專業委員會決策考量";
-					break;
-				case "other":
-					$results_proportion = "其他(" . $this->item->other . ")";
-					break;
+			$rp = ["whole" => "完全參採", "part" => "部分參採", "committee" => "送請專業委員會決策考量", "other" => "其他"];
+			$results_proportion .= $rp[$this->form->getValue('results_proportion')];
+			if ($this->form->getValue('results_proportion') == "part") {
+				$results_proportion .= "：<br>";
+				$results_proportion .= $this->form->getValue('part');
 			}
 
-			$survs[] = "投票結果運用方式：" . $results_proportion;
-
-			if($this->item->other_data) $other_data[] = $this->item->other_data;
-			if($this->item->other_data2) $other_data[] = $this->item->other_data2;
-			if($this->item->other_data3) $other_data[] = $this->item->other_data3;
-			if (count($other_data) > 0) {
-				$survs[] = "其他參考資料：" . implode("，", $other_data);
+			if ($this->form->getValue('results_proportion') == "other") {
+				$results_proportion .= "：<br>";
+				$results_proportion .= $this->form->getValue('other');
 			}
+			$survs[] = $this->form->getLabel('results_proportion') . "：" . (($layout == "default") ? nl2br($results_proportion) : $results_proportion);
 
-			if ($this->item->other_url) {
-				if ($layout == "default") {
-					$other_url = "其他參考網址：" . '<a href="' . $this->item->other_url . '" target="_blank">' . $this->item->other_url . '</a>';
-				} else {
-					$other_url = "其他參考網址：" . $this->item->other_url;
-				}
-				$survs[] = $other_url;
-			}
+			$survs[] = $this->form->getLabel('discuss_download') . "：" . $this->form->getValue('discuss_download');
 
-			if ($this->item->followup_caption) {
-				if ($layout == "default") {
-					$survs[] = "後續辦理情形：" . nl2br($this->item->followup_caption);
-				} else {
-					if (preg_match_all("/https?\:\/\/.+\"/", $this->item->followup_caption)) {
-						$survs[] = "後續辦理情形：" . SurveyforceHelper::replaceUrl($this->item->followup_caption);
-					} else {
-						$survs[] = "後續辦理情形：" . strip_tags($this->item->followup_caption);
-					}
-				}
+			// 投票、結果公布及執行
+			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_RESULT') . "</b>：<span>&nbsp;</span>";
 
+			$survs[] = $this->form->getLabel('result_instructions') . "：" . (($layout == "default") ? nl2br($this->form->getValue('result_instructions')) : $this->form->getValue('result_instructions'));
 
-			}
-			if ($layout == "default") {
-				$survs[] = "注意事項：" . nl2br($this->item->precautions);
-			} else {
-				$survs[] = "注意事項：" . $this->item->precautions;
-			}
+			$survs[] = $this->form->getLabel('how_to_use') . "：" . (($layout == "default") ? nl2br($this->form->getValue('how_to_use')) : $this->form->getValue('how_to_use'));
 
 
 			$this->intro = $survs;

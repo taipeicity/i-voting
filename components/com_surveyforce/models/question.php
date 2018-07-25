@@ -57,7 +57,7 @@ class SurveyforceModelQuestion extends JModelItem {
 
 		$query = $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $id);
 		$query->where('a.published = 1');
 		$query->where('a.is_complete = 1');
@@ -222,7 +222,7 @@ class SurveyforceModelQuestion extends JModelItem {
 		$db    = $this->getDbo();
 		$query = $db->getQuery(true);
 
-		$query->update('#__survey_force_survs');
+		$query->update('#__survey_force_survs_release');
 		$query->set($db->quoteName('total_vote') . " = " . $db->quoteName('total_vote') . " + 1");
 		$query->where($db->quoteName('id') . " = " . $db->quote($_survey_id));
 

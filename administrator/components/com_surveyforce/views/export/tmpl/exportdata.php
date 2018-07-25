@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -28,7 +28,10 @@ if ($this->results) {
 
 	foreach ($this->intro as $i => $item) {
 		if ($i != 1) {
-			echo implode(",,", str_replace(["\n", "\r", "\r\n"], [""], explode("：", $item, 2))) . "\r\r";
+			$explode     = explode("：", $item, 2);
+			$str_replace = str_replace(["\n", "\r", "\r\n", "&nbsp;", "&#160;*"], [""], $explode);
+			$implode     = implode(",,", $str_replace);
+			echo strip_tags($implode) . "\r\r";
 		} else {
 			echo "議題介紹,," . str_replace("\n", ",,", trim(strip_tags($this->item->desc)));
 			echo "\r\r";

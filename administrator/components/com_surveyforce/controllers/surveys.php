@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -380,7 +380,7 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 	}
 
-	public function other_data() {
+	public function getPdf() {
 
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 

@@ -138,7 +138,7 @@ class SurveyforceModelFinish extends JModelItem {
 
 		$query = $db->getQuery(true);
 		$query->select('a.*');
-		$query->from($db->quoteName('#__survey_force_survs') . ' AS a');
+		$query->from($db->quoteName('#__survey_force_survs_release') . ' AS a');
 		$query->where('a.id = ' . (int) $id);
 		$query->where('a.published = 1');
 		$query->where('a.is_complete = 1');
@@ -199,7 +199,7 @@ class SurveyforceModelFinish extends JModelItem {
 		$query = $db->getQuery(true);
 
 		$query->select("id, title AS surv_title");
-		$query->from($db->quoteName('#__survey_force_survs'));
+		$query->from($db->quoteName('#__survey_force_survs_release'));
 		$query->where($db->quoteName('id') . " = " . $db->quote($survey_id));
 
 		$db->setQuery($query);

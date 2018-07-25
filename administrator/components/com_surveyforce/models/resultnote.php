@@ -2,7 +2,7 @@
 
 /**
 *   @package         Surveyforce
-*   @version           1.0-modified
+*   @version           1.1-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -65,6 +65,8 @@ class SurveyforceModelResultnote extends JModelAdmin {
 
 	// 更新欄位
 	public function updateField($_field_name, $_field_value, $_id) {
+    	$result = true;
+
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
 
@@ -75,12 +77,27 @@ class SurveyforceModelResultnote extends JModelAdmin {
 
 		$db->setQuery($query);
 
-		if($db->execute()) {
-			return true;
-		} else {
+		if(!$db->execute()) {
 			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
-			return false;
+			$result = false;
 		}
+
+		$query	= $db->getQuery(true);
+
+		$query->update('#__survey_force_survs_release');
+		$query->set($db->quoteName($_field_name) . " = ". $db->quote($_field_value));
+		$query->where( $db->quoteName('id') . " = ". $db->quote($_id) );
+
+
+		$db->setQuery($query);
+
+		if(!$db->execute()) {
+			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
+			$result = false;
+		}
+
+		return $result;
+
 	}
 
 }

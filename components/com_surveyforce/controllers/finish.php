@@ -328,6 +328,13 @@ class SurveyforceControllerFinish extends JControllerForm {
 				} else {
 					$agent_path = JFactory::getConfig()->get('agent_path');
 
+					if(!preg_match("/^09\d{8}/", $lottery_phone)){
+						$msg = "手機號碼格式錯誤。";
+						$this->setRedirect($return_link, $msg);
+						return;
+					}
+
+
 					$result = json_decode($this->insert_lottery($agent_path, $survey_id, $lottery_name, $lottery_phone, $ticket_num));
 					if ($result->status == 0) {
 						$this->setRedirect($return_link, $result->msg);

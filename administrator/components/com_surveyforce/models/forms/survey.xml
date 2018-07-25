@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     @package         Surveyforce
-    @version           1.2-modified
+    @version           2.0-modified
     @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
     @license            GPL-2.0+
     @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -11,93 +11,294 @@
         <field name="id" type="hidden"/>
         <field name="sf_cat" type="categorys" label="COM_SF_CATEGORY" labelclass="control-label"/>
 
-        <field name="title" type="text" class="input-xlarge" size="30" label="名稱" required="true"
-               labelclass="control-label"/>
+        <field name="title" type="text" class="input-xlarge" size="30" label="COM_SURVEYFORCE_NAME" required="true"
+               labelclass="control-label" description="COM_SURVEYFORCE_NAME_DESCRIPTION"/>
 
-        <field name="desc" type="editor" buttons="false" hide="pagebreak,readmore,testimonial" class="inputbox"
-               filter="safehtml" label="議題介紹" required="true" labelclass="control-label"/>
+        <field name="desc" type="editor" buttons="true" hide="pagebreak,readmore,testimonial" class="inputbox"
+               label="COM_SURVEYFORCE_DETAILS_DESC" required="true" filter="safehtml" labelclass="control-label"/>
 
-        <field name="vote_way" type="textarea" class="inputbox large" label="投票方式" required="true" rows="3"
-               cols="5" labelclass="control-label"/>
-        <field name="voters_eligibility" type="textarea" class="inputbox large" label="投票人資格" required="true" rows="3"
-               cols="5" labelclass="control-label"/>
-        <field name="voters_authentication" type="textarea" class="inputbox large" label="投票人驗證方式" rows="3" cols="5"
-               labelclass="control-label"/>
-        <field name="during_vote" type="textarea" class="inputbox large" label="投票期間" rows="3" cols="5"
-               labelclass="control-label"/>
-        <field name="promotion" type="textarea" class="inputbox large" label="宣傳推廣方式" required="true" rows="3" cols="5"
-               labelclass="control-label"/>
-        <!--<field name="results_using" type="textarea"  class="inputbox large" label="投票結果運用方式" required="true" rows="3" cols="5" labelclass="control-label" />-->
-        <field name="results_using" type="textarea" class="inputbox large" label="投票結果運用方式" rows="3" cols="5"
-               labelclass="control-label"/>
-        <field name="announcement_method" type="textarea" class="inputbox large" label="公布方式" required="true" rows="3"
-               cols="5" labelclass="control-label"/>
-        <field name="precautions" type="textarea" class="inputbox large" label="注意事項" required="true" rows="3" cols="5"
-               labelclass="control-label"/>
+        <field name="image" type="file" class="input-xlarge new_image" size="30" label="COM_SURVEYFORCE_DETAILS_IMAGE"
+               accept="image/*" description="COM_SURVEYFORCE_DETAILS_IMAGE_DESCRIPTION"/>
 
-        <field name="results_proportion" id="results_proportions" onchange="addtextarea()" required="true" type="list"
-               labelclass="control-label" label="投票結果運用方式" default="default">
-            <option value="whole">完全參採</option>
-            <option value="part">部分參採</option>
-            <option value="committee">送請專業委員會決策考量</option>
-            <option value="other">其他</option>
+        <field name="edit_stage" type="list" label="COM_SURVEYFORCE_EDIT_STAGE"
+               labelclass="control-label" default="1">
+            <option value="1">COM_SURVEYFORCE_CHECK</option>
+            <option value="2">COM_SURVEYFORCE_REVIEW</option>
+            <option value="3">COM_SURVEYFORCE_DISCUSS</option>
+            <option value="4">COM_SURVEYFORCE_OPTIONS</option>
+            <option value="5">COM_SURVEYFORCE_LAUNCHED</option>
+            <option value="6">COM_SURVEYFORCE_RESULT</option>
         </field>
-        <field name="part" type="text" class="input-xlarge" size="10" label="部分參採" labelclass="control-label"/>
-        <field name="other" type="textarea" class="inputbox large" label="其他" rows="3" cols="5"
+
+        <field name="stage" type="radio" class="btn-group" label="COM_SURVEYFORCE_STAGE" required="true"
+               labelclass="control-label" default="1">
+            <option value="1">COM_SURVEYFORCE_CHECK</option>
+            <option value="2">COM_SURVEYFORCE_REVIEW</option>
+            <option value="3">COM_SURVEYFORCE_DISCUSS</option>
+            <option value="4">COM_SURVEYFORCE_OPTIONS</option>
+            <option value="5">COM_SURVEYFORCE_LAUNCHED</option>
+            <option value="6">COM_SURVEYFORCE_RESULT</option>
+        </field>
+
+        <!-- 提案檢核階段 Start -->
+        <field name="proposer" type="text" class="input-xlarge" size="30" label="COM_SURVEYFORCE_CHECK_PROPOSER"
                labelclass="control-label"/>
-        <field name="other_data" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label"
-               accept="application/pdf"/>
-        <field name="other_data2" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label"
-               accept="application/pdf"/>
-        <field name="other_data3" type="file" class="input-xlarge" size="50" label="其他參考資料" labelclass="control-label"
-               accept="application/pdf"/>
-        <field name="other_url" type="text" class="input-xlarge" size="10" label="其他參考網址" labelclass="control-label"
+
+        <field name="plan_quest" type="text" class="input-xlarge" size="30" label="COM_SURVEYFORCE_CHECK_PLAN_QUEST"
+               labelclass="control-label"/>
+
+        <field name="plan_options" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_CHECK_PLAN_OPTIONS"
+               rows="3" cols="5" labelclass="control-label"/>
+
+        <field name="proposal" type="radio" class="btn-group" label="COM_SURVEYFORCE_CHECK_PROPOSAL"
+               labelclass="control-label" default="1">
+            <option value="1">COM_SURVEYFORCE_CHECK_PROPOSAL_ADMIN</option>
+            <option value="2">COM_SURVEYFORCE_CHECK_PROPOSAL_UNADMIN</option>
+        </field>
+
+        <field name="proposal_download" type="file" class="input-xlarge new_proposal_download new_proposal" size="50"
+               label="COM_SURVEYFORCE_CHECK_PROPOSAL_ADMIN" showon="proposal:1" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="proposal_url" type="url" class="input-xlarge new_proposal" size="50"
+               description="COM_SURVEYFORCE_CHECK_PROPOSAL_UNADMIN_FILTER"
+               label="COM_SURVEYFORCE_CHECK_PROPOSAL_UNADMIN" validate="url" scheme="http,https" showon="proposal:2"/>
+
+        <field name="precautions" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_CHECK_PRECAUTIONS"
+               rows="3" cols="5" labelclass="control-label"/>
+
+        <field name="second_the_motion" type="number" class="input-xlarge" size="30"
+               label="COM_SURVEYFORCE_CHECK_SECOND_THE_MOTION" labelclass="control-label" filter="integer"/>
+
+        <field name="deadline" type="calendar" labelclass="control-label" label="COM_SURVEYFORCE_CHECK_DEADLINE"
+               class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22" filter="user_utc" weeknumbers="false"
+               timeformat="24" showtime="true"/>
+        <!-- 提案檢核階段 End -->
+
+        <!-- 提案初審階段 Start -->
+        <field name="review_result" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_REVIEW_RESULT"
+               rows="3" cols="5" labelclass="control-label"/>
+
+        <field name="review_download" type="file" class="input-xlarge new_review_download" size="50"
+               label="COM_SURVEYFORCE_REVIEW_DOWNLOAD" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_ii" type="file" class="input-xlarge new_review_download_ii" size="50"
+               label="COM_SURVEYFORCE_REVIEW_DOWNLOAD_II" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        <!-- 提案初審階段 End -->
+
+        <!-- 提案討論階段 Start -->
+        <field name="discuss_source" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_DISCUSS_SOURCE"
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
+
+        <field name="discuss_plan_options" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_DISCUSS_PLAN_OPTIONS" rows="3" cols="5" labelclass="control-label" filter="raw"/>
+
+        <field name="discuss_qualifications" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_DISCUSS_QUALIFICATIONS" rows="3" cols="5" labelclass="control-label"
                filter="raw"/>
-        <field name="followup_caption" type="textarea" class="inputbox large" rows="3" cols="5" label="後續辦理情形"
-               labelclass="control-label" filter="raw"/>
-        <field name="at_present" type="textarea" class="inputbox large" label="目前進度" required="true" rows="3" cols="5"
+
+        <field name="discuss_verify" type="checkboxs" class="inputbox large" labelclass="control-label"
+               label="COM_SURVEYFORCE_DISCUSS_VERIFY"/>
+
+        <field name="discuss_vote_time" type="text" class="input-xlarge" size="30"
+               label="COM_SURVEYFORCE_DISCUSS_VOTE_TIME" labelclass="control-label"/>
+
+        <field name="discuss_vote_start" type="calendar" labelclass="control-label"
+               label="COM_SURVEYFORCE_DISCUSS_VOTE_TIME" class="inputbox" format="%Y-%m-%d" size="22"
+               weeknumbers="false"/>
+
+        <field name="discuss_vote_end" type="calendar" labelclass="control-label"
+               label="COM_SURVEYFORCE_DISCUSS_VOTE_TIME" class="inputbox" format="%Y-%m-%d" size="22"
+               weeknumbers="false"/>
+
+        <field name="discuss_threshold" type="text" class="input-xlarge" size="30"
+               label="COM_SURVEYFORCE_DISCUSS_THRESHOLD" labelclass="control-label"/>
+
+        <field name="discuss_download" type="file" class="input-xlarge new_discuss_download" size="50"
+               label="COM_SURVEYFORCE_DISCUSS_DOWNLOAD" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        <!-- 提案討論階段 End -->
+
+        <!-- 形成選項階段 Start -->
+        <field name="options_cohesion" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_OPTIONS_COHESION"
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
+
+        <field name="options_scale" type="text" class="input-xlarge" size="10"
+               label="COM_SURVEYFORCE_OPTIONS_SCALE" labelclass="control-label"/>
+
+        <field name="options_agree" type="number" class="input-xlarge" size="10" filter="integer"
+               label="COM_SURVEYFORCE_OPTIONS_SCALE" labelclass="control-label"/>
+
+        <field name="options_oppose" type="number" class="input-xlarge" size="10" filter="integer"
+               label="COM_SURVEYFORCE_OPTIONS_SCALE" labelclass="control-label"/>
+
+        <field name="options_caption" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_OPTIONS_CAPTION"
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
+        <!-- 形成選項階段 End -->
+
+        <!-- 宣傳準備與上架階段 Start -->
+        <field name="voters_eligibility" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_LAUNCHED_ELIGIBILITY" rows="3" cols="5"
                labelclass="control-label"/>
-        <field name="discuss_source" type="textarea" class="inputbox large" label="討論管道" required="true" rows="3"
-               cols="5" labelclass="control-label" filter="raw"/>
 
-        <field name="image" type="file" class="input-xlarge" size="30" label="議題圖示" labelclass="control-label"
-               accept="image/*"/>
+        <field name="voters_authentication" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_LAUNCHED_AUTHENTICATION" rows="3" cols="5" labelclass="control-label"/>
 
-        <field name="layout" type="list" labelclass="control-label" label="版型" default="default">
-            <option value="default">上圖下文</option>
-            <option value="blog">圖文並排</option>
-            <option value="text">無圖有文</option>
+        <field name="during_vote" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_DURING_VOTE"
+               rows="3" cols="5" labelclass="control-label"/>
+
+        <field name="vote_start" type="calendar" labelclass="control-label" label="COM_SURVEYFORCE_LAUNCHED_VOTE_START"
+               class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22" filter="user_utc" weeknumbers="false"
+               timeformat="24" showtime="true"/>
+
+        <field name="vote_end" type="calendar" labelclass="control-label" label="COM_SURVEYFORCE_LAUNCHED_VOTE_END"
+               class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22" filter="user_utc" weeknumbers="false"
+               timeformat="24" showtime="true"/>
+
+        <field name="vote_way" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_VOTE_WAY"
+               rows="3" cols="5" labelclass="control-label"/>
+
+        <field name="launched_condition" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_LAUNCHED_CONDITION" rows="3" cols="5"
+               labelclass="control-label"/>
+
+        <field name="launched_date" type="radio" class="btn-group" label="COM_SURVEYFORCE_LAUNCHED_DATE"
+               labelclass="control-label" default="1">
+            <option value="1">COM_SURVEYFORCE_LAUNCHED_UNANNOUNCED</option>
+            <option value="2">COM_SURVEYFORCE_LAUNCHED_ANNOUNCED</option>
+            <option value="3">COM_SURVEYFORCE_LAUNCHED_VOTE_END</option>
         </field>
 
+        <field name="announcement_date" type="calendar"
+               label="COM_SURVEYFORCE_LAUNCHED_ANNOUNCED" class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
+               filter="user_utc" weeknumbers="false" timeformat="24" showtime="true" showon="launched_date:2"/>
 
-        <field name="is_public" type="radio" class="btn-group" label="是否公開" labelclass="control-label" default="1">
+        <field name="results_proportion" id="results_proportions" type="list" labelclass="control-label"
+               label="COM_SURVEYFORCE_LAUNCHED_RESULTS_PROPORTION" default="whole" onchange="addRequired()">
+            <option value="whole">COM_SURVEYFORCE_LAUNCHED_WHOLE</option>
+            <option value="part">COM_SURVEYFORCE_LAUNCHED_PART</option>
+            <option value="committee">COM_SURVEYFORCE_LAUNCHED_COMMITTEE</option>
+            <option value="other">COM_SURVEYFORCE_LAUNCHED_OTHER</option>
+        </field>
+
+        <field name="part" type="text" class="input-xlarge" size="10" label="COM_SURVEYFORCE_LAUNCHED_PART"
+               showon="results_proportion:part"/>
+        <field name="other" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_OTHER" rows="3"
+               cols="5" showon="results_proportion:other"/>
+
+        <field name="launched_download" type="file" class="input-xlarge new_launched_download" size="50"
+               label="COM_SURVEYFORCE_LAUNCHED_DOWNLOAD" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        <!-- 宣傳準備與上架階段 End -->
+
+        <!-- 投票、結果公布及執行 Start-->
+        <field name="result_instructions" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_RESULT_INSTRUCTIONS" rows="3" cols="5" labelclass="control-label"/>
+        <field name="how_to_use" type="textarea" class="inputbox large"
+               label="COM_SURVEYFORCE_RESULT_HOWTOUSE" rows="3" cols="5" labelclass="control-label"/>
+        <!-- 投票、結果公布及執行 End -->
+
+        <!-- setting Start-->
+        <field name="publish_up" type="calendar" labelclass="control-label" required="true"
+               label="COM_SURVEYFORCE_SETTING_VOTE_LANUCHED" class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
+               filter="user_utc" weeknumbers="false" timeformat="24" showtime="true"/>
+
+        <field name="publish_down" type="calendar" labelclass="control-label"
+               label="COM_SURVEYFORCE_SETTING_VOTE_DROP_OFF" class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22"
+               filter="user_utc" default="2035-12-31 00:00:00" weeknumbers="false" timeformat="24" showtime="true"
+               required="true"/>
+
+        <field name="is_public" type="radio" class="btn-group" label="COM_SURVEYFORCE_SETTING_IS_PUBLIC"
+               labelclass="control-label" default="1">
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
 
-        <field name="un_public_tmpl" type="list" label="非公開投票外框版型" labelclass="control-label" default="1">
-            <option value="1">版型1</option>
-            <option value="2">版型2</option>
+        <field name="un_public_tmpl" type="list" label="COM_SURVEYFORCE_SETTING_UNPUBLIC_SKIN"
+               default="1" showon="is_public:0">
+            <option value="1">COM_SURVEYFORCE_SETTING_UNPUBLIC_SKIN_1</option>
+            <option value="2">COM_SURVEYFORCE_SETTING_UNPUBLIC_SKIN_2</option>
         </field>
 
-        <field name="is_define" type="radio" class="btn-group" label="是否成案" labelclass="control-label" default="1">
+        <field name="is_define" type="radio" class="btn-group" label="是否成案" default="1">
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
 
-        <field name="proposal_process" type="radio" class="btn-group" label="提案流程" labelclass="control-label"
-               default="1">
-            <option value="1">初審階段</option>
-            <option value="2">討論階段</option>
+        <field type="checkboxes" label="COM_SURVEYFORCE_SETTING_VOTE_PATTERN" name="vote_pattern"
+               class="btn-group" labelclass="control-label">
+            <option value="1">COM_SURVEYFORCE_SETTING_FORMAT_PATTERN</option>
+            <option value="2">COM_SURVEYFORCE_SETTING_PRACTICE_PATTERN</option>
         </field>
 
+        <field name="vote_num_param" type="text" class="input-xlarge" size="30"
+               label="COM_SURVEYFORCE_SETTING_VOTE_NUM_PARAM"
+               labelclass="control-label"/>
 
-        <field type="checkboxes" label="投票模式" name="vote_pattern" multiple="true" class="btn-group" required="true"
-               labelclass="control-label">
-            <option value="1">正式投票</option>
-            <option value="2">練習投票</option>
+        <field name="vote_rule_param" type="text" class="input-xlarge" size="30"
+               label="COM_SURVEYFORCE_SETTING_VOTE_RULE_PARAM"
+               labelclass="control-label"/>
+
+        <field name="is_notice_email" type="radio" class="btn-group" labelclass="control-label" label="電子郵件訊息通知"
+               default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
         </field>
 
+        <field name="remind_text" type="textarea" class="inputbox large is_notice_email"
+               label="COM_SURVEYFORCE_SETTING_MAIL_REMIND_TEXT" rows="10" cols="5"
+               showon="is_notice_email:1" description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
+
+        <field name="drumup_text" type="textarea" class="inputbox large is_notice_email"
+               label="COM_SURVEYFORCE_SETTING_MAIL_DRUMUP_TEXT" rows="10" cols="5"
+               showon="is_notice_email:1" description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
+
+        <field name="end_text" type="textarea" class="inputbox large is_notice_email"
+               label="COM_SURVEYFORCE_SETTING_MAIL_END_TEXT" rows="10" cols="5" showon="is_notice_email:1"
+               description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
+
+        <field name="is_notice_phone" type="radio" class="btn-group" labelclass="control-label"
+               label="COM_SURVEYFORCE_SETTING_PHONE" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="phone_remind_text" type="textarea" class="inputbox large is_notice_phone"
+               label="COM_SURVEYFORCE_SETTING_PHONE_REMIND_TEXT" rows="5" cols="5"
+               showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE"/>
+
+        <field name="phone_drumup_text" type="textarea" class="inputbox large is_notice_phone"
+               label="COM_SURVEYFORCE_SETTING_PHONE_DRUMUP_TEXT" rows="5" cols="5"
+               showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE_II"/>
+
+        <field name="phone_end_text" type="textarea" class="inputbox large is_notice_phone"
+               label="COM_SURVEYFORCE_SETTING_PHONE_END_TEXT" rows="5" cols="5"
+               showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE_II"/>
+
+        <field name="sms_user" type="text" label="COM_SURVEYFORCE_SETTING_PHONE_PLATFORM_USER"
+               showon="is_notice_phone:1" class="is_notice_phone"/>
+
+        <field name="sms_passwd" type="text" label="COM_SURVEYFORCE_SETTING_PHONE_PLATFORM_PASSWD"
+               showon="is_notice_phone:1" class="is_notice_phone"/>
+
+        <field name="is_place" type="radio" class="btn-group" labelclass="control-label"
+               label="COM_SURVEYFORCE_SETTING_PLACE" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="place_image" type="file" class="input-xlarge new_place_image" size="50"
+               description="COM_SURVEYFORCE_SETTING_MAX_MEMORY" label="COM_SURVEYFORCE_SETTING_PLACE_IMAGE"
+               accept="image/*" showon="is_place:1"/>
+
+        <field name="is_analyze" type="radio" class="btn-group" labelclass="control-label"
+               label="COM_SURVEYFORCE_SETTING_ANALYZE" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <!-- setting End-->
 
         <field name="asset_id" type="hidden" filter="unset"/>
         <field name="rules" type="rules" label="COM_SURVEYFORCE_SURVEY_RULES" translate_label="false" class="inputbox"
@@ -121,139 +322,6 @@
             <option value="1">發佈</option>
             <option value="0">停止</option>
         </field>
-
-
-        <field
-                name="publish_up"
-                type="calendar"
-                labelclass="control-label"
-                label="上架時間"
-                class="inputbox"
-                format="%Y-%m-%d %H:%M:%S"
-                size="22"
-                filter="user_utc"
-                weeknumbers="false"
-                timeformat="24"
-                showtime="true"
-                required="true"
-        />
-
-        <field
-                name="publish_down"
-                type="calendar"
-                labelclass="control-label"
-                label="下架時間"
-                class="inputbox"
-                format="%Y-%m-%d %H:%M:%S"
-                size="22"
-                filter="user_utc"
-                default="2035-12-31 00:00:00"
-                weeknumbers="false"
-                timeformat="24"
-                showtime="true"
-                required="true"
-        />
-
-
-        <field
-                name="vote_start"
-                type="calendar"
-                labelclass="control-label"
-                label="開始投票時間"
-                class="inputbox"
-                format="%Y-%m-%d %H:%M:%S"
-                size="22"
-                filter="user_utc"
-                weeknumbers="false"
-                timeformat="24"
-                showtime="true"
-                required="true"
-        />
-
-        <field
-                name="vote_end"
-                type="calendar"
-                labelclass="control-label"
-                label="投票結束時間"
-                class="inputbox"
-                format="%Y-%m-%d %H:%M:%S"
-                size="22"
-                filter="user_utc"
-                weeknumbers="false"
-                timeformat="24"
-                showtime="true"
-                required="true"
-        />
-
-        <field
-                name="announcement_date"
-                type="calendar"
-                labelclass="control-label"
-                label="公布日期"
-                class="inputbox"
-                format="%Y-%m-%d %H:%M:%S"
-                size="22"
-                filter="user_utc"
-                weeknumbers="false"
-                timeformat="24"
-                showtime="true"
-        />
-
-
-        <field name="is_notice_email" type="radio" class="btn-group" labelclass="control-label" label="電子郵件訊息通知"
-               default="0">
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
-
-        <field name="remind_text" type="textarea" class="inputbox large" label="電子郵件-投票前提醒" rows="10" cols="5"
-               labelclass="control-label" default="親愛的民眾您好：\r\n
-\r\n
-感謝您登記【XXXXXXXXXXXXXXXX（自動抓投票議題名稱）】i-Voting投票通知。
-\r\n
-現在已經開始投票了，請您至以下網址進行投票：【XXXXXXXXXXXXXXXX（自動抓）】，投票時間至【xxx/xx/xx xx:xx（自動抓結束時間）】止。
-\r\n
-臺北市政府 敬上
-\r\n
-◎備註：此信件由系統自動發出，請勿直接回覆。
-"/>
-        <field name="drumup_text" type="textarea" class="inputbox large" label="電子郵件-催票提醒" rows="5" cols="5"
-               labelclass="control-label"/>
-        <field name="end_text" type="textarea" class="inputbox large" label="電子郵件-投票結束通知提醒" rows="5" cols="5"
-               labelclass="control-label"/>
-
-
-        <field name="is_notice_phone" type="radio" class="btn-group" labelclass="control-label" label="手機訊息通知"
-               default="0">
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
-
-
-        <field name="is_place" type="radio" class="btn-group" labelclass="control-label" label="啟用現地投票" default="0">
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
-
-        <field name="place_image" type="file" class="input-xlarge" size="30" label="掃瞄標的物圖片" labelclass="control-label"
-               accept="image/*"/>
-
-        <field name="is_analyze" type="radio" class="btn-group" labelclass="control-label" label="啟用分析功能" default="0">
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
-
-        <field name="sms_user" type="text" label="簡訊平台帳號" labelclass="control-label"/>
-        <field name="sms_passwd" type="text" label="簡訊平台密碼" labelclass="control-label"/>
-        <field name="phone_remind_text" type="textarea" class="inputbox large" label="手機訊息-投票前提醒" rows="5" cols="5"
-               labelclass="control-label"/>
-        <field name="phone_drumup_text" type="textarea" class="inputbox large" label="手機訊息-催票提醒" rows="5" cols="5"
-               labelclass="control-label"/>
-        <field name="phone_end_text" type="textarea" class="inputbox large" label="手機訊息-投票結束通知提醒" rows="5" cols="5"
-               labelclass="control-label"/>
-
-        <field name="verify_precautions" type="textarea" class="inputbox large" label="驗證方式注意事項說明" rows="3" cols="5"
-               labelclass="control-label"/>
 
 
         <field name="display_result" type="list" labelclass="control-label" label="票數顯示" default="2">

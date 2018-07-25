@@ -55,16 +55,6 @@ $session = &JFactory::getSession();
                         </div>
                     </div>
                     <div class="css_tr">
-                        <div class="css_th">案件狀態：</div>
-                        <div class="css_td">
-                            <label class="radio radio-is_define">
-                                <input type="radio" name="condition" value="define" <?php echo $this->condition == "define" ? "checked" : ""; ?> />已完成
-                            </label> <label class="radio radio-is_define">
-                                <input type="radio" name="condition" value="undefine" <?php echo $this->condition == "undefine" ? "checked" : ""; ?> />未成案
-                            </label>
-                        </div>
-                    </div>
-                    <div class="css_tr">
                         <div class="css_th"><label for="survey_search">搜尋關鍵字：</label></div>
                         <div class="css_td btns">
                             <input name="survey_search" type="text" id="survey_search" placeholder="請輸入關鍵字" size="18" value="<?php echo $this->search ? $this->search : ""; ?>" />
@@ -103,6 +93,10 @@ $session = &JFactory::getSession();
 
 
                         <div class="more">
+                            <?php
+                            $date    = JFactory::getDate();
+                            $nowDate = $date->toSql();
+                            ?>
 							<?php if ($item->is_define == 1) { ?>
                                 <a href="<?php echo JRoute::_("index.php?option=com_surveyforce&view=intro&sid=" . $item->id . "&Itemid=" . $this->itemid, false); ?>" title="觀看結果">
                                     <img class="lazy" src="<?php echo JURI::root(); ?>images/system/completed_btn.png" alt="觀看結果" />
@@ -118,7 +112,7 @@ $session = &JFactory::getSession();
                         <hr>
 
                         <div class="info">
-							<?php if ($item->is_define == 1) { ?>
+							<?php if ($item->stage > 4 and $item->is_define == 1) { ?>
                                 開始時間&nbsp;&nbsp;&nbsp;
                                 <span><?php echo JHtml::_('date', $item->vote_start, "Y/m/d H:i"); ?></span>
                                 <br />
@@ -169,7 +163,7 @@ $session = &JFactory::getSession();
 </div>
 
 
-<script type="text/javascript">
+<script>
 
     jQuery(document).ready(function () {
 

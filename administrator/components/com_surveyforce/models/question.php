@@ -2,7 +2,7 @@
 
 /**
 *   @package         Surveyforce
-*   @version           1.0-modified
+*   @version           1.1-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -107,9 +107,9 @@ class SurveyforceModelQuestion extends JModelAdmin {
     }
 
     public function getSurveysList( $catId = false ) {
-        
+
         $db = JFactory::getDbo();
-        $query = "SELECT DISTINCT(`id`) AS `value`, `title` AS `text` FROM `#__survey_force_survs`"
+        $query = "SELECT DISTINCT(`id`) AS `value`, `title` AS `text` FROM `#__survey_force_survs_release`"
 			. ( $catId ? ' WHERE `sf_cat` = '.(int)$catId : '') ;
 
         $db->setQuery($query);
@@ -176,7 +176,7 @@ class SurveyforceModelQuestion extends JModelAdmin {
         
         //build list of surveys
         $query = "SELECT id AS value, title AS text"
-        . "\n FROM #__survey_force_survs"
+        . "\n FROM #__survey_force_survs_release"
         . ( ! JFactory::getApplication()->isAdmin()? " WHERE sf_author = '{$my->id}' ": " ")
         . "\n ORDER BY id"
         ;
@@ -351,6 +351,20 @@ class SurveyforceModelQuestion extends JModelAdmin {
 		return $row;
 	}
 
+	public function getItems($sid) {
+		$app = JFactory::getApplication();
+		$db  = $this->getDBO();
 
+		$query = $db->getQuery(true);
+		$query->select('*');
+		$query->from($db->quoteName('#__survey_force_survs'));
+		$query->where('id = ' . (int) $sid);
+
+		$db->setQuery($query);
+
+		$surv = $db->loadObject();
+
+		return $surv;
+	}
 
 }

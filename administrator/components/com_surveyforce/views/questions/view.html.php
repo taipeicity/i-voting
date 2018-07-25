@@ -2,7 +2,7 @@
 
 /**
  *   @package         Surveyforce
- *   @version           1.2-modified
+ *   @version           1.3-modified
  *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  *   @license            GPL-2.0+
  *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -19,7 +19,7 @@ class SurveyforceViewQuestions extends JViewLegacy {
 	function display($tpl = null) {
 		$this->state = $this->get('State');
 		$this->surv_id = JFactory::getApplication()->input->get('surv_id', 0);
-		$this->survey_item = SurveyforceHelper::getSuveryItem($this->surv_id);
+		$this->survey_item = $this->get('Item');
 
 		$document = JFactory::getDocument();
 		$document->addScript('components/com_surveyforce/assets/js/js.js');

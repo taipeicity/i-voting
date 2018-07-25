@@ -2,7 +2,7 @@
 
 /**
  *   @package         Surveyforce
- *   @version           1.2-modified
+ *   @version           1.3-modified
  *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  *   @license            GPL-2.0+
  *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -50,7 +50,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 		$this->surveys = $this->get('SurveysList');
 		$this->question_type_item = $model->getQuestionType($type);
 		$this->ordering_list = $this->get('Ordering');
-		$this->survey_item = SurveyforceHelper::getSuveryItem($sf_survey);
+		$this->survey_item = $model->getItems($sf_survey);
 
 
 		JPluginHelper::importPlugin('survey', $type);

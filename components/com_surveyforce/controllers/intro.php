@@ -197,7 +197,7 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 	}
 
-	public function other_data() {
+	public function getPdf() {
 
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 

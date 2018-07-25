@@ -164,6 +164,12 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
             if (lottery_name.val() === "" && lottery_phone.val() === "") {
                 jQuery("#finish_form").submit();
             } else if (lottery_name.val() && lottery_phone.val()) {
+
+                if(!lottery_phone.val().match(/^09\d{8}/g)){
+                    jQuery("#message_area").showMessage('手機號碼格式錯誤。');
+                    return false;
+                }
+
                 jQuery("#is_join_lottery").val("1");
                 jQuery("#finish_form").submit();
             } else {
@@ -283,7 +289,7 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
-                                    <input type="text" id="lottery_phone" name="lottery_phone" value="<?php echo empty($tmp_session['lottery_phone']) ? '' : $tmp_session['lottery_phone']; ?>" placeholder="請填寫電話" autocomplete="off" maxlength="20">
+                                    <input type="text" id="lottery_phone" name="lottery_phone" value="<?php echo empty($tmp_session['lottery_phone']) ? '' : $tmp_session['lottery_phone']; ?>" placeholder="請填寫手機號碼" autocomplete="off" maxlength="20">
                                 </td>
                             </tr>
 						<?php } ?>

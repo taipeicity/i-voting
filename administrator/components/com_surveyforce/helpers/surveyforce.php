@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -74,7 +74,7 @@ class SurveyforceHelper {
 		$query = $db->getQuery(true);
 
 		$query->select('*');
-		$query->from('#__survey_force_survs');
+		$query->from('#__survey_force_survs_release');
 		$query->where('id = ' . (int) $_survey_id);
 
 		$db->setQuery($query);
@@ -119,7 +119,7 @@ class SurveyforceHelper {
 		return $db->loadObject();
 	}
 
-	public static function getAnalyzeQuestion(){
+	public static function getAnalyzeQuestion() {
 
 		$db    = JFactory::getDBO();
 		$query = $db->getQuery(true);
@@ -182,6 +182,52 @@ class SurveyforceHelper {
 
 		return $preview_session[$_name];
 
+	}
+
+	public static function getOldArea($field, $value, $is_img = true) {
+		$element = "<div class='old_" . $field . "_area'>";
+		if ($is_img) {
+			$element .= "<a href='../" . $value . "' class='fancybox' title='預覽檢視'>預覽檢視</a>";
+		} else {
+			$element .= "<a href='javascript:void(0)' class='get_pdf' id='" . $field . "' target='_blank' title='" . $value . "'>" . $value . "</a>";
+		}
+		$element .= "<input class='btn' type='button' id='del_" . $field . "_btn' style='width:70px ' value='刪除'>";
+		$element .= "<input type='hidden' id='old_" . $field . "' name='old_" . $field . "' value='" . $value . "'>";
+		$element .= "</div>";
+
+		return $element;
+	}
+
+	public static function hiddenNewArea($selector, $element) {
+		$script = $selector . '.find(".controls").find("input").hide().next("br").remove();';
+		$script .= $selector . '.find(".controls").append("' . $element . '");';
+
+		return $script;
+	}
+
+	public static function getVerifyName($verify) {
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->quoteName('#__extensions'));
+		$query->where($db->quoteName('type') . ' = ' . $db->quote('plugin'));
+		$query->where($db->quoteName('access') . ' = ' . $db->quote(1));
+		$query->where($db->quoteName('enabled') . ' = ' . $db->quote(1));
+		$query->where($db->quoteName('folder') . ' = ' . $db->quote('verify'));
+		$query->order('ordering');
+
+		$db->setQuery($query);
+		$items = $db->loadAssocList('element');
+
+		$verify_types = json_decode($verify, true);
+		unset($auths);
+		$auths = array ();
+		foreach ($verify_types as $verify_type) {
+			$auths[] = $items[$verify_type]["name"];
+		}
+
+		return implode("、", $auths);
 	}
 
 }

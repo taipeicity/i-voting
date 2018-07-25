@@ -2,7 +2,7 @@
 
 /**
 *   @package         Surveyforce
-*   @version           1.0-modified
+*   @version           1.1-modified
 *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
 *   @license            GPL-2.0+
 *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -35,7 +35,7 @@ class SurveyforceModelAutocheck extends JModelList {
         $query = $db->getQuery(true);
         
         $query->select('*');
-        $query->from($db->quoteName('#__survey_force_survs'));
+        $query->from($db->quoteName('#__survey_force_survs_release'));
         $query->where('id = ' . (int) $sid);
 
         $db->setQuery($query);
@@ -55,7 +55,7 @@ class SurveyforceModelAutocheck extends JModelList {
         
         $query->select('count(*) AS num');
         $query->from($db->quoteName('#__survey_force_vote', 'sfv'));
-        $query->join('LEFT', $db->quoteName('#__survey_force_survs', 'sfs') . ' ON sfv.survey_id = sfs.id');
+        $query->join('LEFT', $db->quoteName('#__survey_force_survs_release', 'sfs') . ' ON sfv.survey_id = sfs.id');
         $query->where($db->quoteName('survey_id') . ' = ' . (int) $sid);
         $query->where('sfs.vote_start > sfv.created');
 
@@ -76,7 +76,7 @@ class SurveyforceModelAutocheck extends JModelList {
         
         $query->select('count(DISTINCT ticket_num) AS num');
         $query->from($db->quoteName('#__survey_force_vote_detail', 'sfvd'));
-        $query->join('LEFT', $db->quoteName('#__survey_force_survs', 'sfs') . ' ON sfvd.survey_id = sfs.id');
+        $query->join('LEFT', $db->quoteName('#__survey_force_survs_release', 'sfs') . ' ON sfvd.survey_id = sfs.id');
         $query->where($db->quoteName('survey_id') . ' = ' . (int) $sid);
         $query->where('sfs.vote_start > sfvd.created');
 
@@ -97,10 +97,10 @@ class SurveyforceModelAutocheck extends JModelList {
         
         $query->select('count(*) AS num');
         $query->from($db->quoteName('#__survey_force_vote', 'sfv'));
-        $query->join('LEFT', $db->quoteName('#__survey_force_survs', 'sfs') . ' ON sfv.survey_id = sfs.id');
+        $query->join('LEFT', $db->quoteName('#__survey_force_survs_release', 'sfs') . ' ON sfv.survey_id = sfs.id');
         $query->where($db->quoteName('survey_id') . ' = ' . (int) $sid);
-        $query->where('sfs.vote_start < sfv.created');
-        $query->where('sfs.vote_end > sfv.created');
+        $query->where('sfs.vote_start <= sfv.created');
+        $query->where('sfs.vote_end >= sfv.created');
 
         $db->setQuery($query);
 
@@ -119,10 +119,10 @@ class SurveyforceModelAutocheck extends JModelList {
         
         $query->select('count(DISTINCT ticket_num) AS num');
         $query->from($db->quoteName('#__survey_force_vote_detail', 'sfvd'));
-        $query->join('LEFT', $db->quoteName('#__survey_force_survs', 'sfs') . ' ON sfvd.survey_id = sfs.id');
+        $query->join('LEFT', $db->quoteName('#__survey_force_survs_release', 'sfs') . ' ON sfvd.survey_id = sfs.id');
         $query->where($db->quoteName('survey_id') . ' = ' . (int) $sid);
-        $query->where('sfs.vote_start < sfvd.created');
-        $query->where('sfs.vote_end > sfvd.created');
+        $query->where('sfs.vote_start <= sfvd.created');
+        $query->where('sfs.vote_end >= sfvd.created');
 
         $db->setQuery($query);
 

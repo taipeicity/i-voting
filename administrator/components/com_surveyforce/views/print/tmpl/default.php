@@ -1,7 +1,7 @@
 <?php
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -25,13 +25,62 @@ if (count($verify_type) == 1) {
 		}
 	}
 }
-$proposal_process[1] = "初審階段";
-$proposal_process[2] = "討論階段";
+
+$document = JFactory::getDocument();
+
+if ($this->survey_item->stage >= 4) {
+	$agree  = (int) $this->survey_item->options_agree;
+	$oppose = (int) $this->survey_item->options_oppose;
+
+	$options_scale = true;
+	if ($agree === 0 and $oppose === 0) {
+		$options_scale = false;
+	}
+}
 ?>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+	<?php if ($this->survey_item->stage >= 4 && $agree > 0 && $oppose > 0) { ?>
+    google.charts.load("current", {packages: ["corechart"]});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Task', 'Agree & opopse'],
+            ['贊成：<?php echo $agree; ?>', <?php echo $agree; ?>],
+            ['反對：<?php echo $oppose; ?>', <?php echo $oppose; ?>]
+        ]);
+
+        var options = {
+            legend: {position: 'left'},
+            fontSize: 18,
+            fontName: '微軟正黑體',
+            tooltip: { trigger: 'none' },
+            pieSliceText: 'none',
+            slices: {
+                0: { color: '#edc240' },
+                1: { color: '#d0d2d3' }
+            },
+            pieHole: 0.5,
+            backgroundColor: 'transparent',
+            width: 400,
+            height: 100,
+            sliceVisibilityThreshold: .0001,
+            chartArea: { left:0, top:10, width: '100%', height: '80%' }
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+        chart.draw(data, options);
+    }
+	<?php } ?>
+</script>
 
 <style>
     .survey_print {
         width: 800px;
+		font-family: "微軟正黑體", Arial;
+		font-size: 14pt;
+		line-height: 1.8;
     }
 
     .item-list {
@@ -53,8 +102,8 @@ $proposal_process[2] = "討論階段";
     }
 
     .item-list img {
-        max-width: 200px;
-        max-height: 200px;
+        max-width: 200px !important;
+        max-height: 200px !important;
     }
 
     .question-list {
@@ -76,8 +125,8 @@ $proposal_process[2] = "討論階段";
     }
 
     .question-list img {
-        max-width: 200px;
-        max-height: 200px;
+        max-width: 200px !important;
+        max-height: 200px !important;
     }
 
     .question-list hr {
@@ -103,10 +152,12 @@ $proposal_process[2] = "討論階段";
             <th>名稱</th>
             <td><?php echo $this->survey_item->title; ?></td>
         </tr>
+
         <tr>
             <th>議題說明</th>
-            <td><?php echo $this->survey_item->desc; ?></td>
+            <td><?php echo nl2br($this->survey_item->desc); ?></td>
         </tr>
+
         <tr>
             <th>Banner</th>
             <td>
@@ -117,200 +168,252 @@ $proposal_process[2] = "討論階段";
 				?>
             </td>
         </tr>
-        <tr>
-            <th>版型</th>
-            <td>
-				<?php
-				switch ($this->survey_item->layout) {
-					case "default":
-						echo "上圖下文";
-						break;
-					case "blog":
-						echo "圖文並排";
-						break;
-					case "text":
-						echo "無圖有文";
-						break;
-				}
-				?>
-            </td>
-        </tr>
-        <tr>
-            <th>投票方式</th>
-            <td><?php echo $this->survey_item->vote_way; ?></td>
-        </tr>
-        <tr>
-            <th>投票人資格</th>
-            <td><?php echo $this->survey_item->voters_eligibility; ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_define) { ?>
+
+		<?php if ($this->survey_item->stage == 1) { ?>
             <tr>
-                <th>投票人驗證方式</th>
-                <td><?php echo $this->survey_item->voters_authentication; ?></td>
+                <th colspan="2">提案檢核階段</th>
             </tr>
-		<?php } ?>
-		<?php
-		if ($this->survey_item->is_define) {
-			if ($this->survey_item->verify_precautions) {
-				?>
+
+            <tr>
+                <th>提案人</th>
+                <td><?php echo $this->survey_item->proposer; ?></td>
+            </tr>
+
+            <tr>
+                <th>初擬投票議題</th>
+                <td><?php echo nl2br($this->survey_item->plan_quest); ?></td>
+            </tr>
+
+            <tr>
+                <th>初擬選項方案</th>
+                <td><?php echo nl2br($this->survey_item->plan_options); ?></td>
+            </tr>
+
+			<?php
+			$proposal = $this->survey_item->proposal_download ? $this->survey_item->proposal_download : $this->survey_item->proposal_url;
+			?>
+            <tr>
+                <th>初擬提案計畫書資料</th>
+                <td><?php echo $proposal; ?></td>
+            </tr>
+
+			<?php if ($this->survey_item->precautions) { ?>
                 <tr>
-                    <th>驗證方式注意事項說明</th>
-                    <td><?php echo $this->survey_item->verify_precautions; ?></td>
+                    <th>注意事項</th>
+                    <td><?php echo nl2br($this->survey_item->precautions); ?></td>
                 </tr>
-				<?php
-			}
-		}
-		?>
-		<?php
-		if ($this->survey_item->is_define) {
-			if (count($verify_type) == 1) {
-				?>
-                <tr class="not_define">
-                    <th>驗證強度</th>
-                    <td>
-                        <div class="verifylevel_intro">
-                            <img src="../images/system/VerifyLevel/verifylevel_<?php echo $level; ?>.svg" />
-                        </div>
-                    </td>
+			<?php } ?>
+
+			<?php if ($this->survey_item->second_the_motion) { ?>
+                <tr>
+                    <th>已附議票數</th>
+                    <td><?php echo $this->survey_item->second_the_motion; ?></td>
                 </tr>
-				<?php
-			}
-		}
-		?>
-		<?php if ($this->survey_item->is_define) { ?>
-            <tr>
-                <th>投票期間</th>
-                <td><?php echo $this->survey_item->during_vote; ?></td>
-            </tr>
+			<?php } ?>
+
+			<?php if ($this->survey_item->deadline != "0000-00-00 00:00:00") { ?>
+                <tr>
+                    <th>截止時間</th>
+                    <td><?php echo JHtml::_('date', $this->item->deadline, "Y年m月d日 H:i"); ?></td>
+                </tr>
+			<?php } ?>
 		<?php } ?>
-        <tr>
-            <th>宣傳推廣方式</th>
-            <td><?php echo $this->survey_item->promotion; ?></td>
-        </tr>
-        <tr style="display: none;">
-            <th>投票結果運用方式</th>
-            <td><?php echo $this->survey_item->results_using; ?></td>
-        </tr>
-        <tr>
-            <th>公布方式</th>
-            <td><?php echo $this->survey_item->announcement_method; ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_define) { ?>
+
+		<?php if ($this->survey_item->stage >= 2) { ?>
             <tr>
-                <th>公布日期</th>
-				<?php if (!preg_match("/(0000\-00\-00)/", $this->survey_item->announcement_date)) { ?>
-                    <td><?php echo JHtml::_('date', $this->survey_item->announcement_date, "Y年n月j日G點i分"); ?></td>
-				<?php } else { ?>
-                    <td>不公布</td>
-				<?php } ?>
+                <th colspan="2">提案初審階段</th>
             </tr>
-		<?php } ?>
-        <tr>
-            <th>目前進度</th>
-            <td><?php echo $this->survey_item->at_present; ?></td>
-        </tr>
-        <tr>
-            <th>討論管道</th>
-            <td><?php echo $this->survey_item->discuss_source; ?></td>
-        </tr>
-        <tr>
-            <th>投票結果運用方式</th>
-            <td>
-				<?php
-				switch ($this->survey_item->results_proportion) {
-					case "whole":
-						echo "完全參採";
-						break;
-					case "part":
-						echo "部分參採" . $this->survey_item->part . "%";
-						break;
-					case "committee":
-						echo "送請專業委員會決策考量";
-						break;
-					case "other":
-						echo "其他(" . $this->survey_item->other . ")";
-						break;
-				}
-				?>
-            </td>
-        </tr>
-		<?php if ($this->survey_item->other_data || $this->survey_item->other_data2 || $this->survey_item->other_data3) { ?>
+
             <tr>
-                <th>其他參考資料</th>
-                <td>
+                <th>初審結果說明</th>
+                <td><?php echo nl2br($this->survey_item->review_result); ?></td>
+            </tr>
+
+            <tr>
+                <th>初審會議記錄下載</th>
+                <td>第一次：<?php echo trim($this->survey_item->review_download); ?>
+
 					<?php
-					echo implode("，", $this->other_data);
+					if ($this->survey_item->review_download_ii) {
+						echo "<br>";
+						?>
+                        第二次：<?php echo trim($this->survey_item->review_download_ii); ?>
+						<?php
+					}
 					?>
                 </td>
             </tr>
 		<?php } ?>
-		<?php if ($this->survey_item->other_url) { ?>
-            <tr>
-                <th>其他參考網址</th>
-                <td><?php echo $this->survey_item->other_url; ?></td>
-            </tr>
-		<?php } ?>
-		<?php if ($this->survey_item->followup_caption) { ?>
-            <tr>
-                <th>後續辦理情形</th>
-                <td><?php echo $this->survey_item->followup_caption; ?></td>
-            </tr>
-		<?php } ?>
-        <tr>
-            <th>注意事項</th>
-            <td><?php echo $this->survey_item->precautions; ?></td>
-        </tr>
 
+		<?php if ($this->survey_item->stage >= 3) { ?>
+            <tr>
+                <th colspan="2">提案討論階段</th>
+            </tr>
 
-        <tr class="not_define">
-            <th>上架時間</th>
-            <td><?php echo JHtml::_('date', $this->survey_item->publish_up, JText::_('DATE_FORMAT_LC5')); ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_define) { ?>
             <tr>
-                <th>開始投票時間</th>
-                <td><?php echo JHtml::_('date', $this->survey_item->vote_start, JText::_('DATE_FORMAT_LC5')); ?></td>
+                <th>討論管道</th>
+                <td><?php echo nl2br($this->survey_item->discuss_source); ?></td>
             </tr>
+
             <tr>
-                <th>投票結束時間</th>
-                <td><?php echo JHtml::_('date', $this->survey_item->vote_end, JText::_('DATE_FORMAT_LC5')); ?></td>
+                <th>議題與選項方案規劃</th>
+                <td><?php echo nl2br($this->survey_item->discuss_plan_options); ?></td>
+            </tr>
+
+            <tr>
+                <th>投票人資格規劃</th>
+                <td><?php echo nl2br($this->survey_item->discuss_qualifications); ?></td>
+            </tr>
+
+            <tr>
+                <th>預計投票人驗證方式</th>
+                <td><?php echo SurveyforceHelper::getVerifyName($this->survey_item->discuss_verify); ?></td>
+            </tr>
+
+            <tr>
+                <th>預計投票時間</th>
+                <td><?php echo $this->survey_item->discuss_vote_time; ?></td>
+            </tr>
+
+            <tr>
+                <th>預計投票通過門檻</th>
+                <td><?php echo nl2br($this->survey_item->discuss_threshold); ?></td>
+            </tr>
+
+            <tr>
+                <th>提案計畫書下載</th>
+                <td><?php echo trim($this->survey_item->discuss_download); ?></td>
             </tr>
 		<?php } ?>
-        <tr>
-            <th>是否公開</th>
-            <td><?php echo ($this->survey_item->is_public) ? "是" : "否"; ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_public == 0) { ?>
+
+		<?php if ($this->survey_item->stage >= 4) { ?>
             <tr>
-                <th>非公開投票外框版型</th>
-                <td>版型<?php echo $this->survey_item_un_public_tmpl; ?></td>
+                <th colspan="2">形成選項階段</th>
+            </tr>
+
+            <tr>
+                <th>議題與選項方案凝聚</th>
+                <td><?php echo nl2br($this->survey_item->options_cohesion); ?></td>
+            </tr>
+
+			<?php if ($options_scale) { ?>
+                <tr>
+                    <th>討論意見比例</th>
+                    <td><span id="donutchart"></span></td>
+                </tr>
+			<?php } ?>
+
+            <tr>
+                <th>討論意見綜整說明與回應</th>
+                <td><?php echo nl2br($this->survey_item->options_caption); ?></td>
             </tr>
 		<?php } ?>
-        <tr>
-            <th>是否成案</th>
-            <td><?php echo ($this->survey_item->is_define) ? "是" : "否"; ?></td>
-        </tr>
-        <?php if($this->survey_item->is_define == 0){ ?>
-        <tr>
-            <th>提案流程</th>
-            <td><?php echo $proposal_process[$this->survey_item->proposal_process]; ?></td>
-        </tr>
-        <?php } ?>
-        <tr>
-            <th>投票模式</th>
-            <td>
-				<?php
-				if ($this->survey_item->vote_pattern == 1) {
-					echo "正式投票";
-				} else if ($this->survey_item->vote_pattern == 2) {
-					echo "練習投票";
-				} else {
-					echo "正式投票與練習投票";
-				}
-				?>
-            </td>
-        </tr>
-		<?php if ($this->survey_item->is_define) { ?>
+
+		<?php if ($this->survey_item->stage >= 5) { ?>
+            <tr>
+                <th colspan="2">宣傳準備與上架階段</th>
+            </tr>
+
+            <tr>
+                <th>議題與選項方案</th>
+                <td>如下(題目清單)</td>
+            </tr>
+
+            <tr>
+                <th>投票人資格</th>
+                <td><?php echo nl2br($this->survey_item->voters_eligibility); ?></td>
+            </tr>
+
+            <tr>
+                <th>投票人驗證方式</th>
+                <td><?php echo $this->survey_item->voters_authentication; ?></td>
+            </tr>
+
+            <tr>
+                <th>投票時間</th>
+                <td><?php echo $this->survey_item->during_vote; ?></td>
+            </tr>
+
+            <tr>
+                <th>投票方式</th>
+                <td><?php echo nl2br($this->survey_item->vote_way); ?></td>
+            </tr>
+
+            <tr>
+                <th>投票通過門檻</th>
+                <td><?php echo nl2br($this->survey_item->launched_condition); ?></td>
+            </tr>
+
+			<?php
+			switch ($this->survey_item->launched_date) {
+				case 1:
+					$announcement_date = "不公布";
+					break;
+				case 2:
+					$announcement_date = $this->survey_item->announcement_date;
+					break;
+				case 3:
+					$announcement_date = $this->survey_item->vote_end;
+					break;
+				default:
+					$announcement_date = $this->survey_item->vote_end;
+					break;
+			}
+			?>
+            <tr>
+                <th>投票公布日期</th>
+                <td><?php echo $announcement_date; ?></td>
+            </tr>
+
+            <tr>
+                <th>投票結果運用說明</th>
+                <td>
+					<?php
+					$results_proportion = ["whole" => "完全參採", "part" => "部分參採", "committee" => "送請專業委員會決策考量", "other" => "其他"];
+					echo $results_proportion[$this->survey_item->results_proportion];
+					if ($this->survey_item->results_proportion == "part") {
+						echo "<br>";
+						echo $this->survey_item->part;
+					}
+
+					if ($this->survey_item->results_proportion == "committee") {
+						echo "<br>";
+						echo nl2br($this->survey_item->committee);
+					}
+					?>
+                </td>
+            </tr>
+
+            <tr>
+                <th>完整提案計畫書下載</th>
+                <td><?php echo trim($this->survey_item->launched_download); ?></td>
+            </tr>
+		<?php } ?>
+
+		<?php if ($this->survey_item->stage == 6) { ?>
+            <tr>
+                <th colspan="2">投票、結果公布及執行</th>
+            </tr>
+
+            <tr>
+                <th>投票結果說明</th>
+                <td><?php echo nl2br($this->survey_item->result_instructions); ?></td>
+            </tr>
+
+            <tr>
+                <th>運用方式說明</th>
+                <td><?php echo nl2br($this->survey_item->how_to_use); ?></td>
+            </tr>
+		<?php } ?>
+    </table>
+
+	<?php if ($this->survey_item->stage > 4) { ?>
+
+        <p style="page-break-after:always"></p>
+        <b>議題設定</b>
+        <hr>
+        <table border="0" class="item-list">
+
             <tr>
                 <th>投票數設定</th>
                 <td>
@@ -338,58 +441,57 @@ $proposal_process[2] = "討論階段";
 					?>
                 </td>
             </tr>
-		<?php } ?>
-        <tr>
-            <th>電子郵件訊息通知</th>
-            <td><?php echo ($this->survey_item->is_notice_email) ? "是" : "否"; ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_notice_email) { ?>
-            <tr>
-                <th>電子郵件-投票前提醒</th>
-                <td><?php echo $this->survey_item->remind_text; ?></td>
-            </tr>
-            <tr>
-                <th>電子郵件-催票提醒</th>
-                <td><?php echo $this->survey_item->drumup_text; ?></td>
-            </tr>
-            <tr>
-                <th>電子郵件-投票結束通知提醒</th>
-                <td><?php echo $this->survey_item->end_text; ?></td>
-            </tr>
-		<?php } ?>
-        <tr>
-            <th>手機訊息通知</th>
-            <td><?php echo ($this->survey_item->is_notice_phone) ? "是" : "否"; ?></td>
-        </tr>
-		<?php if ($this->survey_item->is_notice_phone) { ?>
-            <tr>
-                <th>手機訊息-投票前提醒</th>
-                <td><?php echo $this->survey_item->phone_remind_text; ?></td>
-            </tr>
-            <tr>
-                <th>手機訊息-催票提醒</th>
-                <td><?php echo $this->survey_item->phone_drumup_text; ?></td>
-            </tr>
-            <tr>
-                <th>手機訊息-投票結束通知提醒</th>
-                <td><?php echo $this->survey_item->phone_end_text; ?></td>
-            </tr>
-            <tr>
-                <th>簡訊平台帳號</th>
-                <td><?php echo JHtml::_('utility.decode', $this->survey_item->sms_user); ?></td>
-            </tr>
-            <tr>
-                <th>簡訊平台密碼</th>
-                <td> (密碼不顯示)</td>
-            </tr>
-		<?php } ?>
 
-        <tr>
-            <th>啟用現地投票</th>
-            <td><?php echo ($this->survey_item->is_place) ? "是" : "否"; ?></td>
-        </tr>
+            <tr>
+                <th>電子郵件訊息通知</th>
+                <td><?php echo ($this->survey_item->is_notice_email) ? "是" : "否"; ?></td>
+            </tr>
+			<?php if ($this->survey_item->is_notice_email) { ?>
+                <tr>
+                    <th>電子郵件-投票前提醒</th>
+                    <td><?php echo $this->survey_item->remind_text; ?></td>
+                </tr>
+                <tr>
+                    <th>電子郵件-催票提醒</th>
+                    <td><?php echo $this->survey_item->drumup_text; ?></td>
+                </tr>
+                <tr>
+                    <th>電子郵件-投票結束通知提醒</th>
+                    <td><?php echo $this->survey_item->end_text; ?></td>
+                </tr>
+			<?php } ?>
+            <tr>
+                <th>手機訊息通知</th>
+                <td><?php echo ($this->survey_item->is_notice_phone) ? "是" : "否"; ?></td>
+            </tr>
+			<?php if ($this->survey_item->is_notice_phone) { ?>
+                <tr>
+                    <th>手機訊息-投票前提醒</th>
+                    <td><?php echo $this->survey_item->phone_remind_text; ?></td>
+                </tr>
+                <tr>
+                    <th>手機訊息-催票提醒</th>
+                    <td><?php echo $this->survey_item->phone_drumup_text; ?></td>
+                </tr>
+                <tr>
+                    <th>手機訊息-投票結束通知提醒</th>
+                    <td><?php echo $this->survey_item->phone_end_text; ?></td>
+                </tr>
+                <tr>
+                    <th>簡訊平台帳號</th>
+                    <td><?php echo JHtml::_('utility.decode', $this->survey_item->sms_user); ?></td>
+                </tr>
+                <tr>
+                    <th>簡訊平台密碼</th>
+                    <td> (密碼不顯示)</td>
+                </tr>
+			<?php } ?>
 
-		<?php if ($this->survey_item->is_define) { ?>
+            <tr>
+                <th>啟用現地投票</th>
+                <td><?php echo ($this->survey_item->is_place) ? "是" : "否"; ?></td>
+            </tr>
+
             <tr>
                 <th>驗證方式</th>
                 <td>
@@ -471,9 +573,10 @@ $proposal_process[2] = "討論階段";
                 <th>是否提供抽獎</th>
                 <td><?php echo ($this->survey_item->is_lottery) ? "是" : "否"; ?></td>
             </tr>
-		<?php } ?>
+        </table>
 
-    </table>
+	<?php } ?>
+
 	<?php if ($this->questions) { ?>
         <p style="page-break-after:always"></p>
         <b>題目清單</b>

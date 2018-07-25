@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -21,6 +21,15 @@ class SurveyforceControllerSurvey extends JControllerForm {
 	}
 
 	public function cancel() {
+		// 清掉階段的session
+		$input = JFactory::getApplication()->input;
+		$pk    = $input->get('id') ? $input->get('id') : 'new';
+
+		$session = JFactory::getSession();
+		$session->clear('edit_stage.' . $pk);
+		$session->clear('stage');
+		$session->clear('mark');
+
 		$this->setRedirect('index.php?option=com_surveyforce&view=surveys');
 	}
 
@@ -28,9 +37,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		jimport('joomla.filesystem.folder');
 		$app    = JFactory::getApplication();
 		$config = JFactory::getConfig();
-
-		$plugin        = JPluginHelper::getPlugin('system', 'switch');
-		$exercise_host = json_decode($plugin->params, true);
 
 		$ivoting_path      = $config->get('ivoting_path');
 		$ivoting_save_path = $config->get('ivoting_save_path');
@@ -41,6 +47,115 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$post = $app->input->getArray($_POST);
 
 		if ($app->input->get('task') == "apply" || $app->input->get('task') == "save") {
+
+			// 上傳檔案
+			if ($ivoting_path) {
+				$upload_files = $app->input->files->get("jform");
+
+				foreach ($upload_files as $field => $uploadFile) {
+					if ($field == "place_image") {
+						if ($validData["is_place"] != 1) {
+							continue;
+						}
+					}
+
+					if (is_array($uploadFile) && $uploadFile["name"]) {
+
+						$result["msg"] = "";
+
+						if ($uploadFile["error"] != 0) {
+							$result["msg"] = "上傳檔案失敗。";
+						}
+
+						$type = strpos($uploadFile["type"], "image") === false ? "pdf" : "image";
+
+						switch ($type) {
+							case "image":
+								$mb         = 2;
+								$allow_type = array ("image/jpeg", "image/pjpeg", "image/png", "image/gif");
+								$allow      = "jpg/png/gif";
+								break;
+							case"pdf":
+								$mb         = 5;
+								$allow_type = array ("application/pdf");
+								$allow      = "pdf";
+								break;
+						}
+
+						// 檢查檔案大小
+						if ($uploadFile["size"] > 1048576 * $mb) {
+							$result["msg"] = "上傳檔超過指定大小({$mb}MB)。";
+						}
+
+						// 檢查副檔名
+						if (!in_array($uploadFile["type"], $allow_type)) {
+							$result["msg"] = "只允許上傳檔案類型：{$allow}。";
+						}
+
+						// 上傳
+						if ($result["msg"] == "") {
+							if ($type == "image") {
+								// 非JPG檔做轉換
+								if (exif_imagetype($uploadFile['tmp_name']) != 2) {
+									JHtml::_('utility.transformImg', $uploadFile['tmp_name'], $uploadFile['tmp_name'], "jpeg");
+								}
+
+								// 壓縮圖片
+								JHtml::_('utility.compressImg', $tmp_path, $uploadFile['tmp_name'], 80);
+
+								$file      = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
+								$desc_file = JPATH_SITE . "/" . $file;
+								JFile::upload($uploadFile['tmp_name'], $desc_file);
+							} else {
+								// 上傳pdf
+								$desc_pdf = JPATH_SITE . DS . $ivoting_path . "/survey/pdf/" . $this->last_insert_id . DS . $field . ".pdf";
+								$file     = $uploadFile["name"];
+
+								// 檢查路徑權限，非755就修改
+								$check_permissions = substr(sprintf('%o', fileperms(JPATH_SITE . $ivoting_path . "/survey/pdf/" . $this->last_insert_id)), -4);
+								if ($check_permissions != "0755") {
+									chmod(JPATH_SITE . DS . $ivoting_path . "/survey/pdf/" . $this->last_insert_id, 0755);
+								}
+								if (!JFile::upload($uploadFile["tmp_name"], $desc_pdf)) {
+									JError::raiseWarning(100, "上傳檔案失敗。");
+								}
+							}
+						} else {
+							JError::raiseWarning(100, $result["msg"]);
+						}
+					} else {
+						$old_file = $app->input->getString('old_' . $field);
+						if ($old_file) {
+							$file = $old_file;
+						} else {
+							if (preg_match("/image/", $field)) {
+								if ($field == "place_image") {
+									$default_img = "images/system/idnum_sample.jpg";
+									$dest_img = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_place_image.jpg";
+								} else {
+									$default_img = "images/system/banner_default.jpg";
+									$dest_img = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
+								}
+
+								if (JFile::copy($default_img, $dest_img, JPATH_SITE)) {
+									$file = $dest_img;
+								} else {
+									$file = $default_img;
+								}
+							} else {
+								$old_pdf = $ivoting_path . "/survey/pdf/" . $this->last_insert_id . DS . $field . ".pdf";
+								if (JFile::exists(JPATH_SITE . DS . $old_pdf)) {
+									JFile::delete(JPATH_SITE . DS . $old_pdf);
+								}
+								$file = $old_file;
+							}
+						}
+					}
+					$model->updateField($field, $file, $this->last_insert_id);
+				}
+			} else {
+				JError::raiseWarning(100, '存檔路徑尚未設置，請通知系統管理員。');
+			}
 
 			// 驗證後置處理
 			switch ($post["verify_method"]) {
@@ -72,166 +187,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 					break;
 				default:
 					break;
-			}
-
-
-			// 上傳檔案
-			if ($ivoting_path) {
-				$upload_files = $app->input->files->get('jform');
-
-				// 上傳banner檔
-				$upload_file = $upload_files["image"];
-
-				if (is_array($upload_file) && $upload_file["name"]) {
-					if ($upload_file["error"] != 0) {
-						$result["msg"] = "上傳檔案失敗。";
-					}
-
-					// 檢查檔案大小
-					if ($upload_file["size"] > 2097152) {
-						$result["msg"] = "上傳檔超過指定大小(2MB)。";
-					}
-
-					// 檢查副檔名
-					$allow_files = array ("image/jpeg", "image/pjpeg", "image/png", "image/gif");
-					if (!in_array($upload_file["type"], $allow_files)) {
-						$result["msg"] = "只允許上傳圖片類型(jpg/png/gif)。";
-					}
-
-
-					// 上傳
-					if ($result["msg"] == "") {
-						// 非JPG檔做轉換
-						if (exif_imagetype($upload_file['tmp_name']) != 2) {
-							JHtml::_('utility.transformImg', $upload_file['tmp_name'], $upload_file['tmp_name'], "jpeg");
-						}
-
-						// 壓縮圖片
-						JHtml::_('utility.compressImg', $tmp_path, $upload_file['tmp_name'], 80);
-
-						$old_image = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
-						$desc_file = JPATH_SITE . "/" . $old_image;
-						JFile::upload($upload_file['tmp_name'], $desc_file);
-					} else {
-						JError::raiseWarning(100, $result["msg"]);
-					}
-				} else {  // 未上傳Banner時，先檢查是否已有舊圖，若沒有給預設圖
-					if ($app->input->getString('old_image')) {
-						$old_image = $app->input->getString('old_image');
-					} else {
-						$default_img = "images/system/banner_default.jpg";
-						$dest_img    = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
-
-						if (JFile::copy($default_img, $dest_img, JPATH_SITE)) {
-							$old_image = $dest_img;
-						} else {
-							$old_image = "";
-						}
-
-					}
-				}
-
-				// 更新image欄位
-				$model->updateField("image", $old_image, $this->last_insert_id);
-
-
-				// 上傳PDF檔
-				$upload_files["other_data"]["old_pdf"]  = $app->input->getString('old_pdf');
-				$upload_files["other_data2"]["old_pdf"] = $app->input->getString('old_pdf2');
-				$upload_files["other_data3"]["old_pdf"] = $app->input->getString('old_pdf3');
-
-				foreach ($upload_files as $i => $upload_file) {
-
-					if (array_key_exists("old_pdf", $upload_file)) { //只跑PDF檔
-						if ($upload_file["name"]) {
-							// 上傳
-							$old_pdf  = $ivoting_path . "/survey/pdf/" . $this->last_insert_id . DS . $i . ".pdf";
-							$desc_pdf = JPATH_SITE . DS . $old_pdf;
-							$pdf_name = $upload_file["name"];
-
-							// 檢查路徑權限，非755就修改
-							$check_permissions = substr(sprintf('%o', fileperms(JPATH_SITE . $ivoting_path . "/survey/pdf/" . $this->last_insert_id)), -4);
-							if ($check_permissions != "0755") {
-								chmod(JPATH_SITE . DS . $ivoting_path . "/survey/pdf/" . $this->last_insert_id, 0755);
-							}
-							if (!JFile::upload($upload_file["tmp_name"], $desc_pdf)) {
-								JError::raiseWarning(100, "上傳檔案失敗。");
-							}
-						} else {
-							$pdf_name = $upload_file["old_pdf"];
-
-							if (!$upload_file["old_pdf"]) {
-								$old_pdf = $ivoting_path . "/survey/pdf/" . $this->last_insert_id . DS . $i . ".pdf";
-								if (JFile::exists(JPATH_SITE . DS . $old_pdf)) {
-									JFile::delete(JPATH_SITE . DS . $old_pdf);
-								}
-							}
-						}
-						// 更新other_data, other_data2, other_data3欄位
-						$model->updateField($i, $pdf_name, $this->last_insert_id);
-					}
-
-				}
-
-				// 上傳掃描標的物圖片
-				if ($validData["is_place"] == 1) {
-					unset($upload_file);
-					$upload_file = $upload_files["place_image"];
-
-
-					if (is_array($upload_file) && $upload_file["name"]) {
-						if ($upload_file["error"] != 0) {
-							$result["msg"] = "上傳檔案失敗。";
-						}
-
-						// 檢查檔案大小
-						if ($upload_file["size"] > 2097152) {
-							$result["msg"] = "上傳檔超過指定大小(2MB)。";
-						}
-
-						// 檢查副檔名
-						$allow_files = array ("image/jpeg", "image/pjpeg", "image/png", "image/gif");
-						if (!in_array($upload_file["type"], $allow_files)) {
-							$result["msg"] = "只允許上傳圖片類型(jpg/png/gif)。";
-						}
-
-
-						// 上傳
-						if ($result["msg"] == "") {
-							// 非JPG檔做轉換
-							if (exif_imagetype($upload_file['tmp_name']) != 2) {
-								JHtml::_('utility.transformImg', $upload_file['tmp_name'], $upload_file['tmp_name'], "jpeg");
-							}
-
-							// 壓縮圖片
-							JHtml::_('utility.compressImg', $tmp_path, $upload_file['tmp_name'], 80);
-
-							$old_place_image = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_place_image" . ".jpg";
-							$desc_file       = JPATH_SITE . "/" . $old_place_image;
-							JFile::upload($upload_file['tmp_name'], $desc_file);
-						} else {
-							JError::raiseWarning(100, $result["msg"]);
-						}
-					} else {  // 未上傳圖片時，先檢查是否已有舊圖，若沒有給預設圖
-						if ($app->input->getString('old_place_image')) {
-							$old_place_image = $app->input->getString('old_place_image');
-						} else {
-							$default_img = "images/system/idnum_sample.jpg";
-							$dest_img    = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_place_image" . ".jpg";
-
-							if (JFile::copy(JPATH_SITE . "/" . $default_img, JPATH_SITE . "/" . $dest_img)) {
-								$old_place_image = $dest_img;
-							} else {
-								$old_place_image = "";
-							}
-						}
-					}
-
-					// 更新image欄位
-					$model->updateField("place_image", $old_place_image, $this->last_insert_id);
-				}
-			} else {
-				JError::raiseWarning(100, '存檔路徑尚未設置，請通知系統管理員。');
 			}
 
 
@@ -315,27 +270,30 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			$object = new stdClass();
 
-			$object->id                    = $this->last_insert_id;
-			$object->title                 = $prefix_words . $survs->title;
-			$object->voters_authentication = $survs->voters_authentication;
-			$object->image                 = str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->image);
-			$object->place_image           = str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->place_image);
+			$survs->id    = $this->last_insert_id;
+			$survs->title = $prefix_words . $survs->title;
+			$old_image    = $survs->image;
+			$survs->image = str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->image);
 
-			if ($survs->other_data) {
-				$object->other_data = $survs->other_data;
+			if ($survs->place_image) {
+				$old_place_image    = $survs->place_image;
+				$survs->place_image = str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->place_image);
 			}
 
-			if ($survs->other_data2) {
-				$object->other_data2 = $survs->other_data2;
-			}
-			if ($survs->other_data3) {
-				$object->other_data3 = $survs->other_data3;
-			}
+			$survs->published   = 0;
+			$survs->is_checked  = 0;
+			$survs->is_complete = 0;
+			$survs->created_by  = $user->get('id');
+			$survs->checked_by  = 0;
+			$survs->total_vote  = 0;
 
-			$object->created_by      = $user->get('id');
-			$object->checked_by      = 0;
-			$object->verify_required = $survs->verify_required;
-			$object->verify_type     = $survs->verify_type;
+			$survs->stage = 1;
+
+			$is_store = json_decode($survs->is_store, true);
+			foreach ($is_store as $num => $status) {
+				$is_store[$num] = false;
+			}
+			$survs->is_store = json_encode($is_store);
 
 			$verify_params = json_decode($survs->verify_params, true);
 			$now_time      = date("YmdHis", time());  // 取現在的時間當做table後綴字
@@ -404,13 +362,13 @@ class SurveyforceControllerSurvey extends JControllerForm {
 				$verify_params['any']['suffix'] = $now_time; // 處理新的後綴字
 			}
 
-			$object->verify_params = json_encode($verify_params);
+			$survs->verify_params = json_encode($verify_params);
 
 			try {
 
 				$db->transactionStart();
 
-				$db->updateObject('#__survey_force_survs', $object, 'id');
+				$db->updateObject('#__survey_force_survs', $survs, 'id');
 
 				$db->transactionCommit();
 
@@ -422,27 +380,26 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			}
 
-
 			// 複製圖片
-			JFile::copy($survs->image, str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->image), JPATH_SITE);
+			JFile::copy($old_image, $survs->image, JPATH_SITE);
 			// 複製現地圖片
 			if ($survs->place_image) {
-				JFile::copy($survs->place_image, str_replace($app->input->getInt('id'), $this->last_insert_id, $survs->place_image), JPATH_SITE);
+				JFile::copy($old_place_image, $survs->place_image, JPATH_SITE);
 			}
 
 			//檢查路徑
 			if (!JFolder::exists(JPATH_SITE . '/' . $ivoting_path . '/survey/pdf/' . $this->last_insert_id)) {
 				JFolder::create(JPATH_SITE . '/' . $ivoting_path . '/survey/pdf/' . $this->last_insert_id, 0755);
 			}
-			// 複製other data
-			if ($survs->other_data) {
-				JFile::copy($ivoting_path . '/survey/pdf/' . $app->input->getInt('id') . '/other_data.pdf', $ivoting_path . '/survey/pdf/' . $this->last_insert_id . '/other_data.pdf', JPATH_SITE);
-			}
-			if ($survs->other_data2) {
-				JFile::copy($ivoting_path . '/survey/pdf/' . $app->input->getInt('id') . '/other_data2.pdf', $ivoting_path . '/survey/pdf/' . $this->last_insert_id . '/other_data2.pdf', JPATH_SITE);
-			}
-			if ($survs->other_data3) {
-				JFile::copy($ivoting_path . '/survey/pdf/' . $app->input->getInt('id') . '/other_data3.pdf', $ivoting_path . '/survey/pdf/' . $this->last_insert_id . '/other_data3.pdf', JPATH_SITE);
+
+			$dh = opendir(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$app->input->getInt('id')}/");
+
+			while ($file = readdir($dh)) {
+				if (pathinfo($file, PATHINFO_EXTENSION) == "pdf") {
+					$src  = $ivoting_path . '/survey/pdf/' . $app->input->getInt('id') . '/' . $file;
+					$dest = $ivoting_path . '/survey/pdf/' . $this->last_insert_id . '/' . $file;
+					JFile::copy($src, $dest, JPATH_SITE);
+				}
 			}
 
 
@@ -762,68 +719,84 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$model  = $this->getModel();
 		$config = JFactory::getConfig();
 		$app    = JFactory::getApplication();
-		$jinput = $app->input;
 		$jform  = $app->input->get('jform', '', 'array');
 
 		$user    = JFactory::getUser();
 		$unit_id = $user->get('unit_id');
 
+		$check = true;
 
-		// 檢查是否有新增題目
-		$questions = $model->getQuestions($jform['id']);
-
-		if ($questions) {
-			//  檢查每個題目是否都有選項
-			unset($mesg);
-			$mesg = array ();
-			foreach ($questions as $question) {
-				if ($model->getOptionsCount($question->id) <= 0) {
-					$mesg[] = "題目 - " . $question->sf_qtext . " 尚未新增選項";
-				}
-			}
-
-			if (count($mesg) > 0) {
-				JError::raiseWarning(100, implode("<br>", $mesg));
-			} else {
-				// 更新欄位
-				$model->updateField("is_complete", 1, $jform['id']);
-				$model->updateField("is_checked", 0, $jform['id']);
-				$model->updateField("published", 0, $jform['id']);
-
-				// 寄發Email郵件通知審核人員
-				$users = $model->getUsersByUnit($unit_id);
-				foreach ($users as $user) {
-					$groups = JAccess::getGroupsByUser($user->id, false);
-					if (in_array(4, $groups) && $user->email) {
-
-						$sitename   = $config->get('sitename');
-						$from_email = $config->get('mailfrom');
-						$from_name  = $config->get('fromname');
-
-						$subject   = $sitename . "-議題審核通知";
-						$alert_msg = "<p>您好：<br><br>";
-						$alert_msg .= "新投票議題：「" . $jform['title'] . "」<br>";
-						$alert_msg .= "請盡速登入系統後台進行議題審核。<br><br>";
-						$alert_msg .= "" . $sitename . " 敬上<br><br>";
-						$alert_msg .= "◎備註：此信件由系統自動發出，請不要回覆。</p>";
-
-						$send_email_status = JHtml::_('utility.sendMail', $from_email, $from_name, $user->email, $subject, $alert_msg, 1);
+		$stage = [
+			1 => JText::_("COM_SURVEYFORCE_CHECK"), 2 => JText::_("COM_SURVEYFORCE_REVIEW"), 3 => JText::_("COM_SURVEYFORCE_DISCUSS"), 4 => JText::_("COM_SURVEYFORCE_OPTIONS"), 5 => JText::_("COM_SURVEYFORCE_LAUNCHED"), 6 => JText::_("COM_SURVEYFORCE_RESULT")
+		];
 
 
-						if (is_object($send_email_status)) {
-							$send_email_status = 0;
-							JHtml::_('utility.recordLog', "debug_log.php", "議題ID:" . $jform['id'] . ",審核通知無法發送", JLog::ERROR);
-						}
+		if (!$model->checkStore($jform['id'], $jform['stage'])) {
+			$check = false;
+			JError::raiseNotice(100, JText::sprintf('COM_SURVEYFORCE_SEND_CHECK', $stage[$jform['stage']]));
+		}
 
-						$encode_email = JHtml::_('utility.endcode', $user->email);
-						JHtml::_('utility.sendMailRecord', $send_email_status, $from_email, $from_name, $encode_email, $subject, $alert_msg, 1);
+		if ($jform["stage"] > 4) {
+			// 檢查是否有新增題目
+			$questions = $model->getQuestions($jform['id']);
+
+			if ($questions) {
+				//  檢查每個題目是否都有選項
+				unset($mesg);
+				$mesg = array ();
+				foreach ($questions as $question) {
+					if ($model->getOptionsCount($question->id) <= 0) {
+						$mesg[] = "題目 - " . $question->sf_qtext . " 尚未新增選項";
 					}
 				}
 
-				JError::raiseNotice(100, '議題送審成功，將由審核人員進行審核');
+				if (count($mesg) > 0) {
+					$check = false;
+					JError::raiseWarning(100, implode("<br>", $mesg));
+				}
+			} else {
+				$check = false;
+				JError::raiseWarning(100, '該議題未設定題目，請先新增題目。');
 			}
-		} else {
-			JError::raiseWarning(100, '該議題未設定題目，請先新增題目。');
+		}
+
+		if ($check) {
+			// 更新欄位
+			$model->updateField("is_complete", 1, $jform['id']);
+			$model->updateField("is_checked", 0, $jform['id']);
+			$model->updateField("published", 0, $jform['id']);
+
+			// 寄發Email郵件通知審核人員
+			$users = $model->getUsersByUnit($unit_id);
+			foreach ($users as $user) {
+				$groups = JAccess::getGroupsByUser($user->id, false);
+				if (in_array(4, $groups) && $user->email) {
+
+					$sitename   = $config->get('sitename');
+					$from_email = $config->get('mailfrom');
+					$from_name  = $config->get('fromname');
+
+					$subject   = $sitename . "-議題審核通知";
+					$alert_msg = "<p>您好：<br><br>";
+					$alert_msg .= "新投票議題：「" . $jform['title'] . "」<br>";
+					$alert_msg .= "請盡速登入系統後台進行議題審核。<br><br>";
+					$alert_msg .= "" . $sitename . " 敬上<br><br>";
+					$alert_msg .= "◎備註：此信件由系統自動發出，請不要回覆。</p>";
+
+					$send_email_status = JHtml::_('utility.sendMail', $from_email, $from_name, $user->email, $subject, $alert_msg, 1);
+
+
+					if (is_object($send_email_status)) {
+						$send_email_status = 0;
+						JHtml::_('utility.recordLog', "debug_log.php", "議題ID:" . $jform['id'] . ",審核通知無法發送", JLog::ERROR);
+					}
+
+					$encode_email = JHtml::_('utility.endcode', $user->email);
+					JHtml::_('utility.sendMailRecord', $send_email_status, $from_email, $from_name, $encode_email, $subject, $alert_msg, 1);
+				}
+			}
+
+			JError::raiseNotice(100, '議題送審成功，將由審核人員進行審核');
 		}
 
 
@@ -835,69 +808,91 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$model  = $this->getModel();
 		$config = JFactory::getConfig();
 		$app    = JFactory::getApplication();
-		$jinput = $app->input;
-		$jform  = $app->input->get('jform', '', 'array');
 
-		// 檢查是否有新增題目
-		$questions = $model->getQuestions($jform['id']);
+		$jform = $app->input->get('jform', '', 'array');
 
-		if ($questions) {
-			//  檢查每個題目是否都有選項
-			unset($mesg);
-			$mesg = array ();
-			foreach ($questions as $question) {
-				if ($model->getOptionsCount($question->id) <= 0) {
-					$mesg[] = "題目 - " . $question->sf_qtext . " 尚未新增選項";
+		$check = true;
+
+		$stage = [
+			1 => JText::_("COM_SURVEYFORCE_CHECK"), 2 => JText::_("COM_SURVEYFORCE_REVIEW"), 3 => JText::_("COM_SURVEYFORCE_DISCUSS"), 4 => JText::_("COM_SURVEYFORCE_OPTIONS"), 5 => JText::_("COM_SURVEYFORCE_LAUNCHED"), 6 => JText::_("COM_SURVEYFORCE_RESULT")
+		];
+
+
+		if (!$model->checkStore($jform['id'], $jform['stage'])) {
+			$check = false;
+			JError::raiseNotice(100, JText::sprintf('COM_SURVEYFORCE_SEND_CHECK', $stage[$jform['stage']]));
+		}
+
+		if ($jform["stage"] > 4) {
+
+			// 檢查是否有新增題目
+			$questions = $model->getQuestions($jform['id']);
+
+			if ($questions) {
+				//  檢查每個題目是否都有選項
+				unset($mesg);
+				$mesg = array ();
+				foreach ($questions as $question) {
+					if ($model->getOptionsCount($question->id) <= 0) {
+						$mesg[] = "題目 - " . $question->sf_qtext . " 尚未新增選項";
+					}
 				}
-			}
 
-			if (count($mesg) > 0) {
-				JError::raiseWarning(100, implode("<br>", $mesg));
+				if (count($mesg) > 0) {
+					$check = false;
+					JError::raiseWarning(100, implode("<br>", $mesg));
+				}
+
 			} else {
-
-				$date    = JFactory::getDate();
-				$nowDate = $date->toSql();
-				$user    = JFactory::getUser();
-				$user_id = $user->get('id');
-
-				// 更新欄位
-				$model->updateField("is_complete", 1, $jform['id']);
-				$model->updateField("is_checked", 1, $jform['id']);
-				$model->updateField("published", 1, $jform['id']);
-				$model->updateField("checked", $nowDate, $jform['id']);
-				$model->updateField("checked_by", $user_id, $jform['id']);
-
-				// 寄發Email郵件通知承辦人員
-				$user = JFactory::getUser($jform['created_by']);
-
-
-				$sitename   = $config->get('sitename');
-				$from_email = $config->get('mailfrom');
-				$from_name  = $config->get('fromname');
-
-				$subject   = $sitename . "-議題審核通過通知";
-				$alert_msg = "<p>您好：<br><br>";
-				$alert_msg .= "投票議題：「" . $jform['title'] . "」<br>";
-				$alert_msg .= "該議題已審核通過。<br><br>";
-				$alert_msg .= "" . $sitename . " 敬上<br><br>";
-				$alert_msg .= "◎備註：此信件由系統自動發出，請不要回覆。</p>";
-
-				$send_email_status = JHtml::_('utility.sendMail', $from_email, $from_name, $user->email, $subject, $alert_msg, 1);
-
-
-				if (is_object($send_email_status)) {
-					$send_email_status = 0;
-					JHtml::_('utility.recordLog', "debug_log.php", "議題ID:" . $jform['id'] . ",審核過通無法發送", JLog::ERROR);
-				}
-
-				$encode_email = JHtml::_('utility.endcode', $user->email);
-				JHtml::_('utility.sendMailRecord', $send_email_status, $from_email, $from_name, $encode_email, $subject, $alert_msg, 1);
-
-
-				JError::raiseNotice(100, '議題審核通過成功');
+				$check = false;
+				JError::raiseWarning(100, '該議題未設定題目，請確認是否已新增題目。');
 			}
-		} else {
-			JError::raiseWarning(100, '該議題未設定題目，請確認是否已新增題目。');
+		}
+
+		if ($check) {
+			$date    = JFactory::getDate();
+			$nowDate = $date->toSql();
+			$user    = JFactory::getUser();
+			$user_id = $user->get('id');
+
+			// 更新欄位
+			$model->updateField("is_complete", 1, $jform['id']);
+			$model->updateField("is_checked", 1, $jform['id']);
+			$model->updateField("published", 1, $jform['id']);
+			$model->updateField("checked", $nowDate, $jform['id']);
+			$model->updateField("checked_by", $user_id, $jform['id']);
+
+			// 將資料倒進release
+			$model->release($jform['id']);
+
+			// 寄發Email郵件通知承辦人員
+			$user = JFactory::getUser($jform['created_by']);
+
+
+			$sitename   = $config->get('sitename');
+			$from_email = $config->get('mailfrom');
+			$from_name  = $config->get('fromname');
+
+			$subject   = $sitename . "-議題審核通過通知";
+			$alert_msg = "<p>您好：<br><br>";
+			$alert_msg .= "投票議題：「" . $jform['title'] . "」<br>";
+			$alert_msg .= "該議題已審核通過。<br><br>";
+			$alert_msg .= "" . $sitename . " 敬上<br><br>";
+			$alert_msg .= "◎備註：此信件由系統自動發出，請不要回覆。</p>";
+
+			$send_email_status = JHtml::_('utility.sendMail', $from_email, $from_name, $user->email, $subject, $alert_msg, 1);
+
+
+			if (is_object($send_email_status)) {
+				$send_email_status = 0;
+				JHtml::_('utility.recordLog', "debug_log.php", "議題ID:" . $jform['id'] . ",審核過通無法發送", JLog::ERROR);
+			}
+
+			$encode_email = JHtml::_('utility.endcode', $user->email);
+			JHtml::_('utility.sendMailRecord', $send_email_status, $from_email, $from_name, $encode_email, $subject, $alert_msg, 1);
+
+
+			JError::raiseNotice(100, '議題審核通過成功');
 		}
 
 
@@ -1068,10 +1063,10 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			echo json_encode($db->loadObjectList());
 		}
-
+		exit;
 	}
 
-	public function other_data() {
+	public function getPdf() {
 
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
@@ -1140,6 +1135,70 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			return false;
 		}
+	}
+
+	public function change_stage() {
+		$input    = JFactory::getApplication()->input;
+		$formData = new JInput($input->get('jform', '', 'array'));
+
+		$stage = $formData->getInt("edit_stage");
+
+		$pk = $input->getInt("id") ? $input->getInt("id") : "new";
+
+		$session = JFactory::getSession();
+		$session->set("edit_stage." . $pk, $stage);
+
+		if ($input->getString("id")) {
+			$url = "index.php?option=com_surveyforce&view=survey&layout=edit&id=" . (int) $input->get("id") . "#locate";
+		} else {
+			$url = "index.php?option=com_surveyforce&view=survey&layout=edit#locate";
+		}
+		$this->setRedirect($url, false);
+	}
+
+	public function mark() {
+		$input = JFactory::getApplication()->input;
+		$mark  = $input->getString("mark");
+
+		$li = [
+			"survey-details" => 0, "survey-settings" => 1, "survey-verify" => 2, "survey-final" => 3
+		];
+
+		$session = JFactory::getSession();
+		$session->set("mark", $li[$mark]);
+
+		echo true;
+		exit;
+	}
+
+	public function add_setting() {
+		$input = JFactory::getApplication()->input;
+
+		$formData = new JInput($input->get('jform', '', 'array'));
+
+		$stage = $formData->getInt("stage");
+
+		$session = JFactory::getSession();
+		$session->set("stage", $stage);
+
+		if ($input->getString("id")) {
+			$url = "index.php?option=com_surveyforce&view=survey&layout=edit&id=" . (int) $input->get("id");
+		} else {
+			$url = "index.php?option=com_surveyforce&view=survey&layout=edit";
+		}
+		$this->setRedirect($url, false);
+	}
+
+	public function checkStore() {
+
+		$app   = JFactory::getApplication();
+		$stage = $app->input->getInt("stage");
+		$id    = $app->input->getInt("id");
+
+		$model = $this->getModel();
+		echo $model->checkStore($id, $stage);
+
+		exit;
 	}
 
 }

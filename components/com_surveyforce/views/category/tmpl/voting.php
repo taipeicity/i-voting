@@ -133,7 +133,7 @@ $status = $this->practice_pattern;
     </div>
 </div>
 
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script src="http://www.google.com/jsapi"></script>
 <script src="<?php echo JURI::root(); ?>components/com_surveyforce/assets/js/jquery.timers-1.2.js"></script>
 <script>
 

@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -83,33 +83,28 @@ class SurveyforceViewSurveys extends JViewLegacy {
 
 			switch ($view) {
 				case "intro":
+					$this->view = $view;
 					// 處理議題預覽的檔案路徑
-					preg_match_all('/href\=\"(.+)\"\>\</', $this->item->desc, $match_href);
+					preg_match_all('/href\=\"(.+?)\"/', $this->item->desc, $match_href);
 					foreach ($match_href[1] as $key => $path) {
-						$this->item->desc = str_replace($path, JURI::root() . $path, $this->item->desc);
+						if(!preg_match("/https?/", $path)){
+							$this->item->desc = str_replace($path, JURI::root() . $path, $this->item->desc);
+						}
 					}
 
 					// 處理議題預覽的檔案路徑
-					preg_match_all('/src\=\"(.+)\" alt/', $this->item->desc, $match_img);
+					preg_match_all('/src\=\"(.+?)\"/', $this->item->desc, $match_img);
 					foreach ($match_img[1] as $key => $path) {
-						$this->item->desc = str_replace($path, JURI::root() . $path, $this->item->desc);
+						if (!preg_match("/https?/", $path)) {
+							$this->item->desc = str_replace($path, JURI::root() . $path, $this->item->desc);
+						}
 					}
 
 					$this->questions = $this->get('Questions');
 					$this->options   = $this->get('Options');
 					$this->qrcode    = JHtml::_('utility.getQRcode', JUri::root() . $this->item->id . "-survey-intro");
 					$this->next_link = JRoute::_("index.php?option=com_surveyforce&task=surveys.preview_intro&id={$this->item->id}&layout=preview", false);
-					// 處理其他參考資料
-					if (!empty($this->item->other_data) && $this->item->other_data != null) {
-						$other_data['other_data'] = $this->item->other_data;
-					}
-					if (!empty($this->item->other_data2) && $this->item->other_data2 != null) {
-						$other_data['other_data2'] = $this->item->other_data2;
-					}
-					if (!empty($this->item->other_data3) && $this->item->other_data3 != null) {
-						$other_data['other_data3'] = $this->item->other_data3;
-					}
-					$this->data = $other_data;
+
 					require_once(JPATH_SITE . "/components/com_surveyforce/helpers/vote.php");
 
 					break;

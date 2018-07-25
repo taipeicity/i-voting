@@ -212,32 +212,20 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_sub_fields` (
 
 CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sf_cat` int(11) NOT NULL DEFAULT '0',
   `title` varchar(250) NOT NULL DEFAULT '' COMMENT '標題',
   `desc` text NOT NULL COMMENT '完整描述',
   `short_desc` text COMMENT '簡短描述',
   `vote_way` text NOT NULL COMMENT '投票方式',
   `voters_eligibility` text NOT NULL COMMENT '投票人資格',
   `voters_authentication` text NOT NULL COMMENT '投票人驗證方式',
-  `verify_precautions` text NOT NULL COMMENT '驗證方式注意事項說明',
   `during_vote` text NOT NULL COMMENT '投票期間',
-  `promotion` text NOT NULL COMMENT '宣傳推廣方式',
-  `results_using` text NOT NULL COMMENT '投票結果運用方式',
   `announcement_date` datetime NOT NULL COMMENT '公布方式及日期',
-  `announcement_method` text NOT NULL COMMENT '公佈方式',
   `precautions` text NOT NULL COMMENT '注意事項',
-  `results_proportion` text NOT NULL COMMENT '預定結果參採比重',
+  `results_proportion` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '預定結果參採比重',
   `part` text NOT NULL COMMENT '部分參採',
-  `other` text NOT NULL COMMENT '其他',
-  `other_data` text COMMENT '其他參考資料',
-  `other_data2` text COMMENT '其他參考資料',
-  `other_data3` text COMMENT '其他參考資料',
-  `other_url` text COMMENT '其他參考網址',
-  `followup_caption` text NOT NULL COMMENT '後續辦理情形說明',
-  `at_present` text NOT NULL COMMENT '目前進度',
+  `other` text NOT NULL COMMENT '其他',   
   `discuss_source` text NOT NULL COMMENT '討論管道',
   `image` varchar(50) NOT NULL DEFAULT '' COMMENT '圖片',
-  `layout` varchar(20) NOT NULL,
   `remind_text` text NOT NULL COMMENT '投票前提醒',
   `drumup_text` text NOT NULL COMMENT '催票提醒',
   `end_text` text NOT NULL COMMENT '投票結束提醒',
@@ -249,8 +237,7 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `is_public` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否公開',
   `un_public_tmpl` tinyint(4) unsigned NOT NULL COMMENT '非公開投票版型',
   `is_define` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否成案',
-  `proposal_process` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT '提案流程',
-  `vote_pattern` tinyint(4) NOT NULL DEFAULT '1' COMMENT '投票模式',
+  `vote_pattern` tinyint(4) NOT NULL DEFAULT '3' COMMENT '投票模式',
   `hits` int(10) unsigned NOT NULL DEFAULT '0',
   `asset_id` int(10) NOT NULL DEFAULT '0',
   `published` tinyint(4) NOT NULL DEFAULT '0' COMMENT '發佈',
@@ -284,8 +271,47 @@ CREATE TABLE IF NOT EXISTS `efa_survey_force_survs` (
   `is_place` tinyint(4) NOT NULL COMMENT '是否有現地投票',
   `place_image` varchar(50) NOT NULL COMMENT '掃描標的物圖片',
   `is_analyze` tinyint(4) NOT NULL DEFAULT '0' COMMENT '分析功能',
+  `stage` TINYINT( 3 ) NOT NULL DEFAULT  '1' COMMENT  '議題階段(1：提案檢核階段 2：提案初審階段 3：提案討論階段 4：形成選項階段 5：宣傳準備上下階段 6：投票、結果公布及執行)',
+  `is_store` VARCHAR( 255 ) NOT NULL COMMENT  '檢查儲存階段',
+  `proposer` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '提案人',
+  `plan_quest` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '初擬投票議題',
+  `plan_options` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '初擬選項方案',
+  `proposal` TINYINT( 2 ) NOT NULL COMMENT  '初擬提案計畫書資料',
+  `proposal_download` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行政機關(檔案上傳)',
+  `proposal_url` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '非行政機關(超連結)',
+  `second_the_motion` INT( 21 ) NOT NULL COMMENT '已附議票數', ADD `deadline` DATETIME NOT NULL COMMENT '截止時間',
+  `review_result` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '初審結果說明',
+  `review_download` VARCHAR( 255 ) NOT NULL COMMENT '初審會議下載(一)',
+  `review_download_ii` VARCHAR( 255 ) NOT NULL COMMENT '初審會議下載(二)',
+  `discuss_plan_options` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '議題與選項方案規劃',
+  `discuss_qualifications` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '投票人資格規劃',
+  `discuss_verify` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '預計投票人驗證方式規劃',
+  `discuss_vote_time` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '預計投票時間',
+  `discuss_vote_start` DATETIME NOT NULL COMMENT  '預計投票時間(開始)',
+  `discuss_vote_end` DATETIME NOT NULL COMMENT  '預計投票時間(結束)',
+  `discuss_threshold` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '預計投票通過門檻',
+  `discuss_download` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '提案計畫書下載',
+  `options_cohesion` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '議題與選項方案凝聚',
+  `options_agree` MEDIUMINT( 8 ) NOT NULL COMMENT  '討論意見比例(贊成)',
+  `options_oppose` MEDIUMINT( 8 ) NOT NULL COMMENT  '討論意見比例(反對)',
+  `options_caption` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '討論意見綜整說明'
+  `launched_condition` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '投票通過門檻',
+  `launched_date` TINYINT( 2 ) NOT NULL COMMENT  '投票公布日期參數',
+  `launched_download` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '完整提案計畫書下載',
+  `result_instructions` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '投票結果說明',
+  `how_to_use` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT  '運用方式說明',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- 資料表格式： `efa_survey_force_survs_release`
+--
+
+CREATE TABLE `efa_survey_force_survs_release` LIKE `efa_survey_force_survs`;
+ALTER TABLE  `efa_survey_force_survs_release` CHANGE  `id`  `id` INT( 11 ) NOT NULL;
+INSERT `efa_survey_force_survs_release` SELECT * FROM `efa_survey_force_survs`;
 
 -- --------------------------------------------------------
 

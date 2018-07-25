@@ -734,7 +734,7 @@ $nowDate = $date->toSql();
     <noscript>您的瀏覽器不支援script程式碼。請使用"Backspace"按鍵回到上一頁。</noscript>
 </div>
 
-<script type="text/javascript">
+<script>
 	<?php
 	if ($this->chart == "pie") {
 	// 圓餅圖

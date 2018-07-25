@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.3-modified
+ * @version            1.2-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -43,7 +43,6 @@ class SurveyforceViewCategory extends JViewLegacy {
 		$soons      = $this->get('SoonCounts');
 		$completeds = $this->get('CompletedCounts');
 
-
 		if ($session->get('practice_pattern')) { //練習區
 
 			$status                 = $session->get('practice_pattern');
@@ -70,16 +69,16 @@ class SurveyforceViewCategory extends JViewLegacy {
 				}
 			}
 
-			// 計算「提案資料內容」正式投票有幾個議題
+			// 計算「提案初審討論」正式投票有幾個議題
 			foreach ($soons as $soon) {
 				if ($soon->vote_pattern == 1 || $soon->vote_pattern == 3) {
 					$soon_count += 1;
 				}
 			}
 
-			// 計算「已完成的投票」正式投票有幾個議題
+			// 計算「案件歷史資料」正式投票有幾個議題
 			foreach ($completeds as $completed) {
-				if ($completed->vote_pattern) {
+				if ($completed->vote_pattern == 1 || $completed->vote_pattern == 3) {
 					$completed_count += 1;
 				}
 			}
@@ -115,7 +114,7 @@ class SurveyforceViewCategory extends JViewLegacy {
 		}
 
 		if ($layout == "soon") {
-			$this->condition = $session->get('soon.radio');
+			$this->condition = $session->get('soon.radio', 1);
 		}
 
 		$menu            = $app->getMenu();

@@ -1,10 +1,10 @@
 <?php
 /**
- * @package     Joomla.Administrator
- * @subpackage  com_deliberation
- *
- * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @package            Surveyforce
+ * @version            1.0-modified
+ * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 
 defined('_JEXEC') or die;
@@ -68,10 +68,8 @@ if ($this->canDo->get('core.own')) { // 系統管理者
             var analyze_id = jQuery(".analyze_id").eq(index).val();
             var action = "publish";
             var url = "index.php?option=com_surveyforce&task=survey.analyze";
-            jQuery.post(url, {publish: publish, analyze_id: analyze_id, action: action}, function (result) {
-                if (result) {
-                    jQuery("#adminForm").submit();
-                }
+            jQuery.post(url, {publish: publish, analyze_id: analyze_id, action: action}, function () {
+                jQuery("#adminForm").submit();
             });
         });
 
@@ -89,10 +87,8 @@ if ($this->canDo->get('core.own')) { // 系統管理者
             var analyze_id = jQuery(".analyze_id").eq(index).val();
             var action = "required";
             var url = "index.php?option=com_surveyforce&task=survey.analyze";
-            jQuery.post(url, {required: required, analyze_id: analyze_id, action: action}, function (result) {
-                if (result) {
-                    jQuery("#adminForm").submit();
-                }
+            jQuery.post(url, {required: required, analyze_id: analyze_id, action: action}, function () {
+                jQuery("#adminForm").submit();
             });
         });
 

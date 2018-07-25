@@ -1,7 +1,7 @@
 <?php
 /**
  * @package            Surveyforce
- * @version            1.2-modified
+ * @version            1.3-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -33,6 +33,10 @@ $sortFields = $this->getSortFields();
 
 $self_gps    = JUserHelper::getUserGroups($user->get('id'));
 $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review');
+
+$stage = [
+	1 => JText::_("COM_SURVEYFORCE_CHECK"), 2 => JText::_("COM_SURVEYFORCE_REVIEW"), 3 => JText::_("COM_SURVEYFORCE_DISCUSS"), 4 => JText::_("COM_SURVEYFORCE_OPTIONS"), 5 => JText::_("COM_SURVEYFORCE_LAUNCHED"), 6 => JText::_("COM_SURVEYFORCE_RESULT")
+];
 ?>
 <?php // echo $this->loadTemplate('menu');                             ?>
 
@@ -158,8 +162,12 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
                            title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
                 </th>
 
-                <th width="1%" class="nowrap center">
+                <th width="3%" class="nowrap center">
                     流程狀態
+                </th>
+
+                <th width="10%" class="nowrap center">
+                    階段
                 </th>
 
                 <th class="nowrap center">
@@ -194,7 +202,7 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
                     題目
                 </th>
 
-                <th width="10%" class="nowrap center">
+                <th width="5%" class="nowrap center">
                     功能
                 </th>
 
@@ -238,33 +246,42 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
 						if ($item->is_complete) {
 							if ($item->is_checked) {
 								if (strtotime($item->publish_up) < strtotime($nowDate)) {
-									if (strtotime($item->vote_start) < strtotime($nowDate)) {
-										if (strtotime($item->vote_end) < strtotime($nowDate)) {
-											$is_finish = true;
-											if (strtotime($item->publish_down) < strtotime($nowDate)) {
-												echo "已下架";
+									if ($item->release_stage > 5) {
+										if (strtotime($item->vote_start) < strtotime($nowDate)) {
+											if (strtotime($item->vote_end) < strtotime($nowDate)) {
+												$is_finish = true;
+												if (strtotime($item->publish_down) < strtotime($nowDate)) {
+													echo "已下架";
+												} else {
+													echo JText::_("COM_SURVEYFORCE_LIST_STATUS_COMPLETED");
+												}
 											} else {
-												echo "已結束";
+												$is_processing = true;
+												echo JText::_("COM_SURVEYFORCE_LIST_STATUS_VOTING");
 											}
 										} else {
-											$is_processing = true;
-											echo "進行中";
+											echo JText::_("COM_SURVEYFORCE_LIST_STATUS_TO_BE_VOTE");
 										}
 									} else {
-										echo "待投票";
+										echo JText::_("COM_SURVEYFORCE_LIST_STATUS_VOTING");
 									}
 								} else {
-									echo "待上架";
+									echo JText::_("COM_SURVEYFORCE_LIST_STATUS_TO_BE_LAUNCHED");
 								}
 							} else {
-								echo "待審核";
+								echo JText::_("COM_SURVEYFORCE_LIST_STATUS_TO_BE_CHECK");
 							}
 						} else {
-							echo "草稿";
+							echo JText::_("COM_SURVEYFORCE_LIST_STATUS_DRAFT");
 						}
 						?>
                     </td>
 
+                    <td class="center">
+                        <?php
+                        echo $stage[$item->release_stage] ? $stage[$item->release_stage] : "尚未送審";
+                        ?>
+                    </td>
 
                     <td class="nowrap">
                         <div style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden; width:200px;">
@@ -281,12 +298,28 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
 						<?php echo JHtml::_('date', $item->publish_up, JText::_('DATE_FORMAT_LC5')); ?>
                     </td>
 
+					<?php
+					$check_stage = $item->release_stage >= 5 ? true : false;
+					?>
                     <td class="center">
-						<?php echo JHtml::_('date', $item->vote_start, JText::_('DATE_FORMAT_LC5')); ?>
+						<?php
+						if ($check_stage) {
+							echo JHtml::_('date', $item->vote_start, JText::_('DATE_FORMAT_LC5'));
+						} else {
+							echo JText::_('COM_SURVEYFORCE_LIST_VOTE_TIME');
+						}
+						?>
+
                     </td>
 
                     <td class="center">
-						<?php echo JHtml::_('date', $item->vote_end, JText::_('DATE_FORMAT_LC5')); ?>
+						<?php
+						if ($check_stage) {
+							echo JHtml::_('date', $item->vote_end, JText::_('DATE_FORMAT_LC5'));
+						} else {
+							echo JText::_('COM_SURVEYFORCE_LIST_VOTE_TIME');
+						}
+						?>
                     </td>
 
 
@@ -342,12 +375,13 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
 
 
 								<?php
-
-								if ($this->is_testsite == false && $this->testsite_link) {
+								if (($this->is_testsite == false && $this->testsite_link) && $item->stage >= 5) {
 									$funs[] = '<a class="hasTooltip" href="javascript:void(0);" onclick="show_test(' . $item->id . ')" title="投票測試">投票測試</a>';
 								}
 
-								$funs[] = '<a class="hasTooltip" href="index.php?option=com_surveyforce&view=print&surv_id=' . $item->id . '" title="議題列印" target="_blank">議題列印</a>';
+								if($item->release_stage) {
+									$funs[] = '<a class="hasTooltip" href="index.php?option=com_surveyforce&view=print&surv_id=' . $item->id . '" title="議題列印" target="_blank">議題列印</a>';
+								}
 
 								if ($item->is_checked) {
 									if ($item->is_public == 0) {
@@ -442,7 +476,7 @@ $core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review'
 								unset($funs);
 								$funs = array ();
 
-								if (in_array($this->print, $user->groups)) {
+								if (in_array($this->print, $user->groups) && $item->release_stage) {
 									$funs[] = '<a class="hasTooltip" href="index.php?option=com_surveyforce&view=print&surv_id=' . $item->id . '" title="議題列印" target="_blank">議題列印</a>';
 								}
 

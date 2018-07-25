@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -55,13 +55,15 @@ class SurveyforceModelSurveys extends JModelList {
 
 		$db    = $this->getDbo();
 		$query = $db->getQuery(true);
-		$query->select('s.`id`, s.`title`, s.`is_public`, s.`published`, s.is_complete, s.is_checked, s.vote_pattern, s.publish_up, s.publish_down, s.vote_start, s.vote_end, s.created_by, s.is_lottery, s.is_place, s.verify_type, s.verify_params, s.display_result, s.is_analyze');
-		$query->from('`#__survey_force_survs` as s');
+		$query->select('s.`id`, s.`title`, s.`is_public`, s.`published`, s.is_complete, s.is_checked, s.vote_pattern, s.publish_up, s.publish_down, s.vote_start, s.vote_end, s.created_by, s.is_lottery, s.is_place, s.verify_type, s.verify_params, s.display_result, s.is_analyze, s.stage');
+		$query->from($db->quoteName('#__survey_force_survs', 's'));
 
 		$query->select('u.unit_id, u.name as create_name');
 		$query->join('LEFT', '#__users AS u ON u.id = s.created_by');
 		$query->select('ut.title as unit_title');
 		$query->join('LEFT', '#__unit AS ut ON ut.id = u.unit_id');
+		$query->select('sr.stage AS release_stage');
+		$query->join('LEFT', $db->quoteName('#__survey_force_survs_release', 'sr') . ' ON sr.id = s.id');
 
 		$search = $this->getState('filter.search');
 		if (!empty($search)) {
@@ -124,36 +126,6 @@ class SurveyforceModelSurveys extends JModelList {
 		return $rows;
 	}
 
-	function delete($cid) {
-		$db    = JFactory::getDbo();
-		$query = $db->getQuery(true);
-		$query->delete('#__survey_force_survs');
-		$query->where('id IN (' . implode(',', $cid) . ')');
-		$db->setQuery($query);
-	}
-
-	public function publish($cid, $value = 1) {
-		$database = JFactory::getDBO();
-		$task     = JFactory::getApplication()->input->getCmd('task');
-		$state    = ($task == 'publish') ? 1 : 0;
-
-		if (!is_array($cid) || count($cid) < 1) {
-			$action = ($task == 'publish') ? 'publish' : 'unpublish';
-			echo "<script> alert('" . JText::_('COM_SURVEYFORCE_SELECT_AN_ITEM_TO') . " $action'); window.history.go(-1);</script>\n";
-			exit();
-		}
-
-		$cids = implode(',', $cid);
-
-		$query = "UPDATE #__survey_force_survs" . "\n SET published = " . intval($state) . "\n WHERE id IN ( $cids )";
-		$database->setQuery($query);
-		if (!$database->execute()) {
-			echo "<script> alert('" . $database->getErrorMsg() . "'); window.history.go(-1); </script>\n";
-			exit();
-		}
-
-		return true;
-	}
 
 	public function getGroupLevel() {
 		$db    = JFactory::getDbo();
@@ -216,7 +188,7 @@ class SurveyforceModelSurveys extends JModelList {
 		$rows = $db->loadObjectList('sf_survey');
 
 		foreach ($items as $key => $item) {
-			if ($rows[$item->id]) {
+			if (isset($rows[$item->id])) {
 				$items[$key]->questions = 1;
 			}else{
 				$items[$key]->questions = 0;

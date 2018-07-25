@@ -128,8 +128,8 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 <?php } ?>
 
 
-<script type="text/javascript" src="<?php echo JURI::root(); ?>media/jui/js/html2canvas.js"></script>
-<script type="text/javascript" src="<?php echo JURI::root(); ?>media/jui/js/jquery.plugin.html2canvas.js"></script>
+<script src="<?php echo JURI::root(); ?>media/jui/js/html2canvas.js"></script>
+<script src="<?php echo JURI::root(); ?>media/jui/js/jquery.plugin.html2canvas.js"></script>
 
 <script>
     var _select_nums = 0;

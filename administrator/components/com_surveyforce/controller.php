@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -119,7 +119,7 @@ class SurveyforceController extends JControllerLegacy {
         // 依序取得議題、題目、選項的資料
         $query = $db->getQuery(true);
         $query->select('*');
-        $query->from('#__survey_force_survs');
+        $query->from('#__survey_force_survs_release');
         $query->where('id = ' . $db->quote($survey_id));
         $db->setQuery($query);
         $survey_row = $db->loadAssoc();

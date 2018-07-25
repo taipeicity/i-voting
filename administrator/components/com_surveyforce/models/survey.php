@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.0-modified
+ * @version            1.1-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -59,7 +59,7 @@ class SurveyforceModelSurvey extends JModelAdmin {
 	public function getAllVerifyType() {
 		$db = JFactory::getDBO();
 
-		$db->setQuery("SELECT * FROM `#__extensions` WHERE `type` = 'plugin' and `access` = '1' and `enabled` = '1' and `folder` = 'verify' Order by `ordering`");
+		$db->setQuery("SELECT * FROM `#__extensions` WHERE `type` = 'plugin' AND `access` = '1' AND `enabled` = '1' AND `folder` = 'verify' ORDER BY `ordering`");
 		$items = $db->loadObjectList();
 
 		return $items;
@@ -177,17 +177,15 @@ class SurveyforceModelSurvey extends JModelAdmin {
 			unlink(JPATH_SITE . "/" . $survey_row->image);
 		}
 
-		if (JFile::exists(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data.pdf")) {
-			JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data.pdf");
+		$dh   = opendir(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/");
+
+		while ($file = readdir($dh)) {
+			if(pathinfo($file, PATHINFO_EXTENSION) == "pdf"){
+				JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/{$file}");
+			}
 		}
-		if (JFile::exists(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data2.pdf")) {
-			JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data2.pdf");
-		}
-		if (JFile::exists(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data3.pdf")) {
-			JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/" . $_survey_id . "/other_data3.pdf");
-		}
-		
-		if(in_array('assign', json_decode($survey_row->verify_type, true))){
+
+		if (in_array('assign', json_decode($survey_row->verify_type, true))) {
 			$query = $db->getQuery(true);
 			$query->delete('#__assign_summary');
 			$query->where('survey_id = ' . $db->quote($_survey_id));
@@ -198,6 +196,13 @@ class SurveyforceModelSurvey extends JModelAdmin {
 		// 刪除議題資料
 		$query = $db->getQuery(true);
 		$query->delete('#__survey_force_survs');
+		$query->where('id = ' . $db->quote($_survey_id));
+		$db->setQuery($query);
+		$db->execute();
+
+		// 刪除release議題資料
+		$query = $db->getQuery(true);
+		$query->delete('#__survey_force_survs_release');
 		$query->where('id = ' . $db->quote($_survey_id));
 		$db->setQuery($query);
 		$db->execute();
@@ -353,11 +358,11 @@ class SurveyforceModelSurvey extends JModelAdmin {
 		} else {
 			$result = [];
 			foreach ($rows as $i => $row) {
-				$result[$row->quest_title]['quest_id']    = $row->qid;
-				$result[$row->quest_title]['analyze_id']  = $row->aid;
-				$result[$row->quest_title]['surv_id']     = $row->surv_id;
-				$result[$row->quest_title]['publish']     = $row->publish;
-				$result[$row->quest_title]['required']    = $row->required;
+				$result[$row->quest_title]['quest_id']   = $row->qid;
+				$result[$row->quest_title]['analyze_id'] = $row->aid;
+				$result[$row->quest_title]['surv_id']    = $row->surv_id;
+				$result[$row->quest_title]['publish']    = $row->publish;
+				$result[$row->quest_title]['required']   = $row->required;
 			}
 
 			return $result;
@@ -410,8 +415,7 @@ class SurveyforceModelSurvey extends JModelAdmin {
 					);
 
 					$values = array (
-						$db->quote($surv_id), $db->quote($row->qid), $db->quote($row->quest_title),
-						$db->quote($row->fid), $db->quote($row->field_title), $db->quote(0), $db->quote($created)
+						$db->quote($surv_id), $db->quote($row->qid), $db->quote($row->quest_title), $db->quote($row->fid), $db->quote($row->field_title), $db->quote(0), $db->quote($created)
 					);
 
 					$query->insert($db->quoteName('#__survey_force_analyze_count'));
@@ -485,6 +489,81 @@ class SurveyforceModelSurvey extends JModelAdmin {
 
 
 		return true;
+	}
+
+	public function release($id) {
+
+		$db = $this->getDBO();
+
+		// 搜尋該議題
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->quoteName('#__survey_force_survs'));
+		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+
+		$db->setQuery($query);
+		$items = $db->loadObject();
+
+		// 搜尋release的議題
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->quoteName('#__survey_force_survs_release'));
+		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+
+		$db->setQuery($query);
+
+		$delete = true;
+		if ($db->loadObject()) { // 如果有就刪除
+			try {
+
+				$query = $db->getQuery(true);
+
+				$db->transactionStart();
+
+				$query->delete($db->quoteName('#__survey_force_survs_release'));
+				$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+
+				$db->setQuery($query);
+				$db->execute();
+
+				$db->transactionCommit();
+
+
+			} catch (Exception $e) {
+				// catch any database errors.
+				$db->transactionRollback();
+				JHtml::_('utility.recordLog', "db_log.php", sprintf("無法刪除：%s", $e), JLog::ERROR);
+				$delete = false;
+			}
+		}
+
+		// 新增至release資料表
+		if ($delete) {
+			return $db->insertObject('#__survey_force_survs_release', $items);
+		} else {
+			return false;
+		}
+
+	}
+
+	public function checkStore($id, $stage){
+
+		$db = $this->getDBO();
+		$query = $db->getQuery(true);
+
+		$query->select('is_store');
+		$query->from($db->quoteName('#__survey_force_survs'));
+		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+
+		$db->setQuery($query);
+		$item = $db->loadObject();
+
+		$is_store = json_decode($item->is_store, true);
+
+		return json_encode($is_store[$stage]);
+
 	}
 
 }
