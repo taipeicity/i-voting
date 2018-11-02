@@ -1,4 +1,7 @@
 Change Log
+[v2.6] (2018-11-02)
+- 修改README.md，更新joomla版本3.9
+
 [v2.5] (2018-10-15)
 - 修改README.md，更新joomla版本3.8.13
 
