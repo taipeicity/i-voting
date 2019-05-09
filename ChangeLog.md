@@ -1,4 +1,7 @@
 Change Log
+[v3.2] (2019-05-9)
+- 修改README.md，更新joomla版本3.9.6
+
 [v3.1] (2019-04-10)
 - 修改README.md，更新joomla版本3.9.5
 
