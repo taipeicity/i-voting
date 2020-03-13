@@ -1,4 +1,7 @@
 Change Log
+[v4.2] (2020-03-13)
+- 修改README.md，更新Joomla版本3.9.16
+
 [v4.1] (2020-02-27)
 - 修改README.md，更新Joomla版本3.9.15
 
