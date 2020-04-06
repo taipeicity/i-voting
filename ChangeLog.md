@@ -1,4 +1,7 @@
 Change Log
+[v4.3] (2020-04-06)
+- 新增元件com_knowus
+
 [v4.2] (2020-03-13)
 - 修改README.md，更新Joomla版本3.9.16
 

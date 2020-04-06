@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.0" method="upgrade">
+    <name>com_knowus</name>
+    <creationDate>2020-03-03</creationDate>
+    <copyright>JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.</copyright>
+    <license>GPL-2.0+</license>
+    <author>JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/</author>
+    <authorEmail>sam_lin@justher.tw</authorEmail>
+    <authorUrl>https://gihub.com/hansamlin</authorUrl>
+    <version>CVS: 1.0.0</version>
+    <description>COM_KNOWUS_XML_DESCRIPTION</description>
+    
+    
+    
+    <install> <!-- Runs on install -->
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+    <update> <!-- Runs on update -->
+        <sql>
+            <file driver="mysql" charset="utf8">sql/update.mysql.utf8.sql</file>
+        </sql>
+    </update>
+    <uninstall> <!-- Runs on uninstall -->
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>
+
+    <files folder="site">
+        <filename>index.html</filename>
+        <filename>knowus.php</filename>
+        <filename>controller.php</filename>
+        <filename>router.php</filename>
+        <folder>views</folder>
+        <folder>models</folder>
+        <folder>controllers</folder>
+        <folder>helpers</folder>
+    </files>
+    <media destination="com_knowus" folder="media">
+        <folder>js</folder>
+        <folder>css</folder>
+    </media>
+    <languages folder="site/languages">
+        
+			<language tag="zh-TW">zh-TW/zh-TW.com_knowus.ini</language>
+    </languages>
+    <administration>
+        <menu>COM_KNOWUS</menu>
+        <submenu>
+            
+			<menu link="option=com_knowus&amp;view=list" view="list" alt="Knowus/List">COM_KNOWUS_TITLE_LIST</menu>
+
+        </submenu>
+        <files folder="administrator">
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>controller.php</filename>
+            <filename>index.html</filename>
+            <filename>knowus.php</filename>
+            <folder>controllers</folder>
+            <folder>assets</folder>
+            <folder>helpers</folder>
+            <folder>models</folder>
+            <folder>sql</folder>
+            <folder>tables</folder>
+            <folder>views</folder>
+        </files>
+        <languages folder="administrator/languages">
+            
+			<language tag="zh-TW">zh-TW/zh-TW.com_knowus.ini</language>
+			<language tag="zh-TW">zh-TW/zh-TW.com_knowus.sys.ini</language>
+        </languages>
+    </administration>
+    <config>
+        <fields name="params">
+            <fieldset name="component">
+                <field name="save_history" default="0" />
+            </fieldset>
+        </fields>
+    </config>
+    <plugins>
+        <plugin group="search" plugin="knowus"/>
+    </plugins>
+    
+</extension>
+<!-- Component built by the Joomla Component Creator -->
+<!-- http://www.component-creator.com/ -->

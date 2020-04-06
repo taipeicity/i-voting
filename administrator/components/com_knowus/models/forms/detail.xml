@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset>
+        <field name="id" type="hidden" readonly="true" class="readonly" default="0"
+               description="JGLOBAL_FIELD_ID_DESC" />
+        <field name="ordering" />
+        <field name="state" default="0" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox"
+               size="1">
+            <option value="1">JPUBLISHED</option>
+            <option value="0">JUNPUBLISHED</option>
+            <option value="2">JARCHIVED</option>
+            <option value="-2">JTRASHED</option>
+        </field>
+        <field name="checked_out" type="hidden" filter="unset" />
+        <field name="checked_out_time" default="0000-00-00 00:00:00" type="hidden" filter="unset" />
+
+        <field name="created" type="calendar" default="now"
+               label="JGLOBAL_FIELD_CREATED_LABEL" description="JGLOBAL_FIELD_CREATED_DESC"
+               class="inputbox created" size="22" format="%Y-%m-%d %H:%M:%S" readonly="true"
+               filter="user_utc" />
+        <field name="created_by" type="createdby" default="0" label="COM_KNOWUS_FORM_LBL_DETAIL_CREATED_BY"
+               description="COM_KNOWUS_FORM_DESC_DETAIL_CREATED_BY" hint="COM_KNOWUS_FORM_LBL_DETAIL_CREATED_BY" />
+
+        <field name="modified" type="calendar"
+               label="JGLOBAL_FIELD_MODIFIED_LABEL" description="JGLOBAL_FIELD_MODIFIED_LABEL"
+               class="inputbox modified" size="22" format="%Y-%m-%d %H:%M:%S" readonly="true"
+               filter="user_utc" />
+        <field name="modified_by" type="modifiedby" default="0" label="COM_KNOWUS_FORM_LBL_DETAIL_MODIFIED_BY"
+               description="COM_KNOWUS_FORM_DESC_DETAIL_MODIFIED_BY" hint="COM_KNOWUS_FORM_LBL_DETAIL_MODIFIED_BY" />
+
+        <field name="title" filter="raw" type="text" required="true" message="請填寫標題" label="標題"
+               description="COM_KNOWUS_FORM_DESC_DETAIL_TITLE" hint="標題" maxlength="25" />
+
+        <field
+                name="alias"
+                type="text"
+                label="JFIELD_ALIAS_LABEL"
+                description="JFIELD_ALIAS_DESC"
+                id="alias"
+                hint="JFIELD_ALIAS_PLACEHOLDER"
+                class="inputbox"
+                size="45"
+                maxlength="25"
+        />
+
+
+        <field name="youtube_url" validate="url" type="url" label="youtube網址"
+               description="COM_KNOWUS_FORM_DESC_DETAIL_YOUTUBE_URL" hint="網址" />
+        <field name="unit" type="foreignkey" label="單位" description="COM_KNOWUS_FORM_DESC_DETAIL_UNIT" class="inputbox"
+               input_type="list" table="efa_unit" key_field="id" value_field="title" required="true" message="請選擇發表單位"
+               default="" />
+        <field name="content" cols="10" rows="5" filter="safehtml" type="editor" required="true" message="請填寫文章內容"
+               label="內容" description="COM_KNOWUS_FORM_DESC_DETAIL_CONTENT" hint="內容" />
+        <field name="img" type="media" label="預覽圖" description="COM_KNOWUS_FORM_DESC_DETAIL_IMG"
+               hint="COM_KNOWUS_FORM_LBL_DETAIL_IMG" />
+        <field name="selectimg" type="radio" label="選擇類型" description="選擇使用圖片或Youtube截圖作為文章預覽圖" default="1"
+               class="btn-group btn-group-yesno">
+            <option value="1">圖片</option>
+            <option value="2">Youtube</option>
+        </field>
+
+        <field name="version_note" type="text" label="JGLOBAL_FIELD_VERSION_NOTE_LABEL"
+               description="JGLOBAL_FIELD_VERSION_NOTE_DESC" class="inputbox" size="45" labelclass="control-label" />
+    </fieldset>
+    <fieldset name="accesscontrol">
+        <field name="asset_id" type="hidden" filter="unset" />
+        <field name="rules" type="rules" label="JFIELD_RULES_LABEL" translate_label="false" filter="rules"
+               validate="rules" class="inputbox" component="com_knowus" section="detail" />
+    </fieldset>
+
+    <field
+            name="catid"
+            type="category"
+            extension="com_knowus"
+            class="inputbox"
+            default=""
+            published="1"
+            label="分類"
+            description="請選擇分類"
+            required="true"
+    >
+        <option value="0">JOPTION_SELECT_CATEGORY</option>
+    </field>
+</form>
