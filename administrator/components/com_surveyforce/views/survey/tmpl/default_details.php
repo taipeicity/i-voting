@@ -6,6 +6,11 @@
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
+
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 $script = '';
 if ($this->form->getValue("image")) {
 	$element = SurveyforceHelper::getOldArea("image", $this->form->getValue('image'));
@@ -38,19 +43,25 @@ $document->addScriptDeclaration('
             var edit_stage = jQuery("#edit_stage"),
                 details = jQuery("#survey-details"),
                 message_area = jQuery("#message_area"),
-                title = jQuery("#jform_title");
+                title = jQuery("#jform_title"),
+                note = jQuery("#jform_note");
 
             String.prototype.len = function () {
                 return this.replace(/[\ufee0-\uffdf]/g, "rr").length;
             };
 
-            if (title.val().len() > 25) {
-                jQuery("#message_area").showMessage('議題名稱的文字過多，請刪除部分文字。', title);
+            if (title.val().len() > 30) {
+                jQuery("#message_area").showMessage('議題名稱的文字過多，請刪除部分文字。' + title.val().len(), title);
                 return false;
             }
 
             if (!jQuery("#jform_desc").val()) {
                 message_area.showMessage('請填寫必填欄位。', jQuery("#jform_desc-lbl"));
+                return false;
+            }
+
+            if (note.val().len() > 26) {
+                jQuery("#message_area").showMessage('備註的文字過多，請刪除部分文字。', note);
                 return false;
             }
 
@@ -77,7 +88,9 @@ $document->addScriptDeclaration('
 </script>
 
 <style>
-
+    .input-title {
+        width: 28em;
+    }
 </style>
 
 
@@ -99,6 +112,8 @@ $document->addScriptDeclaration('
 <div id="new_image_area">
 	<?php echo $this->form->renderField('image'); ?>
 </div>
+
+<?php echo $this->form->renderField('note'); ?>
 
 <hr>
 

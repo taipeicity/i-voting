@@ -23,4 +23,31 @@ class SurveyforceControllerAddend extends JControllerForm {
     }
 
 
+	// 匯出範例檔案
+	public function exportAssignSampleFile() {
+
+		$app = JFactory::getApplication();
+		$surv_id = $app->input->getInt('surv_id');
+		$assign_columns = $app->input->getString('assign_column');	// 取得所有欄位名稱
+		$fileName = sprintf("assign_sample_%d.csv", $surv_id);		// 檔案名稱
+		
+		header('Pragma: no-cache');
+		header('Expires: 0');
+		header('Content-Type: text/csv;charset=utf-8');
+		header("Content-Disposition: attachment; filename=" . $fileName . "; filename*=UTF-8''" . urlencode($fileName));
+		header("Content-type: application/force-download");
+
+		$fp = fopen("php://output","w");
+		fwrite($fp, chr(255). chr(254));
+		$row = implode("\t", $assign_columns). "\n";
+		$str = mb_convert_encoding($row, 'UTF-16LE', 'UTF-8');
+		fwrite($fp, $str);
+
+		fclose($fp);
+		exit;
+
+
+	}
+	
+	
 }

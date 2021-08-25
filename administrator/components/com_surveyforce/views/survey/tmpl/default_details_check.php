@@ -10,6 +10,9 @@ $star   = '<span class=\"star\">&nbsp;*</span>';
 $script = '';
 $script .= 'var new_proposal_download_area = jQuery("#new_proposal_download_area");';
 $script .= 'var proposal_url = jQuery("#jform_proposal_url");';
+$script .= 'var proposal = jQuery("#jform_proposal");';
+$script .= 'var second_the_motion = jQuery("#jform_second_the_motion");';
+$script .= 'var deadline = jQuery("#jform_deadline");';
 
 if ($this->item->id) {
 	if ($this->form->getValue("proposal_download")) {
@@ -21,6 +24,19 @@ if ($this->item->id) {
 		$script .= 'new_proposal_download_area.next().find("div").find("label").append("' . $star . '");';
 		$script .= 'new_proposal_download_area.next().find("div").find("label").addClass("required");';
 		$script .= 'proposal_url.addClass("required");';
+
+		if ($this->item->is_api == 1) {
+
+			$script .= 'jQuery.fn.inputDisable = function (){
+				jQuery(this).addClass("disabled").css("pointer-events", "none").attr("disabled", "true");
+			};';
+
+			$script .= 'proposal_url.inputDisable();';
+			$script .= 'proposal.inputDisable();';
+			$script .= 'second_the_motion.inputDisable();';
+			$script .= 'deadline.inputDisable();';
+			$script .= 'deadline.next().inputDisable();';
+		}
 	}
 } else {
 	$script .= 'jQuery("#jform_proposal_download").addClass("required").parent().prev().find("label").append("' . $star . '");';
@@ -77,10 +93,10 @@ $document->addScriptDeclaration('
                 }
             }
 
-            // 檢查已覆議票數
+            // 檢查已附議票數
             if (second_the_motion.val()) {
                 if (!second_the_motion.val().match(/\d+/g)) {
-                    jQuery("#message_area").showMessage('已覆議票數必須為數字。', second_the_motion);
+                    jQuery("#message_area").showMessage('已附議票數必須為數字。', second_the_motion);
                     return false;
                 }
             }

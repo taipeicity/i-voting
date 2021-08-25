@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.1-modified
+ * @version            1.0-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -12,558 +12,719 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.modeladmin');
 
-class SurveyforceModelSurvey extends JModelAdmin {
+class SurveyforceModelSurvey extends JModelAdmin
+{
 
-	protected function populateState() {
+    protected function populateState()
+    {
 
-		$app       = JFactory::getApplication();
-		$ordering  = $app->input->get('filter_order');
-		$direction = $app->input->get('filter_order_Dir');
+        $app = JFactory::getApplication();
+        $ordering = $app->input->get('filter_order');
+        $direction = $app->input->get('filter_order_Dir');
 
-		if ($ordering && $direction) {
-			$this->setState('list.ordering', $ordering);
-			$this->setState('list.direction', $direction);
-		}
+        if ($ordering && $direction) {
+            $this->setState('list.ordering', $ordering);
+            $this->setState('list.direction', $direction);
+        }
 
 
-		$sortPublish = $app->input->getString("sortPublish");
-		$this->setState('filter.publish', $sortPublish);
+        $sortPublish = $app->input->getString("sortPublish");
+        $this->setState('filter.publish', $sortPublish);
 
-		$sortRequired = $app->input->getString("sortRequired");
-		$this->setState('filter.required', $sortRequired);
+        $sortRequired = $app->input->getString("sortRequired");
+        $this->setState('filter.required', $sortRequired);
 
-		$search = $app->input->getString("filter_search");
-		$this->setState('filter.search', $search);
+        $search = $app->input->getString("filter_search");
+        $this->setState('filter.search', $search);
 
-		parent::populateState($ordering, $direction);
-	}
+        parent::populateState($ordering, $direction);
+    }
 
-	public function getTable($type = 'Survey', $prefix = 'SurveyforceTable', $config = array ()) {
-		$this->addTablePath(JPATH_COMPONENT_ADMINISTRATOR . '/tables');
+    public function getTable($type = 'Survey', $prefix = 'SurveyforceTable', $config = array())
+    {
+        $this->addTablePath(JPATH_COMPONENT_ADMINISTRATOR . '/tables');
+
+        return JTable::getInstance($type, $prefix, $config);
+    }
+
+    public function getForm($data = array(), $loadData = true)
+    {
+        $form = $this->loadForm('com_surveyforce.survey', 'survey', array('control' => 'jform', 'load_data' => false));
+        if (empty($form)) {
+            return false;
+        }
+
+        $item = $this->getItem();
+        $form->bind($item);
+
+        return $form;
+    }
+
+    public function getAllVerifyType()
+    {
+        $db = JFactory::getDBO();
+
+        $db->setQuery("SELECT * FROM `#__extensions` WHERE `type` = 'plugin' AND `access` = '1' AND `enabled` = '1' AND `folder` = 'verify' ORDER BY `ordering`");
+        $items = $db->loadObjectList();
+
+        return $items;
+    }
+
+    // 更新欄位
+    public function updateField($_field_name, $_field_value, $_id)
+    {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->update('#__survey_force_survs');
+        $query->set($db->quoteName($_field_name) . " = " . $db->quote($_field_value));
+        $query->where($db->quoteName('id') . " = " . $db->quote($_id));
+
+
+        $db->setQuery($query);
+
+        if ($db->execute()) {
+            return true;
+        } else {
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
+
+            return false;
+        }
+    }
+
+    // 取得議題
+    public function getSurvey($_survey_id)
+    {
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_survs AS a');
+        $query->where('a.id = ' . $db->quote($_survey_id));
+
+        $db->setQuery($query);
+        $row = $db->loadObject();
+
+        return $row;
+    }
+
+    // 刪除議題
+    public function delete($_survey_id)
+    {
+        $db = JFactory::getDbo();
+
 
-		return JTable::getInstance($type, $prefix, $config);
-	}
+        // 依序先刪選項、子選項 -> 題目 -> 議題
+        $query = $db->getQuery(true);
+        $query->select('id');
+        $query->from('#__survey_force_quests');
+        $query->where('sf_survey = ' . $db->quote($_survey_id));
+        $db->setQuery($query);
+        $question_rows = $db->loadObjectList();
+
+        if ($question_rows) {
+            foreach ($question_rows as $question_row) {
+                $query = $db->getQuery(true);
+                $query->select('*');
+                $query->from('#__survey_force_fields');
+                $query->where('quest_id = ' . $db->quote($question_row->id));
+                $db->setQuery($query);
+                $option_rows = $db->loadObjectList();
+
+                if ($option_rows) {
+                    foreach ($option_rows as $option_row) {
+                        // 刪除檔案
+                        if ($option_row->image) {
+                            unlink(JPATH_SITE . "/" . $option_row->image);
+                        }
+
+                        // 刪除檔案
+                        if ($option_row->file1) {
+                            unlink(JPATH_SITE . "/" . $option_row->file1);
+                        }
+                    }
+                }
+
+                // 刪除選項
+                $query = $db->getQuery(true);
+                $query->delete('#__survey_force_fields');
+                $query->where('quest_id = ' . $db->quote($question_row->id));
+                $db->setQuery($query);
+                $db->execute();
+
+
+                // 刪除子選項
+                $query = $db->getQuery(true);
+                $query->delete('#__survey_force_sub_fields');
+                $query->where('quest_id = ' . $db->quote($question_row->id));
+                $db->setQuery($query);
+                $db->execute();
+            }
+
+            // 刪除題目資料
+            $query = $db->getQuery(true);
+            $query->delete('#__survey_force_quests');
+            $query->where('sf_survey = ' . $db->quote($_survey_id));
+            $db->setQuery($query);
+            $db->execute();
+
+            // 刪除分析欄位參數及票數統計
+            $this->deleteAnalyzeColumn($_survey_id);
+        }
+
+
+        // 刪除議題的banner
+        $query = $db->getQuery(true);
+        $query->select('*');
+        $query->from('#__survey_force_survs');
+        $query->where('id = ' . $db->quote($_survey_id));
+        $db->setQuery($query);
+        $survey_row = $db->loadObject();
+
+        if ($survey_row->image) {
+            unlink(JPATH_SITE . "/" . $survey_row->image);
+        }
+
+        $dh = opendir(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/");
+
+        while ($file = readdir($dh)) {
+            if (pathinfo($file, PATHINFO_EXTENSION) == "pdf") {
+                JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/{$file}");
+            }
+        }
+
+        if (in_array('assign', json_decode($survey_row->verify_type, true))) {
+            $query = $db->getQuery(true);
+            $query->delete('#__assign_summary');
+            $query->where('survey_id = ' . $db->quote($_survey_id));
+            $db->setQuery($query);
+            $db->execute();
+        }
+
+        // 刪除議題資料
+        $query = $db->getQuery(true);
+        $query->delete('#__survey_force_survs');
+        $query->where('id = ' . $db->quote($_survey_id));
+        $db->setQuery($query);
+        $db->execute();
+
+        // 刪除release議題資料
+        $query = $db->getQuery(true);
+        $query->delete('#__survey_force_survs_release');
+        $query->where('id = ' . $db->quote($_survey_id));
+        $db->setQuery($query);
+        $db->execute();
+    }
+
+    // 取得題目
+    public function getQuestions($_survey_id)
+    {
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_quests AS a');
+        $query->where('a.sf_survey = ' . $db->quote($_survey_id));
+        $query->where('a.published = 1');
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
+    // 取得指定題目的選項數目
+    public function getOptionsCount($_question_id)
+    {
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('COUNT(*)');
+        $query->from('#__survey_force_fields AS a');
+        $query->where('a.quest_id = ' . $db->quote($_question_id));
+
+        $db->setQuery($query);
+        $count = $db->loadResult();
+
+        return $count;
+    }
+
+    // 取得單位內的所有使用者
+    public function getUsersByUnit($_unit_id)
+    {
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__users AS a');
+        $query->where('a.unit_id = ' . $db->quote($_unit_id));
+        $query->where('a.block = 0');
+
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
+
+        return $rows;
+    }
+
+    // 取得特定使用者
+    public function getUser($_user_id)
+    {
+        $db = JFactory::getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__users AS a');
+        $query->where('a.id = ' . $db->quote($_user_id));
+
+        $db->setQuery($query);
+        $row = $db->loadObject();
+
+        return $row;
+    }
+
+    // 更新Email通知的狀態
+    public function updateEmailNotice($_survey_id, $_type)
+    {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->update('#__survey_force_email_notice');
+        $query->set($db->quoteName('is_send') . " = '0'");
+        $query->where($db->quoteName('survey_id') . " = " . $db->quote($_survey_id));
+
+
+        $db->setQuery($query);
+
+        if ($db->execute()) {
+            return true;
+        } else {
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
+
+            return false;
+        }
+    }
+
+    // 更新Phone通知的狀態
+    public function updatePhoneNotice($_survey_id, $_type)
+    {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->update('#__survey_force_phone_notice');
+        $query->set($db->quoteName('is_send') . " = '0'");
+        $query->where($db->quoteName('survey_id') . " = " . $db->quote($_survey_id));
+
+
+        $db->setQuery($query);
+
+        if ($db->execute()) {
+            return true;
+        } else {
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
+
+            return false;
+        }
+    }
+
+    public function getAnalyzeColumns()
+    {
+
+        $id = $this->getState('survey.id');
+
+        $db = $this->getDBO();
+        $query = $db->getQuery(true);
+
+        $query->select('distinct(a.surv_id), a.id AS aid, a.publish, a.required, a.order, c.quest_id AS qid, c.quest_title');
+        $query->from($db->quoteName('#__survey_force_analyze', 'a'));
+        $query->join('LEFT', $db->quoteName('#__survey_force_analyze_count', 'c') . ' ON ' . $db->quoteName('c.quest_id') . ' = ' . $db->quoteName('a.quest_id'));
+        $query->where($db->quoteName('a.surv_id') . ' = ' . $db->quote($id));
+        $query->where($db->quoteName('c.survey_id') . ' = ' . $db->quote($id));
+
+        // filter publish
+        $publish = $this->getState('filter.publish');
+        if (is_numeric($publish)) {
+            $query->where($db->quoteName('a.publish') . ' = ' . $db->quote($publish));
+        }
+
+        // filter required
+        $required = $this->getState('filter.required');
+        if (is_numeric($required)) {
+            $query->where($db->quoteName('a.required') . ' = ' . $db->quote($required));
+        }
+
+        // filter search
+        $search = $this->getState('filter.search');
+        if (!empty($search)) {
+            $search = $db->quote('%' . $db->escape($search, true) . '%');
+            $query->where($db->quoteName('c.quest_title') . ' LIKE ' . $search);
+        }
+
+
+        $orderCol = $this->getState('list.ordering', 'a.order');
+        $orderDirn = $this->getState('list.direction', 'asc');
 
-	public function getForm($data = array (), $loadData = true) {
-		$form = $this->loadForm('com_surveyforce.survey', 'survey', array ('control' => 'jform', 'load_data' => false));
-		if (empty($form)) {
-			return false;
-		}
+        $query->order($db->escape($orderCol . ' ' . $orderDirn));
 
-		$item = $this->getItem();
-		$form->bind($item);
+        $db->setQuery($query);
+        $rows = $db->loadObjectList();
 
-		return $form;
-	}
+        if (!$rows) {
+            return null;
+        } else {
+            $result = [];
+            foreach ($rows as $i => $row) {
+                $result[$row->quest_title]['quest_id'] = $row->qid;
+                $result[$row->quest_title]['analyze_id'] = $row->aid;
+                $result[$row->quest_title]['surv_id'] = $row->surv_id;
+                $result[$row->quest_title]['publish'] = $row->publish;
+                $result[$row->quest_title]['required'] = $row->required;
+            }
 
-	public function getAllVerifyType() {
-		$db = JFactory::getDBO();
-
-		$db->setQuery("SELECT * FROM `#__extensions` WHERE `type` = 'plugin' AND `access` = '1' AND `enabled` = '1' AND `folder` = 'verify' ORDER BY `ordering`");
-		$items = $db->loadObjectList();
-
-		return $items;
-	}
+            return $result;
+        }
 
-	// 更新欄位
-	public function updateField($_field_name, $_field_value, $_id) {
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true);
-
-		$query->update('#__survey_force_survs');
-		$query->set($db->quoteName($_field_name) . " = " . $db->quote($_field_value));
-		$query->where($db->quoteName('id') . " = " . $db->quote($_id));
-
-
-		$db->setQuery($query);
-
-		if ($db->execute()) {
-			return true;
-		} else {
-			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
-
-			return false;
-		}
-	}
-
-	// 取得議題
-	public function getSurvey($_survey_id) {
-		$db    = JFactory::getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('*');
-		$query->from('#__survey_force_survs AS a');
-		$query->where('a.id = ' . $db->quote($_survey_id));
-
-		$db->setQuery($query);
-		$row = $db->loadObject();
-
-		return $row;
-	}
-
-	// 刪除議題
-	public function delete($_survey_id) {
-		$db = JFactory::getDbo();
-
-
-		// 依序先刪選項、子選項 -> 題目 -> 議題
-		$query = $db->getQuery(true);
-		$query->select('id');
-		$query->from('#__survey_force_quests');
-		$query->where('sf_survey = ' . $db->quote($_survey_id));
-		$db->setQuery($query);
-		$question_rows = $db->loadObjectList();
-
-		if ($question_rows) {
-			foreach ($question_rows as $question_row) {
-				$query = $db->getQuery(true);
-				$query->select('*');
-				$query->from('#__survey_force_fields');
-				$query->where('quest_id = ' . $db->quote($question_row->id));
-				$db->setQuery($query);
-				$option_rows = $db->loadObjectList();
-
-				if ($option_rows) {
-					foreach ($option_rows as $option_row) {
-						// 刪除檔案
-						if ($option_row->image) {
-							unlink(JPATH_SITE . "/" . $option_row->image);
-						}
-
-						// 刪除檔案
-						if ($option_row->file1) {
-							unlink(JPATH_SITE . "/" . $option_row->file1);
-						}
-					}
-				}
-
-				// 刪除選項
-				$query = $db->getQuery(true);
-				$query->delete('#__survey_force_fields');
-				$query->where('quest_id = ' . $db->quote($question_row->id));
-				$db->setQuery($query);
-				$db->execute();
-
-
-				// 刪除子選項
-				$query = $db->getQuery(true);
-				$query->delete('#__survey_force_sub_fields');
-				$query->where('quest_id = ' . $db->quote($question_row->id));
-				$db->setQuery($query);
-				$db->execute();
-			}
-
-			// 刪除題目資料
-			$query = $db->getQuery(true);
-			$query->delete('#__survey_force_quests');
-			$query->where('sf_survey = ' . $db->quote($_survey_id));
-			$db->setQuery($query);
-			$db->execute();
-
-			// 刪除分析欄位參數及票數統計
-			$this->deleteAnalyzeColumn($_survey_id);
-		}
-
-
-		// 刪除議題的banner
-		$query = $db->getQuery(true);
-		$query->select('*');
-		$query->from('#__survey_force_survs');
-		$query->where('id = ' . $db->quote($_survey_id));
-		$db->setQuery($query);
-		$survey_row = $db->loadObject();
-
-		if ($survey_row->image) {
-			unlink(JPATH_SITE . "/" . $survey_row->image);
-		}
-
-		$dh   = opendir(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/");
-
-		while ($file = readdir($dh)) {
-			if(pathinfo($file, PATHINFO_EXTENSION) == "pdf"){
-				JFile::delete(JPATH_SITE . "/filesys/ivoting/survey/pdf/{$_survey_id}/{$file}");
-			}
-		}
-
-		if (in_array('assign', json_decode($survey_row->verify_type, true))) {
-			$query = $db->getQuery(true);
-			$query->delete('#__assign_summary');
-			$query->where('survey_id = ' . $db->quote($_survey_id));
-			$db->setQuery($query);
-			$db->execute();
-		}
-
-		// 刪除議題資料
-		$query = $db->getQuery(true);
-		$query->delete('#__survey_force_survs');
-		$query->where('id = ' . $db->quote($_survey_id));
-		$db->setQuery($query);
-		$db->execute();
-
-		// 刪除release議題資料
-		$query = $db->getQuery(true);
-		$query->delete('#__survey_force_survs_release');
-		$query->where('id = ' . $db->quote($_survey_id));
-		$db->setQuery($query);
-		$db->execute();
-	}
-
-	// 取得題目
-	public function getQuestions($_survey_id) {
-		$db    = JFactory::getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('*');
-		$query->from('#__survey_force_quests AS a');
-		$query->where('a.sf_survey = ' . $db->quote($_survey_id));
-		$query->where('a.published = 1');
-
-		$db->setQuery($query);
-		$rows = $db->loadObjectList();
-
-		return $rows;
-	}
-
-	// 取得指定題目的選項數目
-	public function getOptionsCount($_question_id) {
-		$db    = JFactory::getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('COUNT(*)');
-		$query->from('#__survey_force_fields AS a');
-		$query->where('a.quest_id = ' . $db->quote($_question_id));
-
-		$db->setQuery($query);
-		$count = $db->loadResult();
-
-		return $count;
-	}
-
-	// 取得單位內的所有使用者
-	public function getUsersByUnit($_unit_id) {
-		$db    = JFactory::getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('*');
-		$query->from('#__users AS a');
-		$query->where('a.unit_id = ' . $db->quote($_unit_id));
-		$query->where('a.block = 0');
-
-		$db->setQuery($query);
-		$rows = $db->loadObjectList();
-
-		return $rows;
-	}
-
-	// 取得特定使用者
-	public function getUser($_user_id) {
-		$db    = JFactory::getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('*');
-		$query->from('#__users AS a');
-		$query->where('a.id = ' . $db->quote($_user_id));
-
-		$db->setQuery($query);
-		$row = $db->loadObject();
-
-		return $row;
-	}
-
-	// 更新Email通知的狀態
-	public function updateEmailNotice($_survey_id, $_type) {
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true);
-
-		$query->update('#__survey_force_email_notice');
-		$query->set($db->quoteName('is_send') . " = '0'");
-		$query->where($db->quoteName('survey_id') . " = " . $db->quote($_survey_id));
-
-
-		$db->setQuery($query);
-
-		if ($db->execute()) {
-			return true;
-		} else {
-			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
-
-			return false;
-		}
-	}
-
-	// 更新Phone通知的狀態
-	public function updatePhoneNotice($_survey_id, $_type) {
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true);
-
-		$query->update('#__survey_force_phone_notice');
-		$query->set($db->quoteName('is_send') . " = '0'");
-		$query->where($db->quoteName('survey_id') . " = " . $db->quote($_survey_id));
-
-
-		$db->setQuery($query);
-
-		if ($db->execute()) {
-			return true;
-		} else {
-			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $query->dump()), JLog::ERROR);
-
-			return false;
-		}
-	}
-
-	public function getAnalyzeColumns() {
-
-		$id = $this->getState('survey.id');
-
-		$db    = $this->getDBO();
-		$query = $db->getQuery(true);
-
-		$query->select('distinct(a.surv_id), a.id AS aid, a.publish, a.required, a.order, c.quest_id AS qid, c.quest_title');
-		$query->from($db->quoteName('#__survey_force_analyze', 'a'));
-		$query->join('LEFT', $db->quoteName('#__survey_force_analyze_count', 'c') . ' ON ' . $db->quoteName('c.quest_id') . ' = ' . $db->quoteName('a.quest_id'));
-		$query->where($db->quoteName('a.surv_id') . ' = ' . $db->quote($id));
-		$query->where($db->quoteName('c.survey_id') . ' = ' . $db->quote($id));
-
-		// filter publish
-		$publish = $this->getState('filter.publish');
-		if (is_numeric($publish)) {
-			$query->where($db->quoteName('a.publish') . ' = ' . $db->quote($publish));
-		}
-
-		// filter required
-		$required = $this->getState('filter.required');
-		if (is_numeric($required)) {
-			$query->where($db->quoteName('a.required') . ' = ' . $db->quote($required));
-		}
+    }
 
-		// filter search
-		$search = $this->getState('filter.search');
-		if (!empty($search)) {
-			$search = $db->quote('%' . $db->escape($search, true) . '%');
-			$query->where($db->quoteName('c.quest_title') . ' LIKE ' . $search);
-		}
 
+    // 新增分析功能的題目、選項至分析功能的票數統計資料表
+    public function insertAnalyzeColumn($surv_id)
+    {
 
-		$orderCol  = $this->getState('list.ordering', 'a.order');
-		$orderDirn = $this->getState('list.direction', 'asc');
+        $db = $this->getDBO();
 
-		$query->order($db->escape($orderCol . ' ' . $orderDirn));
+        $query = $db->getQuery(true);
 
-		$db->setQuery($query);
-		$rows = $db->loadObjectList();
+        $query->select('*');
+        $query->from($db->quoteName('#__survey_force_analyze_count'));
+        $query->where($db->quoteName('survey_id') . ' = ' . $db->quote($surv_id));
+        $query->Limit(1);
 
-		if (!$rows) {
-			return null;
-		} else {
-			$result = [];
-			foreach ($rows as $i => $row) {
-				$result[$row->quest_title]['quest_id']   = $row->qid;
-				$result[$row->quest_title]['analyze_id'] = $row->aid;
-				$result[$row->quest_title]['surv_id']    = $row->surv_id;
-				$result[$row->quest_title]['publish']    = $row->publish;
-				$result[$row->quest_title]['required']   = $row->required;
-			}
+        $db->setQuery($query);
 
-			return $result;
-		}
+        if ($db->loadObject()) {
+            return true;
+        } else {
+            $query = $db->getQuery(true);
 
-	}
+            $query->select('a.surv_id, q.id AS qid, f.id AS fid, q.title AS quest_title, f.field_title');
+            $query->from($db->quoteName('#__survey_force_analyze', 'a'));
+            $query->join('LEFT', $db->quoteName('#__survey_force_analyze_quests', 'q') . ' ON ' . $db->quoteName('q.id') . ' = ' . $db->quoteName('a.quest_id'));
+            $query->join('LEFT', $db->quoteName('#__survey_force_analyze_fields', 'f') . ' ON ' . $db->quoteName('f.quest_id') . ' = ' . $db->quoteName('a.quest_id'));
+            $query->where($db->quoteName('a.surv_id') . ' = ' . $db->quote($surv_id));
 
+            $db->setQuery($query);
+            $rows = $db->loadObjectList();
 
-	// 新增分析功能的題目、選項至分析功能的票數統計資料表
-	public function insertAnalyzeColumn($surv_id) {
 
-		$db = $this->getDBO();
+            $created = JFactory::getDate()->toSql();
 
-		$query = $db->getQuery(true);
+            foreach ($rows as $row) {
 
-		$query->select('*');
-		$query->from($db->quoteName('#__survey_force_analyze_count'));
-		$query->where($db->quoteName('survey_id') . ' = ' . $db->quote($surv_id));
-		$query->Limit(1);
+                try {
 
-		$db->setQuery($query);
+                    $query = $db->getQuery(true);
 
-		if ($db->loadObject()) {
-			return true;
-		} else {
-			$query = $db->getQuery(true);
+                    $db->transactionStart();
 
-			$query->select('a.surv_id, q.id AS qid, f.id AS fid, q.title AS quest_title, f.field_title');
-			$query->from($db->quoteName('#__survey_force_analyze', 'a'));
-			$query->join('LEFT', $db->quoteName('#__survey_force_analyze_quests', 'q') . ' ON ' . $db->quoteName('q.id') . ' = ' . $db->quoteName('a.quest_id'));
-			$query->join('LEFT', $db->quoteName('#__survey_force_analyze_fields', 'f') . ' ON ' . $db->quoteName('f.quest_id') . ' = ' . $db->quoteName('a.quest_id'));
-			$query->where($db->quoteName('a.surv_id') . ' = ' . $db->quote($surv_id));
+                    $columns = array(
+                        'survey_id', 'quest_id', 'quest_title', 'field_id', 'field_title', 'count', 'created'
+                    );
 
-			$db->setQuery($query);
-			$rows = $db->loadObjectList();
+                    $values = array(
+                        $db->quote($surv_id), $db->quote($row->qid), $db->quote($row->quest_title), $db->quote($row->fid), $db->quote($row->field_title), $db->quote(0), $db->quote($created)
+                    );
 
+                    $query->insert($db->quoteName('#__survey_force_analyze_count'));
+                    $query->columns($db->quoteName($columns));
+                    $query->values(implode(',', $values));
 
-			$created = JFactory::getDate()->toSql();
+                    $db->setQuery($query);
+                    $db->execute();
 
-			foreach ($rows as $row) {
+                    $db->transactionCommit();
 
-				try {
+                } catch (Exception $e) {
+                    // catch any database errors.
+                    $db->transactionRollback();
+                    JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
 
-					$query = $db->getQuery(true);
+                }
 
-					$db->transactionStart();
+            }
 
-					$columns = array (
-						'survey_id', 'quest_id', 'quest_title', 'field_id', 'field_title', 'count', 'created'
-					);
+            return true;
+        }
 
-					$values = array (
-						$db->quote($surv_id), $db->quote($row->qid), $db->quote($row->quest_title), $db->quote($row->fid), $db->quote($row->field_title), $db->quote(0), $db->quote($created)
-					);
+    }
 
-					$query->insert($db->quoteName('#__survey_force_analyze_count'));
-					$query->columns($db->quoteName($columns));
-					$query->values(implode(',', $values));
+    public function deleteAnalyzeColumn($surv_id)
+    {
 
-					$db->setQuery($query);
-					$db->execute();
+        $db = $this->getDBO();
 
-					$db->transactionCommit();
+        try {
 
-				} catch (Exception $e) {
-					// catch any database errors.
-					$db->transactionRollback();
-					JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
+            $query = $db->getQuery(true);
 
-				}
+            $db->transactionStart();
 
-			}
+            $query->delete($db->quoteName('#__survey_force_analyze'));
+            $query->where($db->quoteName('surv_id') . ' = ' . $db->quote($surv_id));
 
-			return true;
-		}
+            $db->setQuery($query);
+            $db->execute();
 
-	}
+            $db->transactionCommit();
 
-	public function deleteAnalyzeColumn($surv_id) {
 
-		$db = $this->getDBO();
+        } catch (Exception $e) {
+            // catch any database errors.
+            $db->transactionRollback();
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
+        }
 
-		try {
+        try {
 
-			$query = $db->getQuery(true);
+            $query = $db->getQuery(true);
 
-			$db->transactionStart();
+            $db->transactionStart();
 
-			$query->delete($db->quoteName('#__survey_force_analyze'));
-			$query->where($db->quoteName('surv_id') . ' = ' . $db->quote($surv_id));
+            $query->delete($db->quoteName('#__survey_force_analyze_count'));
+            $query->where($db->quoteName('survey_id') . ' = ' . $db->quote($surv_id));
 
-			$db->setQuery($query);
-			$db->execute();
+            $db->setQuery($query);
+            $db->execute();
 
-			$db->transactionCommit();
+            $db->transactionCommit();
 
 
-		} catch (Exception $e) {
-			// catch any database errors.
-			$db->transactionRollback();
-			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
-		}
+        } catch (Exception $e) {
+            // catch any database errors.
+            $db->transactionRollback();
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
+        }
 
-		try {
 
-			$query = $db->getQuery(true);
+        return true;
+    }
 
-			$db->transactionStart();
+    public function release($id)
+    {
 
-			$query->delete($db->quoteName('#__survey_force_analyze_count'));
-			$query->where($db->quoteName('survey_id') . ' = ' . $db->quote($surv_id));
+        $db = $this->getDBO();
 
-			$db->setQuery($query);
-			$db->execute();
+        // 搜尋該議題
+        $query = $db->getQuery(true);
 
-			$db->transactionCommit();
+        $query->select('*');
+        $query->from($db->quoteName('#__survey_force_survs'));
+        $query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
+        $db->setQuery($query);
+        $items = $db->loadObject();
 
-		} catch (Exception $e) {
-			// catch any database errors.
-			$db->transactionRollback();
-			JHtml::_('utility.recordLog', "db_log.php", sprintf("無法更新：%s", $e), JLog::ERROR);
-		}
+        // 搜尋release的議題
+        $query = $db->getQuery(true);
 
+        $query->select('*');
+        $query->from($db->quoteName('#__survey_force_survs_release'));
+        $query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
-		return true;
-	}
+        $db->setQuery($query);
 
-	public function release($id) {
+        $delete = true;
+        if ($db->loadObject()) { // 如果有就刪除
+            try {
 
-		$db = $this->getDBO();
+                $query = $db->getQuery(true);
 
-		// 搜尋該議題
-		$query = $db->getQuery(true);
+                $db->transactionStart();
 
-		$query->select('*');
-		$query->from($db->quoteName('#__survey_force_survs'));
-		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+                $query->delete($db->quoteName('#__survey_force_survs_release'));
+                $query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
-		$db->setQuery($query);
-		$items = $db->loadObject();
+                $db->setQuery($query);
+                $db->execute();
 
-		// 搜尋release的議題
-		$query = $db->getQuery(true);
+                $db->transactionCommit();
 
-		$query->select('*');
-		$query->from($db->quoteName('#__survey_force_survs_release'));
-		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
-		$db->setQuery($query);
+            } catch (Exception $e) {
+                // catch any database errors.
+                $db->transactionRollback();
+                JHtml::_('utility.recordLog', "db_log.php", sprintf("無法刪除：%s", $e), JLog::ERROR);
+                $delete = false;
+            }
+        }
 
-		$delete = true;
-		if ($db->loadObject()) { // 如果有就刪除
-			try {
+        // 新增至release資料表
+        if ($delete) {
+            return $db->insertObject('#__survey_force_survs_release', $items);
+        } else {
+            return false;
+        }
 
-				$query = $db->getQuery(true);
+    }
 
-				$db->transactionStart();
+    public function checkStore($id, $stage)
+    {
 
-				$query->delete($db->quoteName('#__survey_force_survs_release'));
-				$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+        $db = $this->getDBO();
+        $query = $db->getQuery(true);
 
-				$db->setQuery($query);
-				$db->execute();
+        $query->select('is_store');
+        $query->from($db->quoteName('#__survey_force_survs'));
+        $query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
-				$db->transactionCommit();
+        $db->setQuery($query);
+        $item = $db->loadObject();
 
+        $is_store = json_decode($item->is_store, true);
 
-			} catch (Exception $e) {
-				// catch any database errors.
-				$db->transactionRollback();
-				JHtml::_('utility.recordLog', "db_log.php", sprintf("無法刪除：%s", $e), JLog::ERROR);
-				$delete = false;
-			}
-		}
+        return json_encode($is_store[$stage]);
 
-		// 新增至release資料表
-		if ($delete) {
-			return $db->insertObject('#__survey_force_survs_release', $items);
-		} else {
-			return false;
-		}
+    }
 
-	}
+    public function getReleaseItem()
+    {
+        $id = JFactory::getApplication()->input->getInt('id');
 
-	public function checkStore($id, $stage){
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
 
-		$db = $this->getDBO();
-		$query = $db->getQuery(true);
+        $query->select('*');
+        $query->from($db->quoteName('#__survey_force_survs_release'));
+        $query->where($db->quoteName('id') . ' = ' . $db->quote($id));
 
-		$query->select('is_store');
-		$query->from($db->quoteName('#__survey_force_survs'));
-		$query->where($db->quoteName('id') . ' = ' . $db->quote($id));
+        $db->setQuery($query);
 
-		$db->setQuery($query);
-		$item = $db->loadObject();
+        return $db->loadObject();
+    }
 
-		$is_store = json_decode($item->is_store, true);
+    /**
+     * @param $params array 修改的欄位
+     *
+     *
+     * @param $survey_id int 議題id
+     * @param $action string 動作
+     * @throws \Exception
+     * @since version
+     */
+    public function InsertDiffColumn($params, $survey_id, $action)
+    {
 
-		return json_encode($is_store[$stage]);
+        $app = JFactory::getApplication();
+        $ip = $app->input->server->get('REMOTE_ADDR');
+        $user_id = JFactory::getUser()->id;
 
-	}
+        $db = $this->getDbo();
+        foreach ($params as $column => $fieldname) {
 
+            if ($column == 'modified') {
+                continue;
+            }
+
+            $value[] = implode(',', [
+                $db->q($user_id),
+                $db->q($survey_id),
+                $db->q($action),
+                $db->q($column),
+                $db->q($fieldname['savebefore']),
+                $db->q($fieldname['saveafter']),
+                $db->q($ip),
+                $db->q(JHtml::_('date', 'now', 'Y-m-d H:i:s')),
+            ]);
+        }
+
+        try {
+
+            $db->transactionStart();
+
+            $query = $db->getQuery(true);
+
+            $columns = ['user_id', 'survey_id', 'action', 'fieldname', 'savebefore', 'saveafter', 'ip', 'created'];
+
+            $query->insert($db->quoteName('#__survey_force_update_survs_log'))->columns($db->quoteName($columns))->values($value);
+
+            $db->setQuery($query);
+            $db->execute();
+
+            $db->transactionCommit();
+        } catch (Exception $e) {
+            // catch any database errors.
+            $db->transactionRollback();
+            JHtml::_('utility.recordLog', "db_log.php", sprintf("議題異動記錄：%s", $e), JLog::ERROR);
+        }
+    }
+
+    public function getQuantity()
+    {
+
+        $id = JFactory::getApplication()->input->get('id');
+
+        if ($id) {
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true);
+
+            $query->select('q.*');
+            $query->from($db->qn('#__survey_force_survs', 's'));
+            $query->leftJoin($db->qn('#__survey_force_survs_vote_quantity', 'q') . ' ON q.survey_id = s.id');
+            $query->where('s.id = ' . $id);
+
+            $db->setQuery($query);
+
+            return $db->loadObject();
+
+        } else {
+            $object = new stdClass();
+            $object->quantity = 0;
+            $object->is_quantity = 1;
+
+            return $object;
+        }
+
+    }
+
+    public function setQuantuty($item)
+    {
+
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_survs_vote_quantity');
+        $query->where('survey_id = ' . $item['survey_id']);
+
+        $db->setQuery($query);
+        $match = $db->loadObject();
+
+        $object = new stdClass();
+        if ($match) {
+            $object->state = $item['state'];
+            $object->survey_id = $item['survey_id'];
+            $object->quantity = $item['quantity'];
+            $db->updateObject('#__survey_force_survs_vote_quantity', $object, 'survey_id');
+        } else {
+            $object->state = $item['state'];
+            $object->survey_id = $item['survey_id'];
+            $object->quantity = $item['quantity'];
+            $db->insertObject('#__survey_force_survs_vote_quantity', $object);
+        }
+
+        $session = JFactory::getSession();
+        if ($session->get('voting.' . $item['survey_id'], false, 'survey')) {
+
+            $origin = json_decode($session->get('origin.' . $item['survey_id'], null, 'survey'), true);
+
+            $diff = new Diff($origin, $object, [], true);
+            $diff->diff();
+            $params = $diff->get();
+
+            if (count($params) > 0) {
+                // 記錄修改欄位
+                $this->InsertDiffColumn($params, $item['survey_id'], JFactory::getApplication()->input->get('task'));
+                exit;
+            }
+        }
+    }
 }

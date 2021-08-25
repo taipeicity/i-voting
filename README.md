@@ -42,7 +42,7 @@
 
  * 作業系統建議安裝CentOS 下載點 https://www.centos.org/download/ 
  * 確認php版本是否為5.4含以上版本。
- * 安裝JOOMLA 3.9.28版本 下載點 https://www.joomla.org/announcements/release-news/5840-joomla-3-9-28.html
+ * 安裝JOOMLA 3.10.1版本 下載點 https://www.joomla.org/announcements/release-news/5840-joomla-3-10-1.html
  * 將此Repo clone 或者下載至本地端的 administraror路徑、compoents路徑、languages路徑、modules路徑及plugins路徑。
  * 下載ivoting-schema.sql檔案，將其新增至資料庫。
 	

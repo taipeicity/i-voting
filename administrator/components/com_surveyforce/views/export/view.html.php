@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.3-modified
+ * @version            1.2-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -88,17 +88,25 @@ class SurveyforceViewExport extends JViewLegacy {
 
 			$survs[] = $this->form->getLabel('second_the_motion') . "：" . $this->form->getValue('second_the_motion');
 
-			$survs[] = $this->form->getLabel('deadline') . "：" . JHtml::_('date', $this->form->getValue('deadline'), "Y年m月d日 H:i");
+			if ($this->form->getValue('deadline') != "0000-00-00 00:00:00") {
+				$survs[] = $this->form->getLabel('deadline') . "：" . JHtml::_('date', $this->form->getValue('deadline'), "Y年m月d日 H:i");
+			}
 
 			// 提案初審階段
 			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_REVIEW') . "</b>：<span>&nbsp;</span>";
 
 			$survs[] = $this->form->getLabel('review_result') . "：" . (($layout == "default") ? nl2br($this->form->getValue('review_result')) : $this->form->getValue('review_result'));
 
-			$survs[] = $this->form->getLabel('review_download') . "：" . $this->form->getValue('review_download');
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('proposalplan_download_'. $i)) {
+					$survs[] = $this->form->getLabel('proposalplan_download_'. $i) . "：" . $this->form->getValue('proposalplan_download_'. $i);
+				}
+			}
 
-			if ($this->form->getValue('review_download_ii')) {
-				$survs[] = $this->form->getLabel('review_download_ii') . "：" . $this->form->getValue('review_download_ii');
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('review_download_'. $i)) {
+					$survs[] = $this->form->getLabel('review_download_'. $i) . "：" . $this->form->getValue('review_download_'. $i);
+				}
 			}
 
 			// 提案討論階段
@@ -125,7 +133,18 @@ class SurveyforceViewExport extends JViewLegacy {
 
 			$survs[] = $this->form->getLabel('discuss_threshold') . "：" . (($layout == "default") ? nl2br($this->form->getValue('discuss_threshold')) : $this->form->getValue('discuss_threshold'));
 
-			$survs[] = $this->form->getLabel('discuss_download') . "：" . $this->form->getValue('discuss_download');
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('discuss_download_'. $i)) {
+					$survs[] = $this->form->getLabel('discuss_download_'. $i) . "：" . $this->form->getValue('discuss_download_'. $i);
+				}
+			}
+
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('reference_download_'. $i)) {
+					$survs[] = $this->form->getLabel('reference_download_'. $i) . "：" . $this->form->getValue('reference_download_'. $i);
+				}
+			}
+			
 
 			// 形成選項階段
 			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_OPTIONS') . "</b>：<span>&nbsp;</span>";
@@ -209,7 +228,18 @@ class SurveyforceViewExport extends JViewLegacy {
 			}
 			$survs[] = $this->form->getLabel('results_proportion') . "：" . (($layout == "default") ? nl2br($results_proportion) : $results_proportion);
 
-			$survs[] = $this->form->getLabel('discuss_download') . "：" . $this->form->getValue('discuss_download');
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('launched_download_'. $i)) {
+					$survs[] = $this->form->getLabel('launched_download_'. $i) . "：" . $this->form->getValue('launched_download_'. $i);
+				}
+			}
+
+			for ($i = 1; $i <= 5; $i++) {
+				if ($this->form->getValue('launched_reference_download_'. $i)) {
+					$survs[] = $this->form->getLabel('launched_reference_download_'. $i) . "：" . $this->form->getValue('launched_reference_download_'. $i);
+				}
+			}
+			
 
 			// 投票、結果公布及執行
 			$survs[] = "<b>" . JText::_('COM_SURVEYFORCE_RESULT') . "</b>：<span>&nbsp;</span>";
@@ -227,7 +257,7 @@ class SurveyforceViewExport extends JViewLegacy {
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode("\n", $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 
 			return false;
 		}

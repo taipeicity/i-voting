@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.1-modified
+ * @version            1.0-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -75,6 +75,10 @@ class SurveyforceTableSurvey extends JTable {
 
 			$is_store                      = [1 => false, 2 => false, 3 => false, 4 => false, 5 => false, 6 => false];
 			$is_store[$post['edit_stage']] = true;
+
+			$this->verify_type = json_encode(array ("none"));
+			$this->verify_params = "null";
+			$this->verify_required = 1;
 		}
 
 		$this->is_store = json_encode($is_store);
@@ -82,9 +86,13 @@ class SurveyforceTableSurvey extends JTable {
 		if (isset($this->launched_date)) {
 			// 投票公布日期設定
 			if ($this->launched_date != 2) {
-				$this->announcement_date = "";
+				$this->announcement_date = "0000-00-00 00:00:00";
 			}
 		}
+
+        if(!$this->deadline) {
+            $this->deadline = "0000-00-00 00:00:00";
+        }
 
 		if ($this->vote_start and $this->vote_end) {
 			// 自行帶入欄位
@@ -97,7 +105,7 @@ class SurveyforceTableSurvey extends JTable {
 		}
 
 
-		if ($this->discuss_vote_start and $this->discuss_vote_end){
+		if ($this->discuss_vote_start != '0000-00-00 00:00:00' and $this->discuss_vote_end != '0000-00-00 00:00:00'){
 			// 自行帶入欄位
 			$this->discuss_vote_time = JHtml::_('date', $this->discuss_vote_start, "Y年n月j日") . " 至 " . JHtml::_('date', $this->discuss_vote_end, "Y年n月j日");
 		}
@@ -110,7 +118,6 @@ class SurveyforceTableSurvey extends JTable {
 
 			// 驗證方式
 			if ($post["is_old_verify"] == 0) { // 更換新的驗證方式
-				unset($new_verify_array);
 				switch ($post["verify_method"]) {
 					case 0:
 						$this->verify_required = 1;
@@ -124,7 +131,7 @@ class SurveyforceTableSurvey extends JTable {
 
 						break;
 					case 2:  // 自訂驗證
-						$this->verify_required = $post["verify_required"];
+						//$this->verify_required = $post["verify_required"];
 
 						$new_verify_array = $post["verify_custom"];
 						break;
@@ -151,6 +158,23 @@ class SurveyforceTableSurvey extends JTable {
 			$this->voters_authentication = SurveyforceHelper::getVerifyName($this->verify_type);
 		}
 
+        // 投票中就記錄修改的欄位
+        $session = JFactory::getSession();
+        if ($session->get('voting.' . $this->id, false, 'survey')) {
+
+            $origin = json_decode($session->get('origin.' . $this->id, null, 'survey'), true);
+            $upload_files = $app->input->files->get("jform");
+
+            $diff = new Diff($origin, $this, $upload_files);
+            $diff->diff();
+            $params = $diff->get();
+
+            if (count($params) > 0) {
+                // 記錄修改欄位
+                $model = JModelLegacy::getInstance('survey', 'SurveyforceModel');
+                $model->InsertDiffColumn($params, $this->id, $app->input->get('task'));
+            }
+        }
 
 		return parent::store($updateNulls);
 
@@ -197,6 +221,11 @@ class SurveyforceTableSurvey extends JTable {
 
 			$this->vote_num_params = json_encode($vote_num_params);
 
+			// 票數設為不是指定顯示時間
+			if ($this->display_result != 3) {
+				$this->display_result_time = "";
+			}
+
 			// 投票結果數設定
 			if ($this->result_num_type != 1) {
 				$this->result_num = 1;
@@ -218,24 +247,23 @@ class SurveyforceTableSurvey extends JTable {
 
 			// 驗證方式
 			if ($post["is_old_verify"] == 0) { // 更換新的驗證方式
-				unset($new_verify_array);
 				if ($post["verify_method"] == 1) { // 依強度選擇驗證方式
 					$new_verify_array = array ($post["verify_mix"]);
-				} else if ($post["verify_method"] == 2) {
+				} else if ($post["verify_method"] == 2) {	// 自訂驗證
 					if ($post["verify_custom"] == "") {
 						$this->setError("請至少選擇一種驗證方式。");
 
 						return false;
 					}
 
-					if ($post["verify_required"] == 1) {
+					if ($this->verify_required == 1) {
 						if (count($post["verify_custom"]) < 2) {
 							$this->setError("驗證組合方式為同時，請至少選擇兩種驗證方式。");
 
 							return false;
 						}
 					}
-
+					
 					$new_verify_array = $post["verify_custom"];
 				}
 
@@ -255,6 +283,18 @@ class SurveyforceTableSurvey extends JTable {
 							}
 						}
 					}
+				}
+				
+				// 如果有同時選台北通與身分證驗證的話，才能使用使用身分證驗證的欄位
+				if (in_array("taipeicard", $new_verify_array) && in_array("idnum", $new_verify_array)) {
+					$this->is_verify_idnum = 1;
+				} else {
+					$this->is_verify_idnum = 0;
+				}
+				
+				// 不等於2種驗證，代表選了更多驗證，這樣不能啟用白名單
+				if (count($new_verify_array) != 2) {
+					$this->is_whitelist = 0;
 				}
 			} else { // 未更換驗證方式
 				$new_verify_array = json_decode($post["is_old_verify_type"]);

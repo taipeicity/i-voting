@@ -2,7 +2,7 @@
 
 /**
  *   @package         Surveyforce
- *   @version           1.3-modified
+ *   @version           1.2-modified
  *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  *   @license            GPL-2.0+
  *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -79,7 +79,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode("\n", $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 			return false;
 		}
 

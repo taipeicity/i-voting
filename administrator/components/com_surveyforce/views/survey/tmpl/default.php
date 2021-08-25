@@ -40,25 +40,70 @@ $document->addScriptDeclaration('
 
 <script type="text/javascript">
 
+
+    /**
+     * 全域類別，可選用橋接無障礙套件 handicapfree。注意，請勿放在 document ready 內。
+     * 其中 unlock() 與 lock() 一旦定義，
+     * 那麼將會提供給外掛套件 handicapfree 的 listen.js ，用作 callback。
+     */
+    window.BridgeHandicapfree = new function (){
+
+        var _status = null;
+
+        // 解鎖
+        this.unlock = function (){
+            jQuery().btndisabled();    
+            _status = "unlock";
+        }
+
+        // 上鎖
+        this.lock = function (){
+            _status = "lock";
+        }
+
+        // 取得無障礙目前上鎖或解鎖狀態
+        this.getLockStatus = function (){
+
+            // 運行編輯器是否在 code 標籤，如果在的話會觸發 lock()
+            $.vmodel.get("editor").enforce();
+            
+            return _status;
+        }
+
+    }
+
+
     Joomla.submitbutton = function (task) {
+
         var message_area = jQuery("#message_area"),
             btn = jQuery(".btn"),
             stage = jQuery("#jform_stage"),
             stage_name = jQuery.trim(stage.find(":checked").next("label").text()),
             fail_reason = jQuery("#fail_reason"),
-            check = true;
+            check = true,
+            hfreeStatus = BridgeHandicapfree.getLockStatus();
 
-        btn.prop('disabled', true);
+        if (hfreeStatus === "lock") {
+            jQuery().btndisabled()
+        } else {
+            btn.prop('disabled', true);
+        }
+
+        // 點擊非儲存按鈕，都會停止監聽無障礙
+        if (jQuery.inArray(task, ['survey.apply', 'survey.save']) < 0) {
+            $.vmodel.get("listen").store.isStop = true;
+        }
+
 
         if (task == 'survey.delete') {
             if (confirm("請確認是否要刪除該議題?")) {
-                Joomla.submitform(task, document.getElementById('survey-form'));
+                // Joomla.submitform(task, document.getElementById('survey-form'));
             } else {
-                btn.prop('disabled', false);
+                btn.btndisabled();
                 return false;
             }
 
-            Joomla.submitform(task, document.getElementById('survey-form'));
+            // Joomla.submitform(task, document.getElementById('survey-form'));
         }
 
         if (task == 'survey.send_check') {
@@ -77,7 +122,7 @@ $document->addScriptDeclaration('
                     },
                     success: function (result) {
                         if (result === "true") {
-                            Joomla.submitform(task, document.getElementById('survey-form'));
+                            // Joomla.submitform(task, document.getElementById('survey-form'));
                         } else {
                             jQuery("#message_area").showMessage("「" + stage_name + "」欄位尚未儲存，請儲存後再送審", jQuery('#jform_edit_stage'));
                             send_check = false;
@@ -92,7 +137,7 @@ $document->addScriptDeclaration('
                     return false;
                 }
             } else {
-                btn.prop('disabled', false);
+                btn.btndisabled();
                 return false;
             }
         }
@@ -113,7 +158,7 @@ $document->addScriptDeclaration('
                     },
                     success: function (result) {
                         if (result === "true") {
-                            Joomla.submitform(task, document.getElementById('survey-form'));
+                            // Joomla.submitform(task, document.getElementById('survey-form'));
                         } else {
                             jQuery("#message_area").showMessage("「" + stage_name + "」欄位尚未儲存，請儲存後再送審", jQuery('#jform_edit_stage'));
                             pass_success = false;
@@ -128,7 +173,7 @@ $document->addScriptDeclaration('
                     return false;
                 }
             } else {
-                btn.prop('disabled', false);
+                btn.btndisabled();
                 return false;
             }
         }
@@ -137,30 +182,30 @@ $document->addScriptDeclaration('
             if (fail_reason.val()) {
                 if (confirm("請確認要將該階段「" + stage_name + "」審核為不通過?")) {
                     jQuery("#jform_fail_reason").val(fail_reason.val());
-                    Joomla.submitform(task, document.getElementById('survey-form'));
+                    // Joomla.submitform(task, document.getElementById('survey-form'));
                 } else {
-                    btn.prop('disabled', false);
+                    btn.btndisabled();
                     return false;
                 }
             } else {
                 alert('請填寫不通過的原因。');
-                btn.prop('disabled', false);
+                btn.btndisabled();
                 return false;
             }
 
-            Joomla.submitform(task, document.getElementById('survey-form'));
+            // Joomla.submitform(task, document.getElementById('survey-form'));
         }
 
 
         if (task == 'survey.recheck') {
             if (confirm("請確認要將重新審核此議題?")) {
-                Joomla.submitform(task, document.getElementById('survey-form'));
+                // Joomla.submitform(task, document.getElementById('survey-form'));
             } else {
-                btn.prop('disabled', false);
+                btn.btndisabled();
                 return false;
             }
 
-            Joomla.submitform(task, document.getElementById('survey-form'));
+            // Joomla.submitform(task, document.getElementById('survey-form'));
         }
 
 
@@ -219,6 +264,10 @@ $document->addScriptDeclaration('
     };
 
 
+    
+
+
+
     jQuery(document).ready(function () {
         var invalid = jQuery(".invalid"),
             configTabs = jQuery("#configTabs"),
@@ -239,10 +288,10 @@ $document->addScriptDeclaration('
             }
 
             var old_active = '',
-                invalid = jQuery(".invalid"),
+                invalid = jQuery(".invalid");
                 btn = jQuery(".btn");
 
-            btn.prop("disabled", false);
+            btn.btndisabled();
 
             if (invalid.parents("li.active").length === 0) {
                 if (target) {
@@ -268,6 +317,10 @@ $document->addScriptDeclaration('
             jQuery("#system-message-container").html("");
         };
 
+        jQuery.fn.btndisabled = function(){
+            jQuery(".btn").prop("disabled", false);
+        };
+
         //檢查日期格式
         var pattern;
         jQuery.fn.checkDatePattern = function (short = false) {
@@ -282,7 +335,13 @@ $document->addScriptDeclaration('
         jQuery.fn.deleteImage = function (field) {
             jQuery("#old_" + field).val("");
             jQuery(".old_" + field + "_area").toggle();
-            jQuery(".new_" + field).toggle();
+			
+			if (jQuery(".new_" + field).length) {
+				jQuery(".new_" + field).toggle();
+			} else {
+				jQuery("#jform_" + field).toggle();
+			}
+            
             return true;
         };
 
@@ -413,6 +472,14 @@ $document->addScriptDeclaration('
     .iframe {
         border: 0 !important;
     }
+	
+	#is_verify_idnum_zone {
+		display: none;
+	}
+	
+	#is_whitelist_zone {
+		display: none;
+	}
 </style>
 <?php $params = JComponentHelper::getParams('com_surveyforce')->toObject(); ?>
 
@@ -525,7 +592,6 @@ $document->addScriptDeclaration('
             <input type="hidden" name="is_old_verify_type" id="is_old_verify_type"
                    value='<?php echo $this->form->getValue('verify_type'); ?>' />
 			<?php echo $this->form->getInput('id'); ?>
-            <input type="hidden" name="jform[created_by]" value="<?php echo $this->form->getValue('created_by'); ?>" />
             <input type="hidden" name="jform[fail_reason]" id="jform_fail_reason" value="" />
 
 			<?php echo $this->form->getInput('asset_id'); ?>

@@ -8,12 +8,23 @@
  */
 $star   = '<span class=\"star\">&nbsp;*</span>';
 $script = '';
-if ($this->form->getValue('launched_download')) {
-	$element = SurveyforceHelper::getOldArea("launched_download", $this->form->getValue('launched_download'), false);
-	$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_launched_download_area\")", $element);
-	$script  .= 'jQuery("#jform_launched_download").parent().prev().find("label").append("' . $star . '");';
-} else {
-	$script  .= 'jQuery("#jform_launched_download").addClass("required").parent().prev().find("label").append("' . $star . '");';
+
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('launched_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("launched_download_". $i, $this->form->getValue('launched_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_launched_download_". $i. "_area\")", $element);
+		$script  .= ($i == 1) ? 'jQuery("#jform_launched_download_'. $i. '").parent().prev().find("label").append("' . $star . '");' : '';
+	} else {
+		$script .= ($i == 1) ? 'jQuery("#jform_launched_download_'. $i. '").addClass("required").parent().prev().find("label").append("' . $star . '");' : '';
+	}
+	
+}
+
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('launched_reference_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("launched_reference_download_". $i, $this->form->getValue('launched_reference_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_launched_reference_download_". $i. "_area\")", $element);
+	}
 }
 
 $document = JFactory::getDocument();
@@ -25,6 +36,21 @@ $document->addScriptDeclaration('
     jQuery(document).ready(function () {
         var announcement_date = jQuery("#jform_announcement_date");
 
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_launched_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("launched_download_<?php echo $i; ?>");
+			<?php if ($i == 1) { ?>
+			jQuery("#jform_launched_download_1").addClass("required");
+			<?php } ?>
+        });
+		<?php } ?>
+
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_launched_reference_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("launched_reference_download_<?php echo $i; ?>");
+        });
+		<?php } ?>
+		
         jQuery("#jform_launched_date1").on("click", function () {
             announcement_date.attr("required", true).attr("aria-required", true).addClass("required");
             var label = jQuery("label[for=" + announcement_date.attr("id") + "]");
@@ -35,11 +61,6 @@ $document->addScriptDeclaration('
 
         jQuery("#jform_launched_date0, #jform_launched_date2").on("click", function () {
             announcement_date.removeAttr("required").removeAttr("aria-required").removeClass("required");
-        });
-
-        jQuery("#del_launched_download_btn").on("click", function () {
-            jQuery(this).deleteImage("launched_download");
-            jQuery("#jform_launched_download").addClass("required");
         });
 
         jQuery.fn.checkDetails_launchedJs = function () {
@@ -184,4 +205,17 @@ echo $this->form->renderField('other');
 <div id="new_launched_download_area">
 	<?php echo $this->form->renderField('launched_download'); ?>
 </div>
+
+
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_launched_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('launched_download_'. $i); ?>
+</div>
+<?php } ?>
+
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_launched_reference_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('launched_reference_download_'. $i); ?>
+</div>
+<?php } ?>
 

@@ -7,51 +7,50 @@
  * @license     A "Slug" license name e.g. GPL2
  */
 
-$verify_all_array = array ();
-$verify_mix_array = array ();
+$verify_all_array = [];
+$verify_mix_array = [];
 if ($this->verify_types) {
-	// 依強度選擇驗證方式用的陣列
-	$verify_mix_array[1] = array ();
-	$verify_mix_array[2] = array ();
-	$verify_mix_array[3] = array ();
+    // 依強度選擇驗證方式用的陣列
+    $verify_mix_array[1] = [];
+    $verify_mix_array[2] = [];
+    $verify_mix_array[3] = [];
 
-	$mix_js       = '';
-	$custom_js    = '';
-	$setting_html = '';
-	$check_js     = '';
-	foreach ($this->verify_types as $type) {
-		// 整理plugin資料 - 依強度選擇驗證方式
-		$params = json_decode($type->params);
-		if ($params->level > 0) {
-			$verify_mix_array[$params->level][$type->element] = $type->name;
-			$verify_all_array[$type->element]                 = $type->name;
-		}
+    $mix_js = '';
+    $custom_js = '';
+    $setting_html = '';
+    $check_js = '';
+    foreach ($this->verify_types as $type) {
+        // 整理plugin資料 - 依強度選擇驗證方式
+        $params = json_decode($type->params);
+        if ($params->level > 0) {
+            $verify_mix_array[$params->level][$type->element] = $type->name;
+            $verify_all_array[$type->element] = $type->name;
+        }
 
-		// 載入所有plugin
-		JPluginHelper::importPlugin('verify', $type->element);
-		$className = 'plgVerify' . ucfirst($type->element);
+        // 載入所有plugin
+        JPluginHelper::importPlugin('verify', $type->element);
+        $className = 'plgVerify'.ucfirst($type->element);
 
-		// 依強度選擇驗證方式 - 其他設定JS
-		if (method_exists($className, 'onGetAdminMixSettingJS')) {
-			$mix_js .= $className::onGetAdminMixSettingJS();
-		}
+        // 依強度選擇驗證方式 - 其他設定JS
+        if (method_exists($className, 'onGetAdminMixSettingJS')) {
+            $mix_js .= $className::onGetAdminMixSettingJS();
+        }
 
-		// 自訂驗證 - 其他設定JS
-		if (method_exists($className, 'onGetAdminCustomSettingJS')) {
-			$custom_js .= $className::onGetAdminCustomSettingJS();
-		}
+        // 自訂驗證 - 其他設定JS
+        if (method_exists($className, 'onGetAdminCustomSettingJS')) {
+            $custom_js .= $className::onGetAdminCustomSettingJS();
+        }
 
-		// 其他設定HTML
-		if (method_exists($className, 'onGetAdminSettingHTML')) {
-			$setting_html .= $className::onGetAdminSettingHTML();
-		}
+        // 其他設定HTML
+        if (method_exists($className, 'onGetAdminSettingHTML')) {
+            $setting_html .= $className::onGetAdminSettingHTML();
+        }
 
-		// 檢查設定JS
-		if (method_exists($className, 'onAdminSettingCheckJS')) {
-			$check_js .= $className::onAdminSettingCheckJS();
-		}
-
-	}
+        // 檢查設定JS
+        if (method_exists($className, 'onAdminSettingCheckJS')) {
+            $check_js .= $className::onAdminSettingCheckJS();
+        }
+    }
 }
 
 ?>
@@ -64,7 +63,7 @@ if ($this->verify_types) {
             temp_custom_verify = src_select.html(),
             verify_setting = jQuery(".verify_setting"),
             is_old_verify = jQuery("#is_old_verify"),
-            verify_required = jQuery("#verify_required");
+            verify_required = jQuery("#verify_required"),
             verify_table_module = jQuery("#verify_table_module"),
             verify_table_custom = jQuery("#verify_table_custom");
 
@@ -77,6 +76,8 @@ if ($this->verify_types) {
             verify_required.attr("value", "0");
             src_select.html(temp_custom_verify);
             dest_select.html("");
+			
+			jQuery("#is_whitelist_zone").hide();
         };
 
         // 重新開啟選擇驗證的區塊
@@ -105,7 +106,7 @@ if ($this->verify_types) {
         });
         // 依強度選擇驗證方式 - 是否顯示其他設定
         jQuery('.verify_mix').on("click", function () {
-			<?php echo $mix_js; ?>
+            <?php echo $mix_js; ?>
         });
         // 自訂驗證-點選加入
         jQuery('#select_add_btn').on("click", function () {
@@ -127,8 +128,20 @@ if ($this->verify_types) {
             jQuery('#dest_select option').attr('selected', 'selected');
             dest_select_array = dest_select.val();
             if (dest_select_array.length > 0) {
-				<?php echo $custom_js; ?>
+                <?php echo $custom_js; ?>
             }
+			
+			// 如果有同時選台北通與身分證驗證的話，則顯示是否使用身分證驗證的欄位
+			if ($.inArray('taipeicard', dest_select_array) >= 0 && $.inArray('idnum', dest_select_array) >= 0) {
+				if (dest_select_array.length == 2) {
+					jQuery("#is_whitelist_zone").show();
+				} else {
+					jQuery("#is_whitelist_zone").hide();
+				}
+			} else {
+				jQuery("#is_whitelist_zone").hide();
+			}
+			
         });
         // 自訂驗證-點選移除
         jQuery('#select_remove_btn').on("click", function () {
@@ -150,9 +163,16 @@ if ($this->verify_types) {
             jQuery('#dest_select option').attr('selected', 'selected');
             dest_select_array = dest_select.val();
             if (dest_select_array) {
-				<?php echo $custom_js; ?>
+                <?php echo $custom_js; ?>
             }
 
+			// 如果有同時選台北通與身分證驗證的話，則顯示是否使用身分證驗證的欄位
+			if ($.inArray('taipeicard', dest_select_array) >= 0 && $.inArray('idnum', dest_select_array) >= 0) {
+				jQuery("#is_whitelist_zone").show();
+			} else {
+				jQuery("#is_whitelist_zone").hide();
+			}
+			
         });
 
         jQuery.fn.checkVerifyJs = function () {
@@ -168,9 +188,9 @@ if ($this->verify_types) {
 
                     // 載入JS檢查
                     check_verify_method = verify_mix.val();
-					<?php
-					echo $check_js;
-					?>
+                    <?php
+                    echo $check_js;
+                    ?>
 
                 } else if (parseInt(verify_table.find(".verify_method:checked").val()) === 2) {	// 自訂驗證
 
@@ -191,9 +211,9 @@ if ($this->verify_types) {
                     var is_check_suceess = true;
                     dest_select.find(":selected").each(function () {
                         check_verify_method = this.value;
-						<?php
-						echo $check_js;
-						?>
+                        <?php
+                        echo $check_js;
+                        ?>
                     });
                     if (is_check_suceess === false) {
                         check = false;
@@ -211,55 +231,61 @@ if ($this->verify_types) {
 <?php
 
 if ($this->item->id) {
-	$verify_type   = json_decode($this->form->getValue('verify_type'), true);
-	$verify_params = json_decode($this->form->getValue('verify_params'), true);
+    $verify_type = json_decode($this->form->getValue('verify_type'), true);
+    $verify_params = json_decode($this->form->getValue('verify_params'), true);
 
-
-	if (!is_array($verify_type) || $verify_type[0] == "none") {
-		echo "該議題設定為圖形驗證碼。";
-	} else {
-		?>
-        <table border="1" class="verify_table_module">
+    if (! is_array($verify_type) || $verify_type[0] == "none") {
+        echo "該議題設定為圖形驗證碼。";
+    } else {
+        ?>
+        <table class="verify_table_module">
             <tr>
-                <th align="center" width="150">驗證項目</th>
-                <th align="center" width="350">備註</th>
+                <th>驗證項目</th>
+                <th>備註</th>
             </tr>
-			<?php
-			foreach ($verify_type as $type) {
-				?>
+            <?php
+            foreach ($verify_type as $type) {
+                ?>
                 <tr>
                     <td>
-						<?php
-						echo $verify_all_array[$type];
-						?>
+                        <?php
+                        echo $verify_all_array[$type];
+                        ?>
                     </td>
                     <td>
-						<?php
-						$className = 'plgVerify' . ucfirst($type);
+                        <?php
+                        $className = 'plgVerify'.ucfirst($type);
 
-						// 顯示params
-						if (method_exists($className, 'onGetAdminShowParams')) {
-							echo $className::onGetAdminShowParams($verify_params);
-						}
-						?>
+                        // 顯示params
+                        if (method_exists($className, 'onGetAdminShowParams')) {
+                            echo $className::onGetAdminShowParams($verify_params);
+                        }
+                        ?>
                     </td>
                 </tr>
-			<?php } ?>
+            <?php } ?>
         </table>
-        驗證組合方式：<?php echo ($this->form->getValue('verify_required')) ? "同時" : "擇一"; ?>
+        <p>驗證組合方式：<?php echo ($this->form->getValue('verify_required')) ? "同時" : "擇一"; ?></p>
+        <p>交叉驗證：<?php echo ($this->form->getValue('cross_validation')) ? "是" : "否"; ?></p>
 		<?php
-	}
-	?>
-    <br>
-    <br>
-	<?php
-	if ($this->can_save == true) {
+			// 如果有同時選台北通與身分證驗證的話
+			if (in_array("taipeicard", $verify_type) && in_array("idnum", $verify_type) && count($verify_type) == 2) {
 		?>
+        <p>身分證白名單檢核：<?php echo ($this->form->getValue('is_whitelist')) ? "是" : "否"; ?></p>
+		<?php
+			}
+        
+    }
+    ?>
+    <br>
+    <?php
+    if ($this->can_save == true) {
+        ?>
         <input id="reset_verify" type="button" value="重新設定">
-	<?php } ?>
+    <?php } ?>
 <?php } ?>
 
-<table border="0" id="verify_table" class="verify_table"
+<table id="verify_table" class="verify_table"
        style="display:<?php echo ($this->item->id) ? "none" : "block"; ?>">
     <tr>
         <td>
@@ -283,22 +309,22 @@ if ($this->item->id) {
     <tr>
         <td>&nbsp;</td>
         <td>
-            <table border="1" id="verify_table_module" class="verify_table_module"
+            <table id="verify_table_module" class="verify_table_module"
                    style="display: none;">
-				<?php
-				$level_label = array ("1" => "驗證強度低", "2" => "驗證強度中", "3" => "驗證強度高");
-				foreach ($verify_mix_array as $level => $verify_array) {
-					$count = 0;
-					foreach ($verify_array as $element => $name) {
-						?>
+                <?php
+                $level_label = ["1" => "驗證強度低", "2" => "驗證強度中", "3" => "驗證強度高"];
+                foreach ($verify_mix_array as $level => $verify_array) {
+                    $count = 0;
+                    foreach ($verify_array as $element => $name) {
+                        ?>
                         <tr>
-							<?php
-							if ($count == 0) {
-								?>
+                            <?php
+                            if ($count == 0) {
+                                ?>
                                 <td rowspan="<?php echo count($verify_array); ?>">
-									<?php echo $level_label[$level]; ?>
+                                    <?php echo $level_label[$level]; ?>
                                 </td>
-							<?php } ?>
+                            <?php } ?>
                             <td>
                                 <input type="radio" id="verify_mix_<?php echo $element; ?>"
                                        class="verify_mix" name="verify_mix"
@@ -310,11 +336,11 @@ if ($this->item->id) {
                             </td>
                         </tr>
 
-						<?php
-						$count++;
-					}
-				}
-				?>
+                        <?php
+                        $count++;
+                    }
+                }
+                ?>
             </table>
         </td>
     </tr>
@@ -327,29 +353,44 @@ if ($this->item->id) {
     <tr>
         <td>&nbsp;</td>
         <td>
-            <table border="0" id="verify_table_custom" class="verify_table_custom"
+            <table id="verify_table_custom" class="verify_table_custom"
                    style="display: none;">
                 <tr>
                     <td>
-                        驗證組合方式 <select id="verify_required" name="verify_required">
-                            <option value="0">擇一</option>
-                            <option value="1">同時</option>
-                        </select>
+                        <?php echo $this->form->renderField('verify_required'); ?>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <table border="0">
+                        <?php echo $this->form->renderField('cross_validation'); ?>
+                    </td>
+                </tr>
+                
+                <tr id="is_whitelist_zone">
+                    <td>
+						<div class="control-group">
+							<div class="control-label"><?php echo $this->form->getLabel('is_whitelist'); ?></div>
+							<div class="controls">
+								<?php echo $this->form->getInput('is_whitelist'); ?>
+								<br>
+								(有符合匯入身分證字號名單的APP使用者才能看到此議題和進行投票)
+							</div>
+						</div>						
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table>
                             <tr>
                                 <td>
-                                    <select id="src_select" multiple="multiple" size="8">
-										<?php
-										foreach ($verify_all_array as $element => $name) {
-											?>
-                                            <option id="<?php echo $element; ?>"
-                                                    value="<?php echo $element; ?>"><?php echo $name; ?></option>
-										<?php } ?>
-                                    </select>
+                                    <label><select id="src_select" multiple="multiple" size="8">
+                                            <?php
+                                            foreach ($verify_all_array as $element => $name) {
+                                                ?>
+                                                <option id="<?php echo $element; ?>"
+                                                        value="<?php echo $element; ?>"><?php echo $name; ?></option>
+                                            <?php } ?>
+                                        </select></label>
                                 <td>
                                 <td>
                                     <input type="button" id="select_add_btn" value="加入"
@@ -359,8 +400,8 @@ if ($this->item->id) {
 
                                 </td>
                                 <td>
-                                    <select id="dest_select" name="verify_custom[]"
-                                            multiple="multiple" size="8"> </select>
+                                    <label for="dest_select"></label><select id="dest_select" name="verify_custom[]"
+                                                                             multiple="multiple" size="8"> </select>
                                 <td>
                             </tr>
                         </table>
@@ -373,7 +414,7 @@ if ($this->item->id) {
     <tr>
         <td>&nbsp;</td>
         <td>
-			<?php echo $setting_html; ?>
+            <?php echo $setting_html; ?>
         </td>
     </tr>
 </table>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     @package         Surveyforce
-    @version           2.0-modified
+    @version           1.2-modified
     @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
     @license            GPL-2.0+
     @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -11,7 +11,7 @@
         <field name="id" type="hidden"/>
         <field name="sf_cat" type="categorys" label="COM_SF_CATEGORY" labelclass="control-label"/>
 
-        <field name="title" type="text" class="input-xlarge" size="30" label="COM_SURVEYFORCE_NAME" required="true"
+        <field name="title" type="text" class="input-title" size="30" label="COM_SURVEYFORCE_NAME" required="true"
                labelclass="control-label" description="COM_SURVEYFORCE_NAME_DESCRIPTION"/>
 
         <field name="desc" type="editor" buttons="true" hide="pagebreak,readmore,testimonial" class="inputbox"
@@ -19,6 +19,8 @@
 
         <field name="image" type="file" class="input-xlarge new_image" size="30" label="COM_SURVEYFORCE_DETAILS_IMAGE"
                accept="image/*" description="COM_SURVEYFORCE_DETAILS_IMAGE_DESCRIPTION"/>
+
+        <field name="note" type="text" class="input-title" label="COM_SURVEYFORCE_DETAILS_NOTE"/>
 
         <field name="edit_stage" type="list" label="COM_SURVEYFORCE_EDIT_STAGE"
                labelclass="control-label" default="1">
@@ -48,7 +50,7 @@
                labelclass="control-label"/>
 
         <field name="plan_options" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_CHECK_PLAN_OPTIONS"
-               rows="3" cols="5" labelclass="control-label"/>
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
 
         <field name="proposal" type="radio" class="btn-group" label="COM_SURVEYFORCE_CHECK_PROPOSAL"
                labelclass="control-label" default="1">
@@ -65,7 +67,7 @@
                label="COM_SURVEYFORCE_CHECK_PROPOSAL_UNADMIN" validate="url" scheme="http,https" showon="proposal:2"/>
 
         <field name="precautions" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_CHECK_PRECAUTIONS"
-               rows="3" cols="5" labelclass="control-label"/>
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
 
         <field name="second_the_motion" type="number" class="input-xlarge" size="30"
                label="COM_SURVEYFORCE_CHECK_SECOND_THE_MOTION" labelclass="control-label" filter="integer"/>
@@ -77,15 +79,49 @@
 
         <!-- 提案初審階段 Start -->
         <field name="review_result" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_REVIEW_RESULT"
-               rows="3" cols="5" labelclass="control-label"/>
-
-        <field name="review_download" type="file" class="input-xlarge new_review_download" size="50"
-               label="COM_SURVEYFORCE_REVIEW_DOWNLOAD" accept="application/pdf"
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
+        
+         <field name="proposalplan_download_1" type="file" class="input-xlarge" size="50"
+               label="提案計畫書下載(一)" accept="application/pdf"
                description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
 
-        <field name="review_download_ii" type="file" class="input-xlarge new_review_download_ii" size="50"
-               label="COM_SURVEYFORCE_REVIEW_DOWNLOAD_II" accept="application/pdf"
+        <field name="proposalplan_download_2" type="file" class="input-xlarge" size="50"
+               label="提案計畫書下載(二)" accept="application/pdf"
                description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="proposalplan_download_3" type="file" class="input-xlarge" size="50"
+               label="提案計畫書下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="proposalplan_download_4" type="file" class="input-xlarge" size="50"
+               label="提案計畫書下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="proposalplan_download_5" type="file" class="input-xlarge" size="50"
+               label="提案計畫書下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_1" type="file" class="input-xlarge" size="50"
+               label="會議記錄等資料下載(一)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_2" type="file" class="input-xlarge" size="50"
+               label="會議記錄等資料下載(二)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_3" type="file" class="input-xlarge" size="50"
+               label="會議記錄等資料下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_4" type="file" class="input-xlarge" size="50"
+               label="會議記錄等資料下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="review_download_5" type="file" class="input-xlarge" size="50"
+               label="會議記錄等資料下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        
+        
         <!-- 提案初審階段 End -->
 
         <!-- 提案討論階段 Start -->
@@ -116,9 +152,47 @@
         <field name="discuss_threshold" type="text" class="input-xlarge" size="30"
                label="COM_SURVEYFORCE_DISCUSS_THRESHOLD" labelclass="control-label"/>
 
-        <field name="discuss_download" type="file" class="input-xlarge new_discuss_download" size="50"
-               label="COM_SURVEYFORCE_DISCUSS_DOWNLOAD" accept="application/pdf"
+        <field name="discuss_download_1" type="file" class="input-xlarge" size="50"
+               label="修訂提案計畫書下載(一)" accept="application/pdf"
                description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="discuss_download_2" type="file" class="input-xlarge" size="50"
+               label="修訂提案計畫書下載(二)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="discuss_download_3" type="file" class="input-xlarge" size="50"
+               label="修訂提案計畫書下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="discuss_download_4" type="file" class="input-xlarge" size="50"
+               label="修訂提案計畫書下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="discuss_download_5" type="file" class="input-xlarge" size="50"
+               label="修訂提案計畫書下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        
+        <field name="reference_download_1" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(一)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="reference_download_2" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(二)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="reference_download_3" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="reference_download_4" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="reference_download_5" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+
         <!-- 提案討論階段 End -->
 
         <!-- 形成選項階段 Start -->
@@ -139,15 +213,15 @@
         <!-- 形成選項階段 End -->
 
         <!-- 宣傳準備與上架階段 Start -->
-        <field name="voters_eligibility" type="textarea" class="inputbox large"
+        <field name="voters_eligibility" type="textarea" class="inputbox large" filter="raw"
                label="COM_SURVEYFORCE_LAUNCHED_ELIGIBILITY" rows="3" cols="5"
                labelclass="control-label"/>
 
-        <field name="voters_authentication" type="textarea" class="inputbox large"
+        <field name="voters_authentication" type="textarea" class="inputbox large" filter="raw"
                label="COM_SURVEYFORCE_LAUNCHED_AUTHENTICATION" rows="3" cols="5" labelclass="control-label"/>
 
         <field name="during_vote" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_DURING_VOTE"
-               rows="3" cols="5" labelclass="control-label"/>
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
 
         <field name="vote_start" type="calendar" labelclass="control-label" label="COM_SURVEYFORCE_LAUNCHED_VOTE_START"
                class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22" filter="user_utc" weeknumbers="false"
@@ -158,9 +232,9 @@
                timeformat="24" showtime="true"/>
 
         <field name="vote_way" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_VOTE_WAY"
-               rows="3" cols="5" labelclass="control-label"/>
+               rows="3" cols="5" labelclass="control-label" filter="raw"/>
 
-        <field name="launched_condition" type="textarea" class="inputbox large"
+        <field name="launched_condition" type="textarea" class="inputbox large" filter="raw"
                label="COM_SURVEYFORCE_LAUNCHED_CONDITION" rows="3" cols="5"
                labelclass="control-label"/>
 
@@ -186,17 +260,54 @@
         <field name="part" type="text" class="input-xlarge" size="10" label="COM_SURVEYFORCE_LAUNCHED_PART"
                showon="results_proportion:part"/>
         <field name="other" type="textarea" class="inputbox large" label="COM_SURVEYFORCE_LAUNCHED_OTHER" rows="3"
-               cols="5" showon="results_proportion:other"/>
+               cols="5" showon="results_proportion:other" filter="raw"/>
 
-        <field name="launched_download" type="file" class="input-xlarge new_launched_download" size="50"
-               label="COM_SURVEYFORCE_LAUNCHED_DOWNLOAD" accept="application/pdf"
+        <field name="launched_download_1" type="file" class="input-xlarge" size="50"
+               label="完整提案計畫書下載(一)" accept="application/pdf"
                description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_download_2" type="file" class="input-xlarge" size="50"
+               label="完整提案計畫書下載(二)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_download_3" type="file" class="input-xlarge" size="50"
+               label="完整提案計畫書下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_download_4" type="file" class="input-xlarge" size="50"
+               label="完整提案計畫書下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_download_5" type="file" class="input-xlarge" size="50"
+               label="完整提案計畫書下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        
+        <field name="launched_reference_download_1" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(一)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_reference_download_2" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(二)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_reference_download_3" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(三)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_reference_download_4" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(四)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+
+        <field name="launched_reference_download_5" type="file" class="input-xlarge" size="50"
+               label="參考資料下載(五)" accept="application/pdf"
+               description="COM_SURVEYFORCE_DETAILS_MAX_MEMORY"/>
+        
         <!-- 宣傳準備與上架階段 End -->
 
         <!-- 投票、結果公布及執行 Start-->
-        <field name="result_instructions" type="textarea" class="inputbox large"
+        <field name="result_instructions" type="textarea" class="inputbox large" filter="raw"
                label="COM_SURVEYFORCE_RESULT_INSTRUCTIONS" rows="3" cols="5" labelclass="control-label"/>
-        <field name="how_to_use" type="textarea" class="inputbox large"
+        <field name="how_to_use" type="textarea" class="inputbox large" filter="raw"
                label="COM_SURVEYFORCE_RESULT_HOWTOUSE" rows="3" cols="5" labelclass="control-label"/>
         <!-- 投票、結果公布及執行 End -->
 
@@ -222,9 +333,17 @@
             <option value="2">COM_SURVEYFORCE_SETTING_UNPUBLIC_SKIN_2</option>
         </field>
 
-        <field name="is_define" type="radio" class="btn-group" label="是否成案" default="1">
+        <field name="is_define" type="radio" class="btn-group" label="COM_SURVEYFORCE_SETTING_IS_DEFINE"
+               default="1">
             <option value="1">JYES</option>
             <option value="0">JNO</option>
+        </field>
+        
+        <field name="survey_type" type="list" label="議題類型"
+               labelclass="control-label" default="1">
+            <option value="1">i-Voting</option>
+            <option value="2">問券調查</option>
+            <option value="3">活動票選</option>
         </field>
 
         <field type="checkboxes" label="COM_SURVEYFORCE_SETTING_VOTE_PATTERN" name="vote_pattern"
@@ -247,15 +366,15 @@
             <option value="0">JNO</option>
         </field>
 
-        <field name="remind_text" type="textarea" class="inputbox large is_notice_email"
+        <field name="remind_text" type="textarea" class="inputbox large is_notice_email" filter="raw"
                label="COM_SURVEYFORCE_SETTING_MAIL_REMIND_TEXT" rows="10" cols="5"
                showon="is_notice_email:1" description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
 
-        <field name="drumup_text" type="textarea" class="inputbox large is_notice_email"
+        <field name="drumup_text" type="textarea" class="inputbox large is_notice_email" filter="raw"
                label="COM_SURVEYFORCE_SETTING_MAIL_DRUMUP_TEXT" rows="10" cols="5"
                showon="is_notice_email:1" description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
 
-        <field name="end_text" type="textarea" class="inputbox large is_notice_email"
+        <field name="end_text" type="textarea" class="inputbox large is_notice_email" filter="raw"
                label="COM_SURVEYFORCE_SETTING_MAIL_END_TEXT" rows="10" cols="5" showon="is_notice_email:1"
                description="COM_SURVEYFORCE_SETTING_MAIL_NOTICE"/>
 
@@ -266,15 +385,15 @@
         </field>
 
         <field name="phone_remind_text" type="textarea" class="inputbox large is_notice_phone"
-               label="COM_SURVEYFORCE_SETTING_PHONE_REMIND_TEXT" rows="5" cols="5"
+               label="COM_SURVEYFORCE_SETTING_PHONE_REMIND_TEXT" rows="5" cols="5" filter="raw"
                showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE"/>
 
         <field name="phone_drumup_text" type="textarea" class="inputbox large is_notice_phone"
-               label="COM_SURVEYFORCE_SETTING_PHONE_DRUMUP_TEXT" rows="5" cols="5"
+               label="COM_SURVEYFORCE_SETTING_PHONE_DRUMUP_TEXT" rows="5" cols="5" filter="raw"
                showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE_II"/>
 
         <field name="phone_end_text" type="textarea" class="inputbox large is_notice_phone"
-               label="COM_SURVEYFORCE_SETTING_PHONE_END_TEXT" rows="5" cols="5"
+               label="COM_SURVEYFORCE_SETTING_PHONE_END_TEXT" rows="5" cols="5" filter="raw"
                showon="is_notice_phone:1" description="COM_SURVEYFORCE_SETTING_PHONE_NOTICE_II"/>
 
         <field name="sms_user" type="text" label="COM_SURVEYFORCE_SETTING_PHONE_PLATFORM_USER"
@@ -298,6 +417,14 @@
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
+
+        <field name="is_quantity" type="radio" class="btn-group" label="啟用投票率計算" default="1">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field type="number" name="quantity" label="可投票人數" showon="is_quantity:1" />
+
         <!-- setting End-->
 
         <field name="asset_id" type="hidden" filter="unset"/>
@@ -306,8 +433,7 @@
 
         <field name="hits" type="hidden" default="0"/>
 
-        <field name="created_by" type="user"
-               label="JGLOBAL_FIELD_Created_by_Label" description="JGLOBAL_FIELD_CREATED_BY_DESC" readonly="true"/>
+        <field name="created_by" type="user" label="承辦人"/>
         <field name="created" type="calendar"
                label="JGLOBAL_FIELD_CREATED_LABEL" description="JGLOBAL_FIELD_CREATED_DESC"
                class="inputbox" size="22" format="%Y-%m-%d %H:%M:%S" readonly="true"
@@ -328,7 +454,12 @@
             <option value="0">不顯示</option>
             <option value="1">投票中顯示</option>
             <option value="2">結束後顯示</option>
+            <option value="3">指定時間顯示</option>
         </field>
+        
+        <field name="display_result_time" type="calendar" labelclass="control-label" label="投票顯示時間"
+               class="inputbox" format="%Y-%m-%d %H:%M:%S" size="22" filter="user_utc" weeknumbers="false"
+               timeformat="24" showtime="true"/>
 
         <field name="result_num_type" type="radio" labelclass="control-label" label="投票結果數設定" default="0">
             <option value="0">全部</option>
@@ -364,7 +495,29 @@
         </field>
 
 
-        <field name="verify_required" type="hidden"/>
+        <field name="verify_required" type="list" label="驗證組合方式" default="0">
+            <option value="0">擇一</option>
+            <option value="1">同時</option>
+        </field>
+
+
+        <field name="cross_validation" type="radio" class="btn-group" label="交叉驗證" default="0"
+               showon="verify_required:0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="is_verify_idnum" type="radio" class="btn-group" label="台北通身分驗證" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="is_whitelist" type="radio" class="btn-group" label="身分證白名單檢核" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <!--        <field name="verify_required" type="hidden"/>-->
         <field name="verify_type" type="hidden"/>
         <field name="verify_params" type="hidden"/>
         <field name="vote_num_params" type="hidden"/>

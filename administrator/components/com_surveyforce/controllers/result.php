@@ -22,5 +22,14 @@ class SurveyforceControllerResult extends JControllerForm {
         parent::__construct($config);
     }
 
-   	
+    public function mark() {
+        $jinput = JFactory::getApplication()->input;
+        $mark  = $jinput->getString("mark");
+
+        $session = JFactory::getSession();
+        $session->set("mark", $mark, 'result');
+
+        echo true;
+        exit;
+    }
 }

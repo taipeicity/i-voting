@@ -28,12 +28,12 @@ class SurveyforceViewAnalyzes extends JViewLegacy {
 		$this->pagination = $this->get('Pagination');
 		$this->state      = $this->get('State');
 		$this->canDo      = JHelperContent::getActions('com_surveyforce');
-		$this->fields     = $this->get('Fields');
+		//$this->fields     = $this->get('Fields');
 		$model            = $this->getModel();
 		$this->items      = $model->getFields($this->items);
 
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode('<br />', $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 
 			return false;
 		}

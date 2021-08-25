@@ -1,4 +1,7 @@
 Change Log
+[v4.6] (2021-08-25)
+- 修改README.md，更新Joomla版本3.10.1
+
 [v4.5] (2021-07-29)
 - 修改README.md，更新Joomla版本3.9.28
 

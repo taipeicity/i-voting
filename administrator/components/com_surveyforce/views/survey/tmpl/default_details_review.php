@@ -10,19 +10,26 @@
 $star   = "<span class='star'>&nbsp;*</span>";
 $script = '';
 
-if ($this->form->getValue("review_download")) {
-	$element = SurveyforceHelper::getOldArea("review_download", $this->form->getValue('review_download'), false);
-	$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_review_download_area\")", $element);
-
-	$script .= 'jQuery("#jform_review_download").parent().prev().find("label").append("' . $star . '");';
-} else {
-	$script .= 'jQuery("#jform_review_download").addClass("required").parent().prev().find("label").append("' . $star . '");';
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('proposalplan_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("proposalplan_download_". $i, $this->form->getValue('proposalplan_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_proposalplan_download_". $i. "_area\")", $element);
+		$script  .= ($i == 1) ? 'jQuery("#jform_proposalplan_download_'. $i. '").parent().prev().find("label").append("' . $star . '");' : '';
+	} else {
+		$script .= ($i == 1) ? 'jQuery("#jform_proposalplan_download_'. $i. '").addClass("required").parent().prev().find("label").append("' . $star . '");' : '';
+	}
 }
 
-if ($this->form->getValue("review_download_ii")) {
-	$element = SurveyforceHelper::getOldArea("review_download_ii", $this->form->getValue('review_download_ii'), false);
-	$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_review_download_ii_area\")", $element);
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('review_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("review_download_". $i, $this->form->getValue('review_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_review_download_". $i. "_area\")", $element);
+		$script  .= ($i == 1) ? 'jQuery("#jform_review_download_'. $i. '").parent().prev().find("label").append("' . $star . '");' : '';
+	} else {
+		$script .= ($i == 1) ? 'jQuery("#jform_review_download_'. $i. '").addClass("required").parent().prev().find("label").append("' . $star . '");' : '';
+	}
 }
+
 
 $document = JFactory::getDocument();
 $document->addScriptDeclaration('
@@ -32,14 +39,26 @@ $document->addScriptDeclaration('
 
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        jQuery("#del_review_download_btn").on("click", function () {
-            jQuery(this).deleteImage("review_download");
-            jQuery("#jform_review_download").addClass("required");
-        });
+		
 
-        jQuery("#del_review_download_ii_btn").on("click", function () {
-            jQuery(this).deleteImage("review_download_ii");
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_proposalplan_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("proposalplan_download_<?php echo $i; ?>");
+			<?php if ($i == 1) { ?>
+			jQuery("#jform_proposalplan_download_1").addClass("required");
+			<?php } ?>
         });
+		<?php } ?>
+		
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_review_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("review_download_<?php echo $i; ?>");
+			<?php if ($i == 1) { ?>
+			jQuery("#jform_review_download_1").addClass("required");
+			<?php } ?>
+        });
+		<?php } ?>
+
     });
 </script>
 
@@ -51,10 +70,17 @@ $document->addScriptDeclaration('
     </div>
 </div>
 
-<div id="new_review_download_area">
-	<?php echo $this->form->renderField('review_download'); ?>
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_proposalplan_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('proposalplan_download_'. $i); ?>
 </div>
+<?php } ?>
 
-<div id="new_review_download_ii_area">
-	<?php echo $this->form->renderField('review_download_ii'); ?>
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_review_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('review_download_'. $i); ?>
 </div>
+<?php } ?>
+
+
+

@@ -34,7 +34,7 @@ class SurveyforceViewAddend extends JViewLegacy {
 		$this->verify_params = json_decode($this->survey_item->verify_params);
 
 		$idnum_table_suffix = $this->verify_params->idnum->idnum_table_suffix;
-		$assign_table_suffix = $this->verify_params->idnum->assign_table_suffix;
+		$assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
 		$school_table_suffix = $this->verify_params->any->suffix;
 
 		if(empty($idnum_table_suffix) && empty($assign_table_suffix) && empty($school_table_suffix)){
@@ -49,7 +49,7 @@ class SurveyforceViewAddend extends JViewLegacy {
 
 		// Check for errors.
 		if(count($errors = $this->get('Errors'))){
-			JError::raiseError(500, implode("\n", $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 
 			return false;
 		}
