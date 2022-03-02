@@ -53,26 +53,64 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
                 overlay: {closeClick: false}
             }
         });
+		
+		// 載入時預設值
+		jQuery("#label_jform_idnum_addend_type0").trigger("click");
+		jQuery("#idnum_once_zone").show();
+		jQuery("#label_jform_assign_addend_type0").trigger("click");
+		jQuery("#assign_once_zone").show();
+		jQuery("#label_jform_any_addend_type0").trigger("click");
+		jQuery("#any_once_zone").show();
+		
+		jQuery('input[name="jform[idnum_addend_type]"]').change(function() {
+			if (this.value == "1") {
+				jQuery("#idnum_once_zone").show();
+				jQuery("#idnum_batch_zone").hide();
+			} else {
+				jQuery("#idnum_once_zone").hide();
+				jQuery("#idnum_batch_zone").show();
+			}
+		});
+		
+		jQuery('input[name="jform[assign_addend_type]"]').change(function() {
+			if (this.value == "1") {
+				jQuery("#assign_once_zone").show();
+				jQuery("#assign_batch_zone").hide();
+			} else {
+				jQuery("#assign_once_zone").hide();
+				jQuery("#assign_batch_zone").show();
+			}
+		});
+		
+		jQuery('input[name="jform[any_addend_type]"]').change(function() {
+			if (this.value == "1") {
+				jQuery("#any_once_zone").show();
+				jQuery("#any_batch_zone").hide();
+			} else {
+				jQuery("#any_once_zone").hide();
+				jQuery("#any_batch_zone").show();
+			}
+		});
 
 
-        jQuery('#btn_add').bind('click', function () {
+		// 新增單筆
+        jQuery('.btn_add').bind('click', function () {
 
             var verify_data = {};
             jQuery('#message_area').hideMessage();
-            var tab_content = jQuery('.tab-content');
-            switch (tab_content.find('.active').attr('id')) {
+			_type = jQuery(this).data("type");
+			
+            switch (_type) {
 
                 case 'idnum':
 
                     var id_num = jQuery('#id_num');
                     if (!id_num.val()) {
-                        jQuery('#message_area').showMessage('請填寫身份證/護照/居留證號。', id_num);
+                        jQuery('#message_area').showMessage('請填寫身分證/居留證號。', id_num);
                         return false;
                     } else {
-                        var ID = /^[A-Za-z]{1}[1-2]{1}[0-9]{8}$/; //身分證
-                        var reID = /^[A-Za-z]{1}[A-Da-d]{1}[0-9]{8}$/; //居留證
-                        if (!ID.test(jQuery.trim(id_num.val())) && !reID.test(jQuery.trim(id_num.val()))) {
-                            jQuery('#message_area').showMessage('身份證/居留證號格式錯誤', id_num);
+						if ( !checkIdNumber(jQuery.trim(jQuery.trim(id_num.val()))) ) {
+                            jQuery('#message_area').showMessage('身分證/居留證號格式錯誤', id_num);
                             return false;
                         }
                     }
@@ -98,15 +136,15 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
                     break;
 
                 case 'assign':
-
-                    for (var i = 0; i < jQuery('#assign').find('.field').length; i++) {
-                        if (!jQuery('#assign').find('.field').find('input')[i].value) {
-                            var title = tab_content.find('.active').find('input')[i].title;
-                            var id = tab_content.find('.active').find('input')[i].id;
+                    for (var i = 0; i < jQuery('#assign').find('.assign_column').length; i++) {
+                        if (!jQuery('#assign').find('.assign_column')[i].value) {
+                            var title = jQuery("#" + _type).find('.assign_column')[i].title;
+                            var id = jQuery("#" + _type).find('input')[i].id;
                             jQuery('#message_area').showMessage('請填寫' + title, jQuery('#' + id));
                             return false;
                         }
-                        verify_data[tab_content.find('.active').find('input')[i].title] = tab_content.find('.active').find('input')[i].value;
+						
+                        verify_data[jQuery("#" + _type).find('.assign_column')[i].title] = jQuery("#" + _type).find('.assign_column')[i].value;
                     }
 
                     verify_data.table_suffix = jQuery('#assign_table_suffix').val();
@@ -135,7 +173,7 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
             // ajax 上傳資料
             jQuery('#message_area').hideMessage();
             jQuery.ajax({
-                url: '../plugins/verify/' + tab_content.find('.active').attr('id') + '/admin/ajax_upload_addend.php',
+                url: '../plugins/verify/' + _type + '/admin/ajax_upload_addend.php',
                 type: 'POST',
                 dataType: 'json',
                 data: verify_data,
@@ -168,20 +206,106 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
 
 
         });
+		
+		
+		// 新增批次上傳
+        jQuery('.btn_upload').bind('click', function () {
+			_type = jQuery(this).data("type");
+            jQuery('#message_area').hideMessage();			
+			
+            switch (_type) {
+                case 'idnum':
+					var upload_file = jQuery('#idnum_upload_file');
+					
+                    break;
+                case 'assign':
+					var upload_file = jQuery('#assign_upload_file');
+					
+                    break;
+                case 'any':
+					var upload_file = jQuery('#any_upload_file');
+					
+                    break;
+                default:
+                    jQuery('#message_area').showMessage('新增失敗');
+                    return false;
+            }
+			
+			fname = upload_file.val();
+			farr = fname.toLowerCase().split(".");
+			if (farr.length != 0) {
+				len = farr.length;
+
+				switch (farr[len - 1]) {
+					case "csv" :
+						break;
+					default:
+						jQuery("#message_area").showMessage('請重新選擇檔案，僅允許上傳 CSV 檔案。', upload_file);
+						return false;
+
+				}
+			}
+
+			if (upload_file[0].files[0].size > 10485760) {		//假如檔案大小超過10MB)
+				jQuery("#message_area").showMessage('附件檔超過指定大小(10MB)。', upload_file);
+				return false;
+			}
 
 
-        jQuery('#btn_query').bind('click', function () {
+            // ajax 上傳資料
+            jQuery('#message_area').hideMessage();
+			var formData = new FormData(jQuery("#addend-form")[0]);
+            jQuery.ajax({
+                url: '../plugins/verify/' + _type + '/admin/ajax_upload_addend_file.php',
+                type: "POST",
+				dataType:"json",
+				data: formData,
+				cache: false,
+				processData: false,
+				contentType: false,
+				fileElementId: "upload_file",
+				async: false,
+
+                beforeSend: function () {
+                    jQuery.fancybox.showLoading();
+                },
+                complete: function () {
+                    jQuery.fancybox.hideLoading();
+                },
+
+                success: function (result) {
+                    if (result.status == false) {
+                        jQuery('#message_area').showMessage(result.msg);
+                        return false;
+                    } else {
+                        jQuery('#search_content').html(result.content);
+                        jQuery('#search_link').trigger('click');
+                        jQuery('#btn_reset').trigger('click');
+                        return false;
+                    }
+                },
+                error: function (result) {
+                    jQuery('#message_area').showMessage('新增失敗。');
+                    return false;
+                }
+            });
+
+
+        });
+
+		// 查詢資料
+        jQuery('.btn_query').bind('click', function () {
             jQuery('#message_area').hideMessage();
             var search_data = {};
-            var tab_content = jQuery('.tab-content');
+			_type = jQuery(this).data("type");
 
-            switch (tab_content.find('.active').attr('id')) {
+            switch (_type) {
                 case 'idnum':
                     search_data = {'table_suffix': jQuery('#idnum_table_suffix').val()};
                     break;
                 case 'assign':
-                    for (var i = 1; i <= jQuery('#assign').find('.field').length; i++) {
-                        search_data['column_' + i] = tab_content.find('.active').find('input')[i - 1].title;
+                    for (var i = 1; i <= jQuery('#assign').find('.assign_column').length; i++) {
+                        search_data['column_' + i] = jQuery("#" + _type).find('.assign_column')[i - 1].title;
                     }
                     search_data.table_suffix = jQuery('#assign_table_suffix').val();
                     break;
@@ -196,7 +320,7 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
             // ajax 查詢
             jQuery('#message_area').hideMessage();
             jQuery.ajax({
-                url: '../plugins/verify/' + tab_content.find('.active').attr('id') + '/admin/ajax_query_data.php',
+                url: '../plugins/verify/' + _type + '/admin/ajax_query_data.php',
                 type: 'POST',
                 dataType: 'json',
                 data: search_data,
@@ -230,6 +354,18 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
         });
 
 
+		// 匯出
+		jQuery("#export_assign_sample_file").click(function() {
+			console.log("ok");
+			jQuery("#task").val("addend.exportAssignSampleFile");
+			jQuery('#addend-form').attr("target", "_blank");
+			jQuery("#addend-form").submit();
+			
+			jQuery("#task").val("addend.upload");
+			jQuery('#addend-form').attr("target", "");
+		});
+		
+
     });
 
 
@@ -255,7 +391,14 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
         border: 1px solid #ccc;
         padding: 5px;
     }
+	
+	.addend_type {
+		margin-bottom: 20px;
+	}
 
+	.addend_zone {
+		display: none;
+	}
 </style>
 
 <div id="message_area" style="display: none;">
@@ -295,81 +438,196 @@ $assign_table_suffix = $this->verify_params->assign->assign_table_suffix;
         </ul>
 
         <div class="tab-content">
-			<?php if ($idnum_table_suffix) { ?>
+			<?php 
+				// 身分證字號
+				if ($idnum_table_suffix) { ;
+					
+			?>
+			
                 <div class="tab-pane <?php echo ($idnum_table_suffix != '') ? 'active' : ''; ?>" id="idnum">
+					<fieldset id="jform_idnum_addend_type" class="btn-group radio addend_type">
+						<input type="radio" id="jform_idnum_addend_type0" name="jform[idnum_addend_type]" value="1" >
+						<label for="jform_idnum_addend_type0" class="btn" id="label_jform_idnum_addend_type0">單筆匯入</label>
 
-                    <div class="note">
-                        請於下述欄位中填寫身份證/護照/居留證號和民國出生年。<br>
-                    </div>
-                    <div class="field">
-                        身份證/居留證號：
-                        <input type="text" id="id_num" name="id_num" placeholder="例：A123456789 / AB12345678" maxlength="10" autocomplete="off">
-                    </div>
-                    <div class="field">
-                        民國出生年月日：
-                        <input type="text" id="birth_date" name="birth_date" placeholder="例：560701" maxlength="7" autocomplete="off">
+						<input type="radio" id="jform_idnum_addend_type1" name="jform[idnum_addend_type]" value="2" >
+						<label for="jform_idnum_addend_type1" class="btn ">批次匯入</label>
+					</fieldset>
+					
+					<!--單筆匯入區塊-->
+					<div id="idnum_once_zone" class="addend_zone">
+						<div class="note">
+							請於下述欄位中填寫身分證/居留證號和民國出生年。<br>
+						</div>
+						<div class="field">
+							身分證/居留證號：
+							<input type="text" id="id_num" name="id_num" placeholder="例：A123456789 / AC01234567" maxlength="10" autocomplete="off">
+						</div>
+						<div class="field">
+							民國出生年月日：
+							<input type="text" id="birth_date" name="birth_date" placeholder="例：560701" maxlength="7" autocomplete="off">
+						</div>
+						
+						<div class="field">
+							<input type="button" class="btn_add" value="新增資料" data-type="idnum">&nbsp;&nbsp;
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="idnum">
+						</div>
                     </div>
 
+					<!--批次匯入區塊-->
+					<div id="idnum_batch_zone" class="addend_zone">
+						請上傳要匯入的名單檔案<br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input style="margin: 5px" type="file" name="idnum_upload_file" id="idnum_upload_file"><br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="上傳" class="btn_upload" data-type="idnum">
+
+						<br><br>
+						<ol style="list-style-type: decimal;">
+							<li>請上傳CSV檔案格式。(<a href="<?php echo JURI::root(); ?>images/system/idnum_sample.csv" title="下載範例檔" target="_blank">下載範例檔</a>)</li>
+							<li>檔案容量限制為10MB。</li>
+							<li>內容第一欄為身分證字號。</li>
+							<li>內容第二欄為民國年生日。</li>
+						</ol>
+						<div class="field">
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="idnum">
+						</div>
+					</div>
                 </div>
 				<?php
 			}
+			
+			// 可投票人名單
 			if ($assign_table_suffix) {
+				$plugin       = JPluginHelper::getPlugin('verify', 'assign');
+				$pluginParams = new JRegistry($plugin->params);
+				$deny_symbol  = $pluginParams->get('deny_symbol');
+
 				?>
                 <div class="tab-pane <?php echo ($idnum_table_suffix && $assign_table_suffix) ? '' : 'active'; ?>" id="assign">
+					<fieldset id="jform_assign_addend_type" class="btn-group radio addend_type">
+						<input type="radio" id="jform_assign_addend_type0" name="jform[assign_addend_type]" value="1" >
+						<label for="jform_assign_addend_type0" class="btn" id="label_jform_assign_addend_type0">單筆匯入</label>
 
-                    <div class="note">
-                        請於下述欄位中填寫可投票者資料。<br>
-                    </div>
-					<?php
-					foreach ($this->assign_column as $assign_column) {
-						?>
-                        <div class="field">
-							<?php
-							echo $assign_column->title . '：';
-							?>
-                            <input type="text" id="column_<?php echo $assign_column->column_num; ?>" name="column_<?php echo $assign_column->column_num; ?>" placeholder="例：<?php echo $assign_column->note; ?>" title="<?php echo $assign_column->title; ?>" maxlength="10" autocomplete="off">
-                        </div>
+						<input type="radio" id="jform_assign_addend_type1" name="jform[assign_addend_type]" value="2" >
+						<label for="jform_assign_addend_type1" class="btn ">批次匯入</label>
+					</fieldset>
+					
+					<!--單筆匯入區塊-->
+					<div id="assign_once_zone" class="addend_zone">
+						<div class="note">
+							請於下述欄位中填寫可投票者資料。<br>
+						</div>
 						<?php
-					}
-					?>
-                </div>
-				<?php
-			}
-			if (isset($this->verify_params->any->suffix)) {
-				?>
-                <div class="tab-pane <?php echo ($idnum_table_suffix || $assign_table_suffix) ? '' : 'active'; ?>" id="any">
+						foreach ($this->assign_column as $assign_column) {
+							?>
+							<div class="field">
+								<?php
+								echo $assign_column->title . '：';
+								?>
+								<input type="text" class="assign_column" id="column_<?php echo $assign_column->column_num; ?>" name="column_<?php echo $assign_column->column_num; ?>" placeholder="例：<?php echo $assign_column->note; ?>" title="<?php echo $assign_column->title; ?>" maxlength="10" autocomplete="off">
+								<input type="hidden" name="assign_column[]" value="<?php echo $assign_column->title; ?>" />
+							</div>
+							<?php
+						}
+						?>
+						<div class="field">
+							<input type="button" class="btn_add" value="新增資料" data-type="assign">&nbsp;&nbsp;
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="assign">
+						</div>
+                    </div>
 
-                    <div class="note">
-                        請於下述欄位中填寫學校名稱。<br>
-                    </div>
-                    <div class="field">
-                        學校名稱：
-                        <input type="text" id="school_name" name="school_name" placeholder="例：台灣大學" autocomplete="off">
-                    </div>
+					<!--批次匯入區塊-->
+					<div id="assign_batch_zone" class="addend_zone">
+						請上傳要匯入的名單檔案<br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input style="margin: 5px" type="file" name="assign_upload_file" id="assign_upload_file"><br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="上傳" class="btn_upload" data-type="assign">
+
+						<br><br>
+						<ol style="list-style-type: decimal;">
+							<li>請上傳CSV檔案格式。(<a href="javascript:void(0);" id="export_assign_sample_file" title="下載範例檔">下載範例檔</a>)
+							<li>檔案容量限制為10MB。</li>
+							<li>請依照指定欄位由第2列開始填寫。</li>
+							<li>不允許(<?php echo $deny_symbol; ?>)等符號。</li>
+						</ol>
+						<div class="field">
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="assign">
+						</div>
+					</div>
+                
                 </div>
 				<?php
 			}
-			?>
+			
+			// 學校名單
+			if (isset($this->verify_params->any->suffix)) {
+		?>
+                <div class="tab-pane <?php echo ($idnum_table_suffix || $assign_table_suffix) ? '' : 'active'; ?>" id="any">
+					<fieldset id="jform_any_addend_type" class="btn-group radio addend_type">
+						<input type="radio" id="jform_any_addend_type0" name="jform[any_addend_type]" value="1" >
+						<label for="jform_any_addend_type0" class="btn" id="label_jform_any_addend_type0">單筆匯入</label>
+
+						<input type="radio" id="jform_any_addend_type1" name="jform[any_addend_type]" value="2" >
+						<label for="jform_any_addend_type1" class="btn ">批次匯入</label>
+					</fieldset>
+
+					<!--單筆匯入區塊-->
+					<div id="any_once_zone" class="addend_zone">
+						<div class="note">
+							請於下述欄位中填寫學校名稱。<br>
+						</div>
+						<div class="field">
+							學校名稱：
+							<input type="text" id="school_name" name="school_name" placeholder="例：台灣大學" autocomplete="off">
+						</div>
+						
+						<div class="field">
+							<input type="button" class="btn_add" value="新增資料" data-type="any">&nbsp;&nbsp;
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="any">
+						</div>
+					</div>
+						
+						
+					<!--批次匯入區塊-->
+					<div id="any_batch_zone" class="addend_zone">
+						請上傳要匯入的學校名單<br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input style="margin: 5px" type="file" name="any_upload_file" id="any_upload_file"><br>&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="上傳" class="btn_upload" data-type="any">
+
+						<br><br>
+						<ol style="list-style-type: decimal;">
+							<li>請上傳CSV檔案格式。(<a href="<?php echo JURI::root(); ?>images/system/school_sample.csv" title="下載範例檔" target="_blank">下載範例檔</a>)</li>
+							</li>
+							<li>檔案容量限制為10MB。</li>
+							<li>內容第一欄為學校名稱。</li>
+						</ol>
+						<div class="field">
+							<input type="button" class="btn_query" value="查看已補送資料" data-type="any">
+						</div>
+					</div>
+
+
+                </div>
+				<?php
+			}
+			
+		?>
         </div>
-        <div class="field">
-            <input type="button" id="btn_add" value="新增資料">&nbsp;&nbsp;
-            <input type="button" id="btn_query" value="查看已補送資料"> <input type="reset" id="btn_reset" value="清空">
-        </div>
+        
 
     </div>
-
+	
 
     <input type="hidden" name="surv_id" value="<?php echo $this->surv_id; ?>" />
 	<?php if ($idnum_table_suffix) { ?>
-        <input type="hidden" id="idnum_table_suffix" value="<?php echo $idnum_table_suffix; ?>" />
+        <input type="hidden" id="idnum_table_suffix" name="idnum_table_suffix" value="<?php echo $idnum_table_suffix; ?>" />
 	<?php } ?>
 	<?php if ($assign_table_suffix) { ?>
-        <input type="hidden" id="assign_table_suffix" value="<?php echo $assign_table_suffix; ?>" />
+        <input type="hidden" id="assign_table_suffix" name="assign_table_suffix" value="<?php echo $assign_table_suffix; ?>" />
 	<?php } ?>
 	<?php if (isset($this->verify_params->any->suffix)) { ?>
-        <input type="hidden" id="school_table_suffix" value="<?php echo $this->verify_params->any->suffix; ?>" />
+        <input type="hidden" id="school_table_suffix" name="school_table_suffix" value="<?php echo $this->verify_params->any->suffix; ?>" />
 	<?php } ?>
-    <input type="hidden" name="task" value="addend.upload" />
+    <input type="hidden" name="user_id" value="<?php echo $user_id; ?>" />
+    <input type="hidden" name="user_name" value="<?php echo $user_name; ?>" />
+    <input type="hidden" name="task" id="task" value="addend.upload" />
     <input type="hidden" name="option" value="com_surveyforce" />
 	<?php echo JHtml::_('form.token'); ?>
 </form>

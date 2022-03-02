@@ -1,10 +1,10 @@
 <?php
 /**
- *   @package         Surveyforce
- *   @version           1.2-modified
- *   @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- *   @license            GPL-2.0+
- *   @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package         Surveyforce
+ * @version           1.2-modified
+ * @copyright       JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
+ * @license            GPL-2.0+
+ * @author            JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
  */
 defined('_JEXEC') or die;
 JHtml::_('behavior.tooltip');
@@ -15,259 +15,101 @@ JHtml::_('behavior.keepalive');
 $app = JFactory::getApplication();
 
 $quest_index = 0;  // 第幾題用
-$field_count = array (); // 票數
-$total_count = array (); // 總票數
+$field_count = []; // 票數
+$total_count = []; // 總票數
 $result_num = $this->item->result_num; // 顯示數目
-$qtype = array ("select", "number", "table"); // 有子選項的題目類型
+$qtype = ["select", "number", "table"]; // 有子選項的題目類型
 ?>
 
 <script type="text/javascript">
-
-
-	Joomla.submitbutton = function (task)
-	{
-		if (task == 'result.cancel' || document.formvalidator.isValid(document.id('result-form'))) {
-			Joomla.submitform(task, document.getElementById('result-form'));
-		} else {
-			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED')); ?>');
-		}
-	}
-
-	jQuery(document).ready(function () {
-
-
-	});
-
-
+  Joomla.submitbutton = function (task) {
+    if (task == "result.cancel" || document.formvalidator.isValid(document.id("result-form"))) {
+      Joomla.submitform(task, document.getElementById("result-form"));
+    } else {
+      alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED')); ?>');
+    }
+  };
 </script>
-<style>
-    .survey_result {
-        width: 500px;
-    }
 
-    .survey_title {
-        font-size: 18px;
-        font-weight: bold;
-    }
 
-    .quest_title {
-        font-size: 16px;
-    }
-</style>
-<form action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=result'); ?>" enctype="multipart/form-data" method="post" name="adminForm" id="result-form" class="form-validate">
-    <div id="j-main-container" class="span7 form-horizontal">
+<div id="j-main-container" class="form-horizontal span11">
 
-    </div>
-    <input type="hidden" name="task" value = "" />
-    <input type="hidden" name="option" value="com_surveyforce" />
+    <form action="<?php echo JRoute::_("index.php?option=com_surveyforce&view=result&id=" . $this->surv_id); ?>"
+          method="post" name="adminForm" id="adminForm" class="form-validate">
+        <input type="hidden" name="task" value=""/>
+        <input type="hidden" name="option" value="com_surveyforce"/>
+        <?php echo JHtml::_('form.token'); ?>
 
-    <input type="hidden" name="return" value="<?php echo $app->input->getCmd('return'); ?>" />
-	<?php echo JHtml::_('form.token'); ?>
-</form>
 
-<div class="survey_result">
-    <div class="survey_title">
-		<?php echo $this->item->title; ?>
-    </div>
-	<?php if ($this->total_voters) { ?>
-		<hr class="hr-condensed">
-		<div class="survey_total_voters">
-			網路<?php echo ($this->item->is_place) ? "與現地" : ""; ?>總投票人數：<?php echo $this->total_voters; ?>
-		</div>
+        <h1><?php echo $this->item->title; ?></h1>
 
-		<?php
-		$quest_index = 0;
-		foreach ($this->questions as $key => $question) {
-			$quest_index++;
-			?>
-			<div class="result_block">
-				<div class="quest_title">
+        <ul class="nav nav-tabs" id="configTabs">
+            <li class="<?php echo $this->mark == 'total' ? 'active' : ''; ?>">
+                <a href="#total" data-toggle="tab">總投票 / 驗證結果</a>
+            </li>
+            <li class="<?php echo $this->mark == 'day' ? 'active' : ''; ?>">
+                <a href="#day" data-toggle="tab">每日投票結果</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <?php /*--- 總投票 / 驗證結果 ---*/ ?>
+            <div class="tab-pane <?php echo $this->mark == 'total' ? 'active' : ''; ?>" id="total">
+                <?php if ($this->total_voters) { ?>
+                    <div class="survey_total_voters">
 					<?php
-					echo (count($this->questions) > 1) ? "第" . $quest_index . "題：" : "";
-					echo $question->quest_title;
-					?>
-				</div>
+						// 總投票人數 = 網路 + 現地 + 紙本
+						$total_vote = $this->total_voters + $this->item->paper_total_vote;
+                        echo sprintf("<h2>總投票人數：%s (即時更新)</h2>", $total_vote);
+                        if ($this->item->is_place) {
+                            echo sprintf("<h2>網路投票人數：%s</h2>", $this->resultNum);
+                            echo sprintf("<h2>現地投票人數：%s</h2>", $this->total_voters - $this->resultNum);
+                        }
+                        if ($this->item->paper_total_vote) {
+                            echo sprintf("<h2>紙本投票人數：%s</h2>", $this->item->paper_total_vote);
+                        }
+						
+						// 投票率計算
+                        $percent = ($total_vote / $this->quantity->quantity) * 100;
+                    ?>
+					<?php if($this->item->state) { ?>
+						<h2>投票率：<?php echo $total_vote; ?> / <?php echo $this->quantity->quantity; ?> (<?php
+							echo sprintf("%.2f", $percent); ?>%)</h2>
+					<?php } ?>
+                    </div>
+                    <br>
+                    <?php /*--- 驗證方式 ---*/ ?>
+                    <div class="vote-type">
+                        <?php echo $this->loadTemplate("verify"); ?>
+                    </div>
 
-				<div class="quest_result">
-					<?php // 開放式欄位 ?>
-					<?php if ($question->quest_type == "open") { ?>
-						<div class="qtable">
-							<table class="table">
-								<thead>
-									<tr><th>開放式欄位</th></tr>
-								</thead>
-								<tbody>
-									<?php
-									foreach ($this->open as $open) {
-										if ($open->question_id == $key) {
-											?>
-											<tr>
-												<td><?php echo $open->other; ?></td>
-											</tr>
-											<?php
-										}
-									}
-									?>
-								</tbody>
-							</table>
-						</div>
-						<?php
-					} else {
-						unset($field_count);
-						unset($total_count);
+                    <br>
+                    <?php /*--- 題目明細 ---*/ ?>
+                    <div class="vote-type">
+                        <?php echo $this->loadTemplate("total"); ?>
+                    </div>
+                <?php } else {
+                    echo "無投票資料。";
+                }
+                ?>
+            </div>
 
-						if ($this->sub_fields[$key]) {
 
-							// 題目類型 select、number、table
-							foreach ($this->fields[$key] as $fkey => $field) {
+            <?php /*--- 每日投票結果 ---*/ ?>
+            <div class="tab-pane <?php echo $this->mark == 'day' ? 'active' : ''; ?>" id="day">
+                <?php
+                if ($this->total_voters) {
+                    echo $this->loadTemplate("day");
+                } else {
+                    echo "該日無投票資料。";
+                }
+                ?>
+            </div>
 
-								foreach ($this->sub_fields[$key] as $sfkey => $sub_field) {
-									$index = $fkey . "_" . $sfkey;
-									$field_count[$sfkey] = ($this->sub_results[$index]->count) ? ($this->sub_results[$index]->count) : 0;
-									$total_count[$sfkey] = $field_count[$sfkey];
 
-									// 是否有紙本投票
-									if ($this->sub_paper[$fkey]) {
-										$total_count[$sfkey] += $this->sub_paper[$fkey][$sfkey];
-									}
+        </div>
 
-									// 是否有現地投票
-									if ($this->sub_place[$fkey]) {
-										$total_count[$sfkey] += $this->sub_place[$fkey][$sfkey];
-									}
-								}
-								?>
-								<div class="ftitle"><?php echo $field; ?></div>
-								<table class="table">
-									<thead>
-										<tr>
-											<th><?php echo ($question->quest_type == "number") ? "投票分數" : "投票類別"; ?></th>
-											<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-												<th>網路</th>
-											<?php } ?>
-											<?php if ($this->item->is_place == 1) { ?>
-												<th>現地</th>
-											<?php } ?>
-											<?php if ($this->sub_paper[$fkey]) { ?>
-												<th>紙本</th>
-											<?php } ?>
-											<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-												<th>總得票數</th>
-											<?php } else { ?>
-												<th>得票數</th>
-											<?php } ?>
-										</tr>
-									</thead>
 
-									<?php
-									foreach ($total_count as $ckey => $count) {
-
-										$field_name = $this->sub_fields[$key][$ckey]; // 題目類型 select、number、table
-										$place_votes = $this->sub_place[$fkey][$ckey];
-										$paper_votes = $this->sub_paper[$fkey][$ckey];
-										?>
-										<tbody>
-											<tr>
-												<td class="cat">
-													<?php echo $field_name; ?>
-												</td>
-												<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-													<td><?php echo $field_count[$ckey]; ?></td>
-												<?php } ?>
-												<?php if ($this->item->is_place == 1) { ?>
-													<td><?php echo sprintf("%0d", $place_votes); ?></td>
-												<?php } ?>
-												<?php if ($this->sub_paper[$fkey]) { ?>
-													<td><?php echo sprintf("%0d", $paper_votes); ?></td>
-												<?php } ?>
-
-												<td><?php echo $count; ?></td>
-											</tr>
-											<?php
-										}
-										?>
-									</tbody>
-								</table>
-								<?php
-							}
-						} else {
-
-							// 題目類型 text、img、textimg
-							foreach ($this->fields[$key] as $fkey => $field) {
-								$field_count[$fkey] = (int) $this->results[$key]->count[$fkey];
-								$total_count[$fkey] = $field_count[$fkey];
-
-								// 是否有紙本投票
-								if ($this->paper[$key]) {
-									$total_count[$fkey] += $this->paper[$key][$fkey];
-								}
-
-								// 是否有現地投票
-								if ($this->place[$key]) {
-									$total_count[$fkey] += $this->place[$key][$fkey];
-								}
-							}
-							?>
-							<div class="ftitle"><?php // echo $field;             ?></div>
-							<table class="table">
-								<thead>
-									<tr>
-										<th><?php echo ($question->quest_type == "number") ? "投票分數" : "投票類別"; ?></th>
-										<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-											<th>網路</th>
-										<?php } ?>
-										<?php if ($this->item->is_place == 1) { ?>
-											<th>現地</th>
-										<?php } ?>
-										<?php if ($this->paper[$key]) { ?>
-											<th>紙本</th>
-										<?php } ?>
-										<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-											<th>總得票數</th>
-										<?php } else { ?>
-											<th>得票數</th>
-										<?php } ?>
-									</tr>
-								</thead>
-								<?php
-								foreach ($total_count as $ckey => $count) {
-									$field_name = $this->fields[$key][$ckey];  // 題目類型 text、img、textimg
-									$place_votes = $this->place[$key][$ckey];
-									$paper_votes = $this->paper[$key][$ckey];
-									?>
-									<tbody>
-										<tr>
-											<td class="cat">
-												<?php echo $field_name; ?>
-											</td>
-											<?php if ($this->item->is_place == 1 || $this->paper[$key]) { ?>
-												<td><?php echo $field_count[$ckey]; ?></td>
-											<?php } ?>
-											<?php if ($this->item->is_place == 1) { ?>
-												<td><?php echo sprintf("%0d", $place_votes); ?></td>
-											<?php } ?>
-											<?php if ($this->paper[$key]) { ?>
-												<td><?php echo sprintf("%0d", $paper_votes); ?></td>
-											<?php } ?>
-
-											<td><?php echo $count; ?></td>
-										</tr>
-										<?php
-									}
-									?>
-								</tbody>
-							</table>
-							<?php
-						}
-					}
-					?>
-				</div>
-			</div>
-
-			<?php
-		}
-	} else {
-		echo "尚無投票資料。";
-	}
-	?>
+    </form>
 </div>

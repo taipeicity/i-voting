@@ -18,13 +18,25 @@ if ($this->verify_types) {
 
 $star   = '<span class=\"star\">&nbsp;*</span>';
 $script = '';
-if ($this->form->getValue('discuss_download')) {
-	$element = SurveyforceHelper::getOldArea("discuss_download", $this->form->getValue('discuss_download'), false);
-	$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_discuss_download_area\")", $element);
-	$script  .= 'jQuery("#jform_discuss_download").parent().prev().find("label").append("' . $star . '");';
-} else {
-	$script .= 'jQuery("#jform_discuss_download").addClass("required").parent().prev().find("label").append("' . $star . '");';
+
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('discuss_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("discuss_download_". $i, $this->form->getValue('discuss_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_discuss_download_". $i. "_area\")", $element);
+		$script  .= ($i == 1) ? 'jQuery("#jform_discuss_download_'. $i. '").parent().prev().find("label").append("' . $star . '");' : '';
+	} else {
+		$script .= ($i == 1) ? 'jQuery("#jform_discuss_download_'. $i. '").addClass("required").parent().prev().find("label").append("' . $star . '");' : '';
+	}
 }
+
+for ($i = 1; $i <= 5; $i++) {
+	if ($this->form->getValue('reference_download_'. $i)) {
+		$element = SurveyforceHelper::getOldArea("reference_download_". $i, $this->form->getValue('reference_download_'. $i), false);
+		$script  .= SurveyforceHelper::hiddenNewArea("jQuery(\"#new_reference_download_". $i. "_area\")", $element);
+	}
+}
+
+
 
 $document = JFactory::getDocument();
 $document->addScriptDeclaration('
@@ -33,11 +45,21 @@ $document->addScriptDeclaration('
 ?>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        jQuery("#del_discuss_download_btn").on("click", function () {
-            jQuery(this).deleteImage("discuss_download");
-            jQuery("#jform_discuss_download").addClass("required");
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_discuss_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("discuss_download_<?php echo $i; ?>");
+			<?php if ($i == 1) { ?>
+			jQuery("#jform_discuss_download_1").addClass("required");
+			<?php } ?>
         });
-
+		<?php } ?>
+		
+		<?php for ($i = 1; $i <= 5; $i++) { ?>
+        jQuery("#del_reference_download_<?php echo $i; ?>_btn").on("click", function () {
+            jQuery(this).deleteImage("reference_download_<?php echo $i; ?>");
+        });
+		<?php } ?>
+		
         jQuery.fn.checkDetails_discussJs = function () {
 
             var discuss_source = jQuery("#jform_discuss_source"),
@@ -171,6 +193,16 @@ $document->addScriptDeclaration('
 </div>
 
 
-<div id="new_discuss_download_area">
-	<?php echo $this->form->renderField('discuss_download'); ?>
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_discuss_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('discuss_download_'. $i); ?>
 </div>
+<?php } ?>
+
+<?php for ($i = 1; $i <= 5; $i++) { ?>
+<div id="new_reference_download_<?php echo $i; ?>_area">
+	<?php echo $this->form->renderField('reference_download_'. $i); ?>
+</div>
+<?php } ?>
+
+

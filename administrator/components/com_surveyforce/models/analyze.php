@@ -149,4 +149,151 @@ class SurveyforceModelAnalyze extends JModelAdmin {
 
 	}
 
+	/**
+     * 取得指定議題編號的性別分析-男性總計
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getMaleCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_analyze_sex');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->where($db->qn('sex').' = '.$db->q(1));
+
+        $db->setQuery($query);
+        $db->execute();
+
+        return $db->getNumRows();
+    }
+
+	/**
+     * 取得指定議題編號的性別分析-女性總計
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getFemaleCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_analyze_sex');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->where($db->qn('sex').' = '.$db->q(2));
+
+        $db->setQuery($query);
+        $db->execute();
+
+        return $db->getNumRows();
+    }
+
+	/**
+     * 取得指定議題編號的年齡分析
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getAgeCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('age, count(*) as count');
+        $query->from('#__survey_force_analyze_age');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->group($db->qn('age'));
+
+        $db->setQuery($query);
+
+        return $db->loadObjectList('age');
+    }
+
+	/**
+     * 取得指定議題編號的API性別分析-男性總計
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getApiMaleCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_analyze_sex_api');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->where($db->qn('sex').' = '.$db->q(1));
+
+        $db->setQuery($query);
+        $db->execute();
+
+        return $db->getNumRows();
+    }
+
+	/**
+     * 取得指定議題編號的API性別分析-女性總計
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getApiFemaleCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('*');
+        $query->from('#__survey_force_analyze_sex_api');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->where($db->qn('sex').' = '.$db->q(2));
+
+        $db->setQuery($query);
+        $db->execute();
+
+        return $db->getNumRows();
+    }
+
+	/**
+     * 取得指定議題編號的API年齡分析
+     * 
+	 * 
+	 * @return  int 總計
+	 */
+    public function getApiAgeCount()
+    {
+        $app = JFactory::getApplication();
+        $survey_id = $app->input->getInt('surv_id');
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query->select('age, count(*) as count');
+        $query->from('#__survey_force_analyze_age_api');
+        $query->where($db->qn('survey_id').' = '.$db->q($survey_id));
+        $query->group($db->qn('age'));
+
+        $db->setQuery($query);
+
+        return $db->loadObjectList('age');
+    }
 }

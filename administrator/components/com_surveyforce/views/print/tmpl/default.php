@@ -1,7 +1,7 @@
 <?php
 /**
  * @package            Surveyforce
- * @version            1.3-modified
+ * @version            1.2-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -55,18 +55,18 @@ if ($this->survey_item->stage >= 4) {
             legend: {position: 'left'},
             fontSize: 18,
             fontName: '微軟正黑體',
-            tooltip: { trigger: 'none' },
+            tooltip: {trigger: 'none'},
             pieSliceText: 'none',
             slices: {
-                0: { color: '#edc240' },
-                1: { color: '#d0d2d3' }
+                0: {color: '#edc240'},
+                1: {color: '#d0d2d3'}
             },
             pieHole: 0.5,
             backgroundColor: 'transparent',
             width: 400,
             height: 100,
             sliceVisibilityThreshold: .0001,
-            chartArea: { left:0, top:10, width: '100%', height: '80%' }
+            chartArea: {left: 0, top: 10, width: '100%', height: '80%'}
         };
 
         var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
@@ -78,9 +78,9 @@ if ($this->survey_item->stage >= 4) {
 <style>
     .survey_print {
         width: 800px;
-		font-family: "微軟正黑體", Arial;
-		font-size: 14pt;
-		line-height: 1.8;
+        font-family: "微軟正黑體", Arial;
+        font-size: 14pt;
+        line-height: 1.8;
     }
 
     .item-list {
@@ -214,7 +214,7 @@ if ($this->survey_item->stage >= 4) {
 			<?php if ($this->survey_item->deadline != "0000-00-00 00:00:00") { ?>
                 <tr>
                     <th>截止時間</th>
-                    <td><?php echo JHtml::_('date', $this->item->deadline, "Y年m月d日 H:i"); ?></td>
+                    <td><?php echo JHtml::_('date', $this->survey_item->deadline, "Y年m月d日 H:i"); ?></td>
                 </tr>
 			<?php } ?>
 		<?php } ?>
@@ -229,20 +229,48 @@ if ($this->survey_item->stage >= 4) {
                 <td><?php echo nl2br($this->survey_item->review_result); ?></td>
             </tr>
 
-            <tr>
-                <th>初審會議記錄下載</th>
-                <td>第一次：<?php echo trim($this->survey_item->review_download); ?>
-
-					<?php
-					if ($this->survey_item->review_download_ii) {
-						echo "<br>";
-						?>
-                        第二次：<?php echo trim($this->survey_item->review_download_ii); ?>
-						<?php
+			<?php
+				$proposalplan_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"proposalplan_download_".$i}) {
+						$proposalplan_downloads[] = $index. ". ". trim($this->survey_item->{"proposalplan_download_".$i});
+						$index++;
 					}
+				}
+				if (count($proposalplan_downloads) > 0) {
+			?>
+            <tr>
+                <th>提案計畫書下載</th>
+                <td>
+					<?php 
+						echo implode("<br>", $proposalplan_downloads);
 					?>
                 </td>
             </tr>
+			<?php } ?>
+
+			<?php
+				$review_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"review_download_".$i}) {
+						$review_downloads[] = $index. ". ". trim($this->survey_item->{"review_download_".$i});
+						$index++;
+					}
+				}
+				if (count($review_downloads) > 0) {
+			?>
+            <tr>
+                <th>會議記錄等資料下載</th>
+                <td>
+					<?php 
+						echo implode("<br>", $review_downloads);
+					?>
+                </td>
+            </tr>
+			<?php } ?>
+			
 		<?php } ?>
 
 		<?php if ($this->survey_item->stage >= 3) { ?>
@@ -280,10 +308,49 @@ if ($this->survey_item->stage >= 4) {
                 <td><?php echo nl2br($this->survey_item->discuss_threshold); ?></td>
             </tr>
 
-            <tr>
-                <th>提案計畫書下載</th>
-                <td><?php echo trim($this->survey_item->discuss_download); ?></td>
-            </tr>
+			<?php
+				$discuss_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"discuss_download_".$i}) {
+						$discuss_downloads[] = $index. ". ". trim($this->survey_item->{"discuss_download_".$i});
+						$index++;
+					}
+				}
+				if (count($discuss_downloads) > 0) {
+				?>
+				<tr>
+					<th>修訂提案計畫書下載</th>
+					<td>
+					<?php 
+						echo implode("<br>", $discuss_downloads);
+					?>
+					</td>
+				</tr>
+			<?php } ?>
+				
+			<?php
+				$reference_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"reference_download_".$i}) {
+						$reference_downloads[] = $index. ". ". trim($this->survey_item->{"reference_download_".$i});
+						$index++;
+					}
+				}
+				if (count($reference_downloads) > 0) {
+				?>
+				<tr>
+					<th>參考資料下載</th>
+					<td>
+					<?php 
+						echo implode("<br>", $reference_downloads);
+					?>
+					</td>
+				</tr>
+			<?php } ?>
+				
+				
 		<?php } ?>
 
 		<?php if ($this->survey_item->stage >= 4) { ?>
@@ -350,13 +417,13 @@ if ($this->survey_item->stage >= 4) {
 					$announcement_date = "不公布";
 					break;
 				case 2:
-					$announcement_date = $this->survey_item->announcement_date;
+					$announcement_date = JHtml::_('date', $this->survey_item->announcement_date, "Y-m-d H:i:s");
 					break;
 				case 3:
-					$announcement_date = $this->survey_item->vote_end;
+					$announcement_date = JHtml::_('date', $this->survey_item->vote_end, "Y-m-d H:i:s");
 					break;
 				default:
-					$announcement_date = $this->survey_item->vote_end;
+					$announcement_date = JHtml::_('date', $this->survey_item->vote_end, "Y-m-d H:i:s");
 					break;
 			}
 			?>
@@ -384,10 +451,48 @@ if ($this->survey_item->stage >= 4) {
                 </td>
             </tr>
 
+			<?php
+				$launched_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"launched_download_".$i}) {
+						$launched_downloads[] = $index. ". ". trim($this->survey_item->{"launched_download_".$i});
+						$index++;
+					}
+				}
+				if (count($launched_downloads) > 0) {
+			?>
             <tr>
                 <th>完整提案計畫書下載</th>
-                <td><?php echo trim($this->survey_item->launched_download); ?></td>
+                <td>
+				<?php 
+					echo implode("<br>", $launched_downloads);
+				?>
+				</td>
             </tr>
+		<?php } ?>
+
+			<?php
+				$launched_reference_downloads = [];
+				$index = 1;
+				for ($i = 1; $i <= 5; $i++) { 
+					if ($this->survey_item->{"launched_reference_download_".$i}) {
+						$launched_reference_downloads[] = $index. ". ". trim($this->survey_item->{"launched_reference_download_".$i});
+						$index++;
+					}
+				}
+				if (count($launched_reference_downloads) > 0) {
+			?>
+            <tr>
+                <th>參考資料下載</th>
+                <td>
+				<?php 
+					echo implode("<br>", $launched_reference_downloads);
+				?>
+				</td>
+            </tr>
+		<?php } ?>
+			
 		<?php } ?>
 
 		<?php if ($this->survey_item->stage == 6) { ?>
@@ -614,5 +719,20 @@ if ($this->survey_item->stage >= 4) {
 		<?php } ?>
 	<?php } ?>
 </div>
+
+<script>
+    var tr = document.getElementsByClassName("item-list").item("table").children.item("tbody").children, i;
+    for (i = 0; i < tr.length; i++) {
+        if (tr.item(i).children.item(1) != null) {
+            if (!tr.item(i).children.item(1).innerText.trim() && !tr.item(i).children.item(1).innerHTML) {
+                tr.item(i).children.item(1).innerText = "無資料";
+            } else {
+                if (tr.item(i).children.item(1).innerText.trim() === "第一次：") {
+                    tr.item(i).children.item(1).innerText = tr.item(i).children.item(1).innerText.trim() + "無資料";
+                }
+            }
+        }
+    }
+</script>
 
 <script>window.print();</script>

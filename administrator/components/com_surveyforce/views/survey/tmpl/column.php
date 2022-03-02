@@ -1,10 +1,10 @@
 <?php
 /**
- * @package            Surveyforce
- * @version            1.0-modified
- * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
- * @license            GPL-2.0+
- * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
+ * @package     Joomla.Administrator
+ * @subpackage  com_deliberation
+ *
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
@@ -27,7 +27,7 @@ $requiredFields = $this->getRequiredFields();
 $nowDate        = $this->nowDate;
 
 $canEdit = false;
-if ($this->item->created_by == $this->user_id || in_array($this->core_review, $this->self_gps)) {
+if ($this->item->created_by == $this->user_id || $this->canDo->get('core.revire')) {
 	if ($this->end) { // 判斷議題是否已結束
 		$canEdit = false;
 	} else {

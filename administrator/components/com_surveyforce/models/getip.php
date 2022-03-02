@@ -34,7 +34,7 @@ class SurveyforceModelGetip extends JModelList {
 
         $query = $db->getQuery(true);
         $query->select('*');
-        $query->from($db->quoteName('#__survey_force_survs'));
+        $query->from($db->quoteName('#__survey_force_survs_release'));
         $query->where('id = ' . (int) $sid);
 
         $db->setQuery($query);

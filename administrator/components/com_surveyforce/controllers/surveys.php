@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.1-modified
+ * @version            1.0-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -95,6 +95,12 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 		SurveyforceHelper::setPreviewData($this->id, "expire_time", time() + ($expire_minute * 60), true);
 
+		require_once(JPATH_SITE . "/components/com_surveyforce/models/question.php");
+
+		// 取得所有題目
+		$questions = SurveyforceModelQuestion::getQuestions($this->id);
+		SurveyforceHelper::setPreviewData($this->id, "questions", $questions);
+
 		// 若為不驗證(圖形驗證)，且沒有提供抽獎，則略過個資頁
 		if ($this->survs->verify_type == '["none"]' && $this->survs->is_lottery == 0) {
 
@@ -162,7 +168,7 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 				}
 				break;
 			case "next_step": // 下一頁
-				$type   = $app->input->getString("type");
+				$type = $app->input->getString("type");
 				SurveyforceHelper::setPreviewData($this->id, "preview_type", $type);
 				// 進入驗證資料頁
 				$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&tmpl=component&id={$this->id}&next=verify", false);
@@ -199,6 +205,16 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 				break;
 			case "next_step": // 下一頁
+
+				$questions = SurveyforceHelper::getPreviewData($this->id, "questions");
+
+				if (empty($questions)) {
+					$msg  = "尚未新增題目。";
+					$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&tmpl=component&id={$this->id}next=intro", false);
+					$this->setRedirect($link, $msg, "warning");
+
+					return;
+				}
 
 				if (!SurveyforceHelper::getPreviewData($this->id, "preview_type")) {
 					$app  = JFactory::getApplication();
@@ -295,11 +311,11 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 				SurveyforceHelper::setPreviewData($this->id, "option_answers", $option_answers);
 
 				// 檢查所有題目是否都已做過，若尚未，則轉入該題目。
-				require_once(JPATH_SITE . "/components/com_surveyforce/models/question.php");
-				$questions = SurveyforceModelQuestion::getQuestions($this->id);
+				$questions = SurveyforceHelper::getPreviewData($this->id, "questions");
+
 				foreach ($questions as $question) {
-					if (!array_key_exists($question->id, $option_answers)) {
-						$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&qid={$question->id}&next=question&tmpl=component", false);
+					if (!array_key_exists($question["id"], $option_answers)) {
+						$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&qid={$question["id"]}&next=question&tmpl=component", false);
 						$this->setRedirect($link);
 
 						return;
@@ -312,11 +328,10 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 				$question_id = $app->input->getInt("qid");
 
-				require_once(JPATH_SITE . "/components/com_surveyforce/models/question.php");
-				$questions = SurveyforceModelQuestion::getQuestions($this->id);
+				$questions = SurveyforceHelper::getPreviewData($this->id, "questions");
 				foreach ($questions as $key => $question) {
-					if ($question->id == $question_id) {
-						$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&qid={$questions[$key - 1]->id}&next=question&tmpl=component", false);
+					if ($question["id"] == $question_id) {
+						$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&qid={$questions[$key - 1]["id"]}&next=question&tmpl=component", false);
 						$this->setRedirect($link);
 
 						return;
@@ -351,9 +366,8 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 						SurveyforceHelper::setPreviewData($this->id, "lottery", false);
 						$link = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&next=finish&tmpl=component", false);
 					} else {
-						require_once(JPATH_SITE . "/components/com_surveyforce/models/question.php");
-						$questions   = SurveyforceModelQuestion::getQuestions($this->id);
-						$question_id = end($questions)->id;
+						$questions   = SurveyforceHelper::getPreviewData($this->id, "questions");
+						$question_id = end($questions)["id"];
 						$link        = JRoute::_("index.php?option=com_surveyforce&view=surveys&layout=preview&id={$this->id}&qid={$question_id}&next=question&tmpl=component", false);
 					}
 				}
@@ -384,13 +398,13 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$app      = JFactory::getApplication();
-		$config   = JFactory::getConfig();
+		$app    = JFactory::getApplication();
+		$config = JFactory::getConfig();
 
 		$original_name = $app->input->getString('original_name');
-		$survey_id = $app->input->getInt('survey_id');
-		$file_name = $app->input->getString('file_name');
-		$path     = JPATH_SITE . '/' . $config->get('ivoting_path') . '/survey/pdf/' . $survey_id . '/' . $file_name . '.pdf';
+		$survey_id     = $app->input->getInt('survey_id');
+		$file_name     = $app->input->getString('file_name');
+		$path          = JPATH_SITE . '/' . $config->get('ivoting_path') . '/survey/pdf/' . $survey_id . '/' . $file_name . '.pdf';
 
 		header('Cache-Control: public, must-revalidate');
 		header('Content-Type: application/octet-stream');
@@ -400,5 +414,28 @@ class SurveyforceControllerSurveys extends JControllerAdmin {
 
 		exit;
 	}
+
+	public function isTest() {
+	    $app = JFactory::getApplication();
+
+        $db = JFactory::getDbo();
+
+        $query = $db->getQuery(true);
+        $query->select('isTest');
+        $query->from('#__survey_force_survs_release');
+        $query->where('id = ' . $db->q($app->input->getInt('id')));
+
+        $db->setQuery($query);
+
+        $row = $db->loadObject();
+        $object = new stdClass();
+
+        $object->id = $app->input->getInt('id');
+        $object->isTest = $row->isTest ? 0 : 1;
+
+        $db->updateObject('#__survey_force_survs_release', $object, 'id');
+
+        $this->setRedirect('/administrator/index.php?option=com_surveyforce&view=surveys');
+    }
 
 }

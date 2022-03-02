@@ -2,7 +2,7 @@
 
 /**
  * @package            Surveyforce
- * @version            1.1-modified
+ * @version            1.0-modified
  * @copyright          JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.
  * @license            GPL-2.0+
  * @author             JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/
@@ -15,11 +15,30 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 	protected $last_insert_id;
 
-	public function __construct() {
-		$this->_trackAssets = true;
-		parent::__construct();
-	}
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
+        $app = JFactory::getApplication();
+        $task = $app->input->get('task');
+
+        if($task == 'send_check' || $task == 'pass_success' || $task == 'pass_fail') {
+            $model = $this->getModel();
+            $model->InsertDiffColumn([
+                '#' => ['savebefore' => '#', 'saveafter' => '#'],
+                'modified' => ['saveafter' => JFactory::getDate()->toSql()],
+            ], $app->input->getInt('id'), $task);
+        }
+
+    }
+
+	/**
+	 *
+	 * @return bool|void
+	 *
+	 * @since version
+	 * @throws Exception
+	 */
 	public function cancel() {
 		// 清掉階段的session
 		$input = JFactory::getApplication()->input;
@@ -29,10 +48,19 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$session->clear('edit_stage.' . $pk);
 		$session->clear('stage');
 		$session->clear('mark');
+		$session->clear('origin.' . $pk, 'survey');
 
 		$this->setRedirect('index.php?option=com_surveyforce&view=surveys');
 	}
 
+	/**
+	 * @param JModelLegacy $model
+	 * @param array        $validData
+	 *
+	 *
+	 * @since version
+	 * @throws Exception
+	 */
 	protected function postSaveHook(JModelLegacy $model, $validData = array ()) {
 		jimport('joomla.filesystem.folder');
 		$app    = JFactory::getApplication();
@@ -47,6 +75,39 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$post = $app->input->getArray($_POST);
 
 		if ($app->input->get('task') == "apply" || $app->input->get('task') == "save") {
+
+			// 驗證後置處理
+			switch ($post["verify_method"]) {
+				case 0:
+					break;
+				case 1:  // 依強度選擇驗證方式
+					// 載入plugin
+					JPluginHelper::importPlugin('verify', $post["verify_mix"]);
+					$className = 'plgVerify' . ucfirst($post["verify_mix"]);
+
+					// 後置處理
+					if (method_exists($className, 'onAdminSaveHook')) {
+						$className::onAdminSaveHook($post, $this->last_insert_id);
+					}
+
+					break;
+				case 2:  // 自訂驗證
+					foreach ($post["verify_custom"] as $verify) {
+						// 載入plugin
+						JPluginHelper::importPlugin('verify', $verify);
+						$className = 'plgVerify' . ucfirst($verify);
+
+						// 後置處理
+						if (method_exists($className, 'onAdminSaveHook')) {
+							$className::onAdminSaveHook($post, $this->last_insert_id);
+						}
+					}
+
+					break;
+				default:
+					break;
+			}
+
 
 			// 上傳檔案
 			if ($ivoting_path) {
@@ -131,10 +192,10 @@ class SurveyforceControllerSurvey extends JControllerForm {
 							if (preg_match("/image/", $field)) {
 								if ($field == "place_image") {
 									$default_img = "images/system/idnum_sample.jpg";
-									$dest_img = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_place_image.jpg";
+									$dest_img    = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_place_image.jpg";
 								} else {
 									$default_img = "images/system/banner_default.jpg";
-									$dest_img = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
+									$dest_img    = $ivoting_path . "/survey/surveys/" . $this->last_insert_id . "_image.jpg";
 								}
 
 								if (JFile::copy($default_img, $dest_img, JPATH_SITE)) {
@@ -155,38 +216,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 				}
 			} else {
 				JError::raiseWarning(100, '存檔路徑尚未設置，請通知系統管理員。');
-			}
-
-			// 驗證後置處理
-			switch ($post["verify_method"]) {
-				case 0:
-					break;
-				case 1:  // 依強度選擇驗證方式
-					// 載入plugin
-					JPluginHelper::importPlugin('verify', $post["verify_mix"]);
-					$className = 'plgVerify' . ucfirst($post["verify_mix"]);
-
-					// 後置處理
-					if (method_exists($className, 'onAdminSaveHook')) {
-						$className::onAdminSaveHook($post, $this->last_insert_id);
-					}
-
-					break;
-				case 2:  // 自訂驗證
-					foreach ($post["verify_custom"] as $verify) {
-						// 載入plugin
-						JPluginHelper::importPlugin('verify', $verify);
-						$className = 'plgVerify' . ucfirst($verify);
-
-						// 後置處理
-						if (method_exists($className, 'onAdminSaveHook')) {
-							$className::onAdminSaveHook($post, $this->last_insert_id);
-						}
-					}
-
-					break;
-				default:
-					break;
 			}
 
 
@@ -210,6 +239,14 @@ class SurveyforceControllerSurvey extends JControllerForm {
 				$model->updatePhoneNotice($this->last_insert_id, 2);
 				$model->updatePhoneNotice($this->last_insert_id, 3);
 			}
+
+
+
+			$is_quantity = $post["jform"]['is_quantity'];
+			$quantity = $post["jform"]['quantity'];
+            $model->setQuantuty(['state' => $is_quantity, 'quantity' => $quantity, 'survey_id' =>
+                $this->last_insert_id]);
+
 
 			if ((SurveyforceHelper::checkAnalyze($this->last_insert_id) == null ? true : false) && $post["jform"]["is_analyze"] == 1) {
 
@@ -268,8 +305,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			$db = JFactory::getDbo();
 
-			$object = new stdClass();
-
 			$survs->id    = $this->last_insert_id;
 			$survs->title = $prefix_words . $survs->title;
 			$old_image    = $survs->image;
@@ -286,6 +321,7 @@ class SurveyforceControllerSurvey extends JControllerForm {
 			$survs->created_by  = $user->get('id');
 			$survs->checked_by  = 0;
 			$survs->total_vote  = 0;
+			$survs->paper_total_vote  = 0;
 
 			$survs->stage = 1;
 
@@ -490,7 +526,7 @@ class SurveyforceControllerSurvey extends JControllerForm {
 					$db->setQuery($query);
 					$fields = $db->loadObjectList();
 
-					foreach ($fields as $key => $field) {
+					foreach ($fields as $field) {
 						$field->quest_id = $new_quest_id; // 將quest_id設成新的
 						$field_id        = $field->id; // 將原本的id存起來
 						unset($field->id);
@@ -674,7 +710,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 	public function delete() {
 		$model     = $this->getModel();
 		$app       = JFactory::getApplication();
-		$jinput    = $app->input;
 		$jform     = $app->input->get('jform', '', 'array');
 		$survey_id = $jform['id'];
 
@@ -690,15 +725,10 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$created_user    = JFactory::getUser($survey->created_by);
 		$created_unit_id = $created_user->get('unit_id');
 
-		$state = $this->get('State');
 		$canDo = JHelperContent::getActions('com_surveyforce');
 
-
-		$self_gps    = JUserHelper::getUserGroups($user->get('id'));
-		$core_review = JComponentHelper::getParams('com_surveyforce')->get('core_review');
-
 		// 作者 或 同單位審核者 或 最高權限 才可儲存和刪除
-		if ($survey->created_by == $user_id || ($unit_id == $created_unit_id && in_array($core_review, $self_gps)) || $canDo->get('core.own')) {
+		if ($survey->created_by == $user_id || ($unit_id == $created_unit_id && $canDo->get('core.review')) || $canDo->get('core.own')) {
 			// 是否為已投票
 			if ($survey->complete && $survey->checked && (strtotime($survey->vote_start) < strtotime($nowDate)) && (strtotime($survey->vote_end) > strtotime($nowDate))) {
 				JError::raiseWarning(100, '該議題正在進行投票中，無法進行刪除。');
@@ -742,7 +772,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			if ($questions) {
 				//  檢查每個題目是否都有選項
-				unset($mesg);
 				$mesg = array ();
 				foreach ($questions as $question) {
 					if ($model->getOptionsCount($question->id) <= 0) {
@@ -830,7 +859,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 			if ($questions) {
 				//  檢查每個題目是否都有選項
-				unset($mesg);
 				$mesg = array ();
 				foreach ($questions as $question) {
 					if ($model->getOptionsCount($question->id) <= 0) {
@@ -904,7 +932,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$model  = $this->getModel();
 		$config = JFactory::getConfig();
 		$app    = JFactory::getApplication();
-		$jinput = $app->input;
 		$jform  = $app->input->get('jform', '', 'array');
 
 		$date    = JFactory::getDate();
@@ -959,7 +986,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$model  = $this->getModel();
 		$config = JFactory::getConfig();
 		$app    = JFactory::getApplication();
-		$jinput = $app->input;
 		$jform  = $app->input->get('jform', '', 'array');
 
 		$user    = JFactory::getUser();
@@ -1033,7 +1059,7 @@ class SurveyforceControllerSurvey extends JControllerForm {
 
 				$db->transactionStart();
 
-				$result = $db->updateObject('#__survey_force_analyze', $object, 'id');
+				$db->updateObject('#__survey_force_analyze', $object, 'id');
 
 				$db->transactionCommit();
 
@@ -1094,8 +1120,6 @@ class SurveyforceControllerSurvey extends JControllerForm {
 		$pluginParams    = new JRegistry($plugin->params);
 		$api_request_url = $pluginParams->get('api_url_copy');
 
-
-		unset($api_request_parameters);
 
 		$api_request_parameters = array (
 			'new_suffix' => $now_time, 'old_suffix' => $suffix, 'verify_type' => $verify_type

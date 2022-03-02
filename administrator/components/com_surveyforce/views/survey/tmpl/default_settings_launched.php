@@ -382,3 +382,38 @@ $phone_end_text = '【%title%】i-Voting投票結果已公布，請立即至i-Vo
     </div>
 
 </div>
+
+<?php echo $this->form->renderField('is_quantity', null, $this->quantity->state); ?>
+<?php echo $this->form->renderField('quantity', null, $this->quantity->quantity); ?>
+
+<script>
+    let init = false;
+    const radio = document.getElementsByName("jform[is_quantity]");
+    const list = [...radio];
+    const quantityElement = document.querySelector("#jform_quantity");
+
+    requireCheck();
+
+    radio.forEach(item => {
+      item.addEventListener("click", () => {
+        requireCheck();
+      });
+    });
+
+    function requireCheck() {
+      const checked = list.filter(item => item.checked === true).pop().value;
+      toggle(checked);
+    }
+
+    function toggle(checked) {
+      if(parseInt(checked) === 1) {
+          quantityElement.classList.add("required");
+          quantityElement.setAttribute("aria-required", true);
+          quantityElement.setAttribute("required", "required");
+        } else {
+          quantityElement.classList.remove('required');
+          quantityElement.removeAttribute('aria-required');
+          quantityElement.removeAttribute('required');
+        }
+    }
+</script>

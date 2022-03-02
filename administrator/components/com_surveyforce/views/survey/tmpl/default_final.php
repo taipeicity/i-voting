@@ -20,6 +20,25 @@ $document->addScriptDeclaration('
 
 <script type="text/javascript">
     jQuery(document).ready(function () {
+		jQuery("#jform_display_result_time-lbl").append('<span class="star">&nbsp;*</span>');
+		
+		// 投票顯示時間
+		if (jQuery("#jform_display_result").find(":selected").val() != 3) {
+			jQuery("#display_result_time_zone").hide();
+		}
+		
+		jQuery("#jform_display_result").change(function() {
+			console.log(this.value);
+			if (this.value == "3") {
+				jQuery("#display_result_time_zone").show();
+				jQuery("#jform_display_result_time").addClass("required");
+			} else {
+				jQuery("#display_result_time_zone").hide();
+				jQuery("#jform_display_result_time").removeClass("required").val("");
+			}
+		});
+		
+		// 投票結果數設定
         jQuery("#jform_result_num_type").on("click", function(){
            var result_num_type = jQuery(this);
             if(parseInt(result_num_type.find(":checked").val()) === 0){
@@ -35,6 +54,13 @@ $document->addScriptDeclaration('
 	<?php echo $this->form->getLabel('display_result'); ?>
     <div class="controls">
 		<?php echo $this->form->getInput('display_result'); ?>
+    </div>
+</div>
+
+<div class="control-group form-inline" id="display_result_time_zone">
+	<?php echo $this->form->getLabel('display_result_time'); ?>
+    <div class="controls">
+		<?php echo $this->form->getInput('display_result_time'); ?>
     </div>
 </div>
 

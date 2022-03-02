@@ -19,7 +19,7 @@ $app = JFactory::getApplication();
 ?>
 <?php // echo $this->loadTemplate('menu'); ?>
 
-<script type="text/javascript">
+<script>
     
     
     Joomla.submitbutton = function(task)

@@ -13,24 +13,28 @@ JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
 
-$app     = JFactory::getApplication();
+$app = JFactory::getApplication();
 $surv_id = $app->input->getInt("surv_id");
 
-$verify_type = str_replace(['"', '[', ']'], '', $this->item->verify_type);
+$verify_type = json_decode($this->item->verify_type);
 $verify_item = [
-	'email' => '電子郵件驗證', 'google' => 'Google驗證', 'facebook' => 'Facebook驗證', 'taipeicard' => '台北卡驗證', 'assign' => '可投票人名單驗證', 'cdc' => '自然人憑證驗證', 'any' => '投票人資料填寫驗證', 'house' => '戶役政系統驗證', 'idnum' => '身分證字號驗證', 'phone' => '手機驗證'
+	'email' => '電子郵件驗證', 'google' => 'Google驗證', 'facebook' => 'Facebook驗證', 'taipeicard' => '台北通驗證', 'assign' => '可投票人名單驗證', 'cdc' => '自然人憑證驗證', 'any' => '投票人資料填寫驗證', 'house' => '戶役政系統驗證', 'idnum' => '身分證字號驗證', 'phone' => '手機驗證'
 ];
 
 unset($option);
-foreach (explode(',', $verify_type) as $item) {
-	$option[] = JHtml::_('select.option', $item, $verify_item[$item]);
+foreach ($verify_type as $item) {
+    // 載入plugin
+    JPluginHelper::importPlugin('verify', $item);
+    $className = 'plgVerify'.ucfirst($item);
+    if(method_exists($className, 'onGetVerifyName')) {
+        $option[] = JHtml::_('select.option', $item, $className::onGetVerifyName());
+    }
 }
-
-$type   = ($this->type) ? $this->type : null;
+$type = ($this->type) ? $this->type : null;
 $select = JHtml::_('select.genericlist', $option, 'verify_type', '', 'value', 'text', $type);
 
-if (preg_match('/assign/', $verify_type)) {
-	$suffix = json_decode($this->item->verify_params, true);
+if (in_array("assign", $verify_type)) {
+    $suffix = json_decode($this->item->verify_params, true);
 }
 
 // 載入plugin
@@ -38,15 +42,14 @@ JPluginHelper::importPlugin('verify', $type);
 $className = 'plgVerify' . ucfirst($type);
 // 取得驗證類型的欄位
 if (method_exists($className, 'onGetVotedHtml')) {
-	$setting_html = '';
-	$setting_html .= $className::onGetVotedHtml($this->item->verify_params, $this->item->id);
+    $setting_html = '';
+    $setting_html .= $className::onGetVotedHtml($this->item->verify_params, $this->item->id);
 }
 
 if (method_exists($className, 'onGetCheckVotedJsCode')) {
-	$check_js = '';
-	$check_js .= $className::onGetCheckVotedJsCode($this->item->verify_params);
+    $check_js = '';
+    $check_js .= $className::onGetCheckVotedJsCode($this->item->verify_params);
 }
-
 
 ?>
 <script type="text/javascript">
@@ -87,7 +90,7 @@ if (method_exists($className, 'onGetCheckVotedJsCode')) {
 
             var data = {};
             //檢查欄位
-			<?php echo $check_js; ?>
+            <?php echo $check_js; ?>
             data['surv_id'] = <?php echo $surv_id; ?>;
             data['verify_type'] = '<?php echo $type; ?>';
 
@@ -136,30 +139,30 @@ if (method_exists($className, 'onGetCheckVotedJsCode')) {
 </script>
 <style>
     .voted_search input[type=text], #verify_type, select {
-        margin-bottom : 0;
+        margin-bottom: 0;
     }
 
     .voted_search input[type=radio] {
-        margin : auto;
-        width  : 1.5em;
+        margin: auto;
+        width: 1.5em;
     }
 
     .voted_search select {
-        width : 4%;
+        width: 4%;
     }
 
     .review_table td {
-        border  : 1px solid #ccc;
-        padding : 5px;
+        border: 1px solid #ccc;
+        padding: 5px;
     }
 
     #voted_any_edu {
-        width : 6%;
+        width: 6%;
     }
 
     .voted_search label {
-        display      : inline;
-        margin-right : 1em;
+        display: inline;
+        margin-right: 1em;
     }
 </style>
 
@@ -172,22 +175,23 @@ if (method_exists($className, 'onGetCheckVotedJsCode')) {
     </div>
 </div>
 
-<form action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=voted&surv_id=' . $surv_id); ?>" method="POST" name="voted-form" id="voted-form" class="form-validate">
+<form action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=voted&surv_id='.$surv_id); ?>" method="POST"
+      name="voted-form" id="voted-form" class="form-validate">
 
     請選擇驗證方式
-	<?php
-	echo $select;
-	?>
-    <input type="hidden" id="suffix" value="<?php echo $suffix['assign']['assign_table_suffix']; ?>" />
-    <input type="hidden" id="Itemid" name="Itemid" value="<?php echo $surv_id; ?>" />
-    <input type="hidden" name="task" value="" /> <input type="hidden" name="option" value="com_surveyforce" />
-	<?php echo JHtml::_('form.token'); ?>
+    <?php
+    echo $select;
+    ?>
+    <input type="hidden" id="suffix" value="<?php echo $suffix['assign']['assign_table_suffix']; ?>"/>
+    <input type="hidden" id="Itemid" name="Itemid" value="<?php echo $surv_id; ?>"/>
+    <input type="hidden" name="task" value=""/> <input type="hidden" name="option" value="com_surveyforce"/>
+    <?php echo JHtml::_('form.token'); ?>
 </form>
 
 
 <div class="voted_search">
     請填寫欲查詢資料<br> <br>
-	<?php echo $setting_html; ?>
+    <?php echo $setting_html; ?>
 </div>
 
 

@@ -23,6 +23,7 @@ class SurveyforceViewImport extends JViewLegacy {
 
     public function display($tpl = null) {
 		$model = $this->getModel();
+		$this->model = $this->getModel();
 		$config = JFactory::getConfig();
         $app = JFactory::getApplication();
 		$this->surv_id = JFactory::getApplication()->input->get('surv_id', 0);
@@ -32,6 +33,7 @@ class SurveyforceViewImport extends JViewLegacy {
 
         $this->state = $this->get('State');
         $this->paper_vote = $model->getPaperVote($this->surv_id);
+        $this->paper_vote_summary = $model->getPaperVoteSummary($this->surv_id);
        
 
 		// 產生議題CSV檔
@@ -68,7 +70,7 @@ class SurveyforceViewImport extends JViewLegacy {
 		
         // Check for errors.
         if (count($errors = $this->get('Errors'))) {
-            JError::raiseError(500, implode("\n", $errors));
+            JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
             return false;
         }
       

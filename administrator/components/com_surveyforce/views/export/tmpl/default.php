@@ -23,12 +23,12 @@ $qtype       = array ("select", "number", "table"); // 有子選項的題目類�
 ?>
 <style>
     .intro_title {
-        width : 10%;
-        float : left;
+        width: 10%;
+        float: left;
     }
 
     .intro_content {
-        margin-left : 10%;
+        margin-left: 10%;
     }
 </style>
 <script type="text/javascript">
@@ -73,7 +73,7 @@ $qtype       = array ("select", "number", "table"); // 有子選項的題目類�
             投票人數
         </div>
         <div class="intro_content">
-			<?php echo ($this->total_num) ? $this->total_num : 0; ?>
+			<?php echo ($this->total_num + $this->item->paper_total_vote > 0) ? $this->total_num + $this->item->paper_total_vote : 0; ?>
         </div>
 
 		<?php if ($this->results) { ?>
@@ -287,10 +287,10 @@ $qtype       = array ("select", "number", "table"); // 有子選項的題目類�
 
 <style>
     #j-sidebar-container {
-        width : 200px !important;
+        width: 200px !important;
     }
 
     .survey_export {
-        margin-top : 10px;
+        margin-top: 10px;
     }
 </style>
