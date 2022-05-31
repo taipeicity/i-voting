@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter" addfieldpath="/administrator/components/com_record/models/fields">
+		<field
+			name="search"
+			type="text"
+			inputmode="search"
+			label="關鍵字搜尋失敗原因"
+			description="搜尋失敗原因"
+			hint="JSEARCH_FILTER"
+		/>
+
+        <field name="type_id" label="API類型" type="sql"
+			   query="SELECT id AS value, title AS type_id FROM #__api_record_type WHERE state = '1' order by id"
+               onchange="this.form.submit();"
+		>
+            <option value="">- 選擇API類型 -</option>
+        </field>
+        
+                		
+		<field
+			name="published"
+			type="list"
+			label="JOPTION_SELECT_PUBLISHED"
+			description="JOPTION_SELECT_PUBLISHED_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+			<option value="1">成功</option>
+			<option value="0">失敗</option>
+		</field>
+        
+        <field name="survey_id" label="議題編號" type="sql"
+			   query="SELECT id AS value, CONCAT(id, '-', title) AS survey_id FROM #__survey_force_survs_release order by id"
+               onchange="this.form.submit();"
+		>
+            <option value="">- 選擇議題編號 -</option>
+        </field>
+        
+        <field name="start_time" type="calendar"
+				   label="篩選開始時間" onchange="this.form.submit();"
+				   class="input-small" format="%Y-%m-%d" size="22" />
+        
+        <field name="end_time" type="calendar"
+				   label="篩選結束時間" onchange="this.form.submit();"
+				   class="input-small" format="%Y-%m-%d" size="22" />
+
+	</fields>
+	<fields name="list">
+		<field
+			name="fullordering"
+			type="list"
+			label="JGLOBAL_SORT_BY"
+			description="JGLOBAL_SORT_BY"
+			statuses="*,0,1,-2"
+			onchange="this.form.submit();"
+			default="a.request_time DESC"
+			validate="options"
+			>
+			<option value="">JGLOBAL_SORT_BY</option>
+			
+            <option value="a.type_id ASC">API類型升冪</option>
+			<option value="a.type_id DESC">API類型降冪</option>
+			<option value="a.state ASC">JSTATUS_ASC</option>
+			<option value="a.state DESC">JSTATUS_DESC</option>
+            
+			<option value="a.request_time ASC">接收參數時間升冪</option>
+			<option value="a.request_time DESC">接收參數時間降冪</option>
+			<option value="a.response_time ASC">回傳參數時間升冪</option>
+			<option value="a.response_time DESC">回傳參數時間降冪</option>
+			<option value="a.execute_second ASC">作業時間升冪</option>
+			<option value="a.execute_second DESC">作業時間降冪</option>
+            
+			<option value="a.survey_id ASC">議題編號升冪</option>
+			<option value="a.survey_id DESC">議題編號降冪</option>
+		</field>
+        
+		<field
+			name="limit"
+			type="limitbox"
+			label="COM_BANNERS_LIST_LIMIT"
+			description="COM_BANNERS_LIST_LIMIT_DESC"
+			class="input-mini"
+			default="25"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

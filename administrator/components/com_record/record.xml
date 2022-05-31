@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.1" method="upgrade">
+	<name>com_record</name>
+	 <creationDate>2022-04-06</creationDate>
+    <copyright>JooPlce Team, 臺北市政府資訊局, Copyright (C) 2016. All rights reserved.</copyright>
+    <license>GPL-2.0+</license>
+    <author>JooPlace Team, 臺北市政府資訊局- http://doit.gov.taipei/</author>
+    <authorEmail>sam_lin@justher.tw</authorEmail>
+    <authorUrl>https://gihub.com/hansamlin</authorUrl>
+    <version>CVS: 1.0.0</version>
+    <description>COM_KNOWUS_XML_DESCRIPTION</description>
+
+
+	<administration>
+		<menu link="option=com_record" img="class:record">com_record</menu>
+	</administration>
+</extension>
+
