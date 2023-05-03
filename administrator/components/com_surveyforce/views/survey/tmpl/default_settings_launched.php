@@ -54,7 +54,39 @@ $document->addScriptDeclaration('
     jQuery(document).ready(function () {
 
         jQuery.fn.checkSettings_launchedJs = function () {
-
+			// 有啟用GPS限制
+			if (jQuery('input:radio:checked[name="jform[is_gps]"]').val() == 1) {
+				if (jQuery("#jform_gps_longitude").val() == "" || jQuery("#jform_gps_latitude").val() == "" || jQuery("#jform_gps_meter").val() == "") {
+					jQuery('#message_area').showMessage("請填寫開啟GPS限制的資料", jQuery('#jform_gps_longitude'));
+					return false;
+				} else {
+					if (parseInt(jQuery("#jform_gps_meter").val()) <= 0) {
+						jQuery('#message_area').showMessage("活動地點範圍距離不得為0", jQuery('#jform_gps_meter'));
+						return false;
+					}
+				}
+			}
+			
+			// 有啟用派送折價券
+			if (jQuery('input:radio:checked[name="jform[is_coupon]"]').val() == 1) {
+				if (jQuery("#jform_coupon_code").val() == "") {
+					jQuery('#message_area').showMessage("請填寫折價券代碼", jQuery('#jform_coupon_code'));
+					return false;
+				} 
+				
+				if (parseInt(jQuery("#jform_coupon_number").val()) <= 0) {
+					jQuery('#message_area').showMessage("折價券數量不得為0", jQuery('#jform_coupon_number'));
+					return false;
+				}
+				
+				if (parseInt(jQuery("#jform_coupon_receive_count").val()) <= 0) {
+					jQuery('#message_area').showMessage("每次投票獲得張數不得為0", jQuery('#jform_coupon_receive_count'));
+					return false;
+				}
+				
+			}
+			
+			
             var check = true;
             //啟用現地投票
             var is_old_verify = jQuery("#is_old_verify");
@@ -67,7 +99,7 @@ $document->addScriptDeclaration('
                     }
                 }
             }
-
+			
             return check;
         };
 
@@ -104,7 +136,7 @@ $document->addScriptDeclaration('
                 }
                 check = false;
             }
-
+			
             return check;
         };
 
@@ -172,9 +204,51 @@ $document->addScriptDeclaration('
         }).on("hide", function () {
             jQuery("body").removeClass("modal-open");
         });
+		
+		 // 啟用GPS限制
+		jQuery("#jform_gps_longitude-lbl").append('<span class="star">&nbsp;*</span>');
+		jQuery("#jform_gps_latitude-lbl").append('<span class="star">&nbsp;*</span>');
+		jQuery("#jform_gps_meter-lbl").append('<span class="star">&nbsp;*</span>');
+        jQuery("#jform_is_gps").on("click", function () {
+            if (parseInt(jQuery(this).find(":checked").val()) === 1) {
+                jQuery(".gps_zone").show(500);
+            } else {
+                jQuery(".gps_zone").hide(500);
+            }
+        });
+		<?php
+			if ($this->form->getValue('is_gps')) {
+		?>
+				jQuery(".gps_zone").show(500);
+		<?php
+			}
+		?>
+		
+		 // 啟用派送折價券
+		jQuery("#jform_coupon_code-lbl").append('<span class="star">&nbsp;*</span>');
+		jQuery("#jform_coupon_receive_count-lbl").append('<span class="star">&nbsp;*</span>');
+		jQuery("#jform_coupon_number-lbl").append('<span class="star">&nbsp;*</span>');
+        jQuery("#jform_is_coupon").on("click", function () {
+            if (parseInt(jQuery(this).find(":checked").val()) === 1) {
+                jQuery(".coupon_zone").show(500);
+            } else {
+                jQuery(".coupon_zone").hide(500);
+            }
+        });
+		<?php
+			if ($this->form->getValue('is_coupon')) {
+		?>
+				jQuery(".coupon_zone").show(500);
+		<?php
+			}
+		?>
     });
 </script>
-
+<style>
+	.coupon_zone, .gps_zone {
+		display: none;
+	}
+</style>
 
 <div class="control-group form-inline">
 	<?php $this->form->setFieldAttribute('vote_pattern', 'required', 'true'); ?>
@@ -385,6 +459,67 @@ $phone_end_text = '【%title%】i-Voting投票結果已公布，請立即至i-Vo
 
 <?php echo $this->form->renderField('is_quantity', null, $this->quantity->state); ?>
 <?php echo $this->form->renderField('quantity', null, $this->quantity->quantity); ?>
+
+
+<div class="control-group">
+	<div class="control-label"><?php echo $this->form->getLabel('is_qrcode'); ?></div>
+	<div class="controls">
+		<?php echo $this->form->getInput('is_qrcode'); ?>
+		(僅提供台北通APP掃描使用)
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="control-label"><?php echo $this->form->getLabel('is_gps'); ?></div>
+	<div class="controls">
+		<?php echo $this->form->getInput('is_gps'); ?>
+		(僅提供台北通APP投票使用)
+	</div>
+</div>
+
+<div class="control-group gps_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('gps_latitude'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('gps_latitude'); ?></div>
+</div>
+
+<div class="control-group gps_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('gps_longitude'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('gps_longitude'); ?></div>
+</div>
+
+<div class="control-group gps_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('gps_meter'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('gps_meter'); ?></div>
+</div>
+
+<div class="control-group">
+	<div class="control-label"><?php echo $this->form->getLabel('is_coupon'); ?></div>
+	<div class="controls">
+		<?php echo $this->form->getInput('is_coupon'); ?>
+		(僅提供台北通APP投票後獲得)
+	</div>
+</div>
+
+<div class="control-group coupon_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('coupon_code'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('coupon_code'); ?></div>
+</div>
+
+<div class="control-group coupon_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('coupon_number'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('coupon_number'); ?></div>
+</div>
+
+<div class="control-group coupon_zone">
+	<div class="control-label"><?php echo $this->form->getLabel('coupon_receive_count'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('coupon_receive_count'); ?></div>
+</div>
+
+<div class="control-group">
+	<div class="control-label"><?php echo $this->form->getLabel('is_blockchain'); ?></div>
+	<div class="controls"><?php echo $this->form->getInput('is_blockchain'); ?></div>
+</div>
+
 
 <script>
     let init = false;

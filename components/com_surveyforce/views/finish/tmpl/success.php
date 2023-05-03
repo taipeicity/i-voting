@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 		<?php if ($this->preview == false && SurveyforceVote::getSurveyData($this->survey_id, "resend_lottery") != "") { ?>
             補送抽獎資料成功
 		<?php } else { ?>
-            訊息寄送成功
+            投票紀錄寄送成功
 		<?php } ?>
     </div>
     <div class="finish">
@@ -25,12 +25,12 @@ defined('_JEXEC') or die('Restricted access');
         <div class="btns">
 
 			<?php if ($this->preview == true) { ?>
-                <a href="<?php echo $this->back_link; ?>" class="submit">上一頁</a>
+                <a href="<?php echo $this->back_link; ?>" class="button submit">上一頁</a>
 			<?php } else { ?>
 				<?php if ($this->display_result == 1) { ?>
-                    <a href="<?php echo $this->preview == false ? JRoute::_('index.php?option=com_surveyforce&view=result&sid=' . $this->survey_id . '&Itemid=' . $this->itemid, false) : "javascript:void(0)"; ?>" class="submit"> 觀看投票結果 </a>
+                    <a href="<?php echo $this->preview == false ? JRoute::_('index.php?option=com_surveyforce&view=result&sid=' . $this->survey_id . '&Itemid=' . $this->itemid, false) : "javascript:void(0)"; ?>" class="button submit"> 觀看投票結果 </a>
 				<?php } ?>
-                <a class="btn" href="<?php echo $this->preview == false ? JURI::root() : "javascript:void(0)"; ?>" id="return_index"> 回首頁 </a>
+                <!-- <a class="btn" href="<?php //echo $this->preview == false ? JURI::root() : "javascript:void(0)"; ?>" id="return_index"> 回首頁 </a> -->
 			<?php } ?>
 
         </div>

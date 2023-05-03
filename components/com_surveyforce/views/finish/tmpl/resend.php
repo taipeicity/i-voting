@@ -82,10 +82,7 @@ $tmp_session = json_decode($session->get("tmp_session"), true);
 
         <div class="btns">
 
-            <a id="submit_img" class="submit" href="javascript:void(0);"> 確定送出 </a>
-            <noscript>
-                您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
-            </noscript>
+            <a id="submit_img" class="button submit" href="javascript:void(0);"> 確定送出 </a>
 
         </div>
 

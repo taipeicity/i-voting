@@ -10,7 +10,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 $session     = &JFactory::getSession();
-$prac        = $session->get('practice_pattern');
+$prac        = $session->get('practice');
 $tmp_session = json_decode($session->get("tmp_session"), true);
 $document    = JFactory::getDocument();
 $params      = JComponentHelper::getParams('com_surveyforce');
@@ -127,7 +127,7 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
 
                 if (jQuery("#notice_").val()) {
                     if (!rePhone.test(jQuery("#notice_phone").val())) {
-                        jQuery("#message_area").showMessage('簡訊通知開票結果的號碼錯誤。');
+                        jQuery("#message_area").showMessage('簡訊通知開票結果的號碼錯誤(共10碼數字，請勿填其他符號)。');
                         jQuery("#notice_phone").focus();
                         return false;
                     }
@@ -165,8 +165,8 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
                 jQuery("#finish_form").submit();
             } else if (lottery_name.val() && lottery_phone.val()) {
 
-                if(!lottery_phone.val().match(/^09\d{8}/g)){
-                    jQuery("#message_area").showMessage('手機號碼格式錯誤。');
+                if(!lottery_phone.val().match(/\d{8,10}/g)){
+                    jQuery("#message_area").showMessage('您所填的電話號碼格式錯誤(請填寫數字，勿填其他符號)。');
                     return false;
                 }
 
@@ -219,14 +219,19 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
 				<?php if ($this->task == 'check_finish_form') { ?>
 
                     <div class="short_link">
-						<?php if ($this->short_url) {
-							?>
-                            您的投票記錄可於【
-                            <a href="<?php echo $this->preview == false ? $this->short_url : "javascript:void(0)"; ?>" target="_blank" title="投票記錄查詢"><?php echo $this->short_url; ?></a>】查看
-						<?php } ?>
+						<?php if ($this->short_url) { ?>
+                            您的投票紀錄可於【
+                                <a href="<?php echo $this->preview == false ? $this->short_url : "javascript:void(0)"; ?>"
+                                   target="_blank" title="投票紀錄查詢(另開新視窗)">投票紀錄<?php //echo $this->short_url; ?></a> 】查看
+                                <?php
+                            if ($this->is_public && $this->display_result) {
+                                echo "<br>(本服務採用 <a href=\"https://www.thundercore.com\" title=\"ThunderCore區塊鏈技術(另開新視窗)\" target=\"_balnk\">ThunderCore區塊鏈技術</a>)";
+                            }
+                        }
+                        ?>
                     </div>
                     <div class="warning">
-                        (投票記錄不含個人資料，請妥善保存，不再補發)
+                        (投票紀錄不含個人資料，請妥善保存，不再補發)
                     </div>
                     <br />
 
@@ -236,60 +241,79 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
                     <table class="formtable">
 
 						<?php if ($this->task == 'check_finish_form') { //如果無抽獎或已經檢查過抽獎步驟 ?>
-
+							<caption>投票紀錄留存</caption>
                             <tr>
                                 <th>
                                     <input type="hidden" id="is_save_email" name="is_save_email" value="0">
-                                    <label for="is_save_email">投票紀錄留存：</label>
+                                    <label for="save_email">請填寫電子信箱：</label>
                                 </th>
                                 <td>
-                                    <input type="text" id="save_email" name="save_email" value="<?php echo empty($tmp_session['save_email']) ? '' : $tmp_session['save_email']; ?>" placeholder="請填寫電子信箱" autocomplete="off" maxlength="100">
+                                    <input type="text" id="save_email" name="save_email" value="<?php echo empty($tmp_session['save_email']) ? '' : $tmp_session['save_email']; ?>" placeholder="例：abc@123.com" autocomplete="off" maxlength="100">
+                                </td>
+                                <td>
+                                    <a id="submit_img" class="button" href="javascript:void(0);">送出</a>
+                                    <noscript>
+                                        您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
+                                    </noscript>
                                 </td>
                             </tr>
 
 							<?php if ($this->is_notice_email) { ?>
-                                <tr>
-                                    <th>
-                                        <input type="hidden" id="is_notice_email" name="is_notice_email" value="0">
-                                        <label for="is_notice_email">Email通知開票結果：</label>
-                                    </th>
-                                    <td>
-                                        <input type="text" id="notice_email" name="notice_email" value="<?php echo empty($tmp_session['notice_email']) ? '' : $tmp_session['notice_email']; ?>" placeholder="請填寫電子信箱" autocomplete="off" maxlength="100">
-                                        <div class="rwd_copy_email"></div>&nbsp;
-                                        <input type="checkbox" id="is_copy_email" name="is_copy_email" value="1"><label for="is_copy_email">同上列的電子信箱</label>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <th>
+                                    <input type="hidden" id="is_notice_email" name="is_notice_email" value="0">
+                                    <label for="notice_email">Email通知開票結果：</label>
+                                </th>
+                                <td>
+                                    <input type="text" id="notice_email" name="notice_email" value="<?php echo empty($tmp_session['notice_email']) ? '' : $tmp_session['notice_email']; ?>" placeholder="請填寫電子信箱" autocomplete="off" maxlength="100">
+                                    <div class="rwd_copy_email"></div>&nbsp;
+                                    <input type="checkbox" id="is_copy_email" name="is_copy_email" value="1"><label for="is_copy_email">同上列的電子信箱</label>
+                                </td>
+                                <td>
+                                    <a id="submit_img" class="button" href="javascript:void(0);">送出</a>
+                                    <noscript>
+                                        您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
+                                    </noscript>
+                                </td>
+                            </tr>
 							<?php } ?>
 
 							<?php if ($this->is_notice_phone) { ?>
-                                <tr>
-                                    <th>
-                                        <input type="hidden" id="is_notice_phone" name="is_notice_phone" value="0">
-                                        <label for="is_notice_phone">簡訊通知開票結果：</label>
-                                    </th>
-                                    <td>
-                                        <input type="text" id="notice_phone" name="notice_phone" value="<?php echo empty($tmp_session['notice_phone']) ? '' : $tmp_session['notice_phone']; ?>" placeholder="請填寫手機號碼" autocomplete="off" maxlength="10">
-                                    </td>
-                                </tr>
+                            <tr>
+                                <th>
+                                    <input type="hidden" id="is_notice_phone" name="is_notice_phone" value="0">
+                                    <label for="notice_phone">簡訊通知開票結果：</label>
+                                </th>
+                                <td>
+                                    <input type="text" id="notice_phone" name="notice_phone" value="<?php echo empty($tmp_session['notice_phone']) ? '' : $tmp_session['notice_phone']; ?>" placeholder="請填寫手機號碼" autocomplete="off" maxlength="10">
+                                </td>
+                                <td>
+                                    <a id="submit_img" class="button" href="javascript:void(0);">送出</a>
+                                    <noscript>
+                                        您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
+                                    </noscript>
+                                </td>
+                            </tr>
 
 							<?php } ?>
 
 						<?php } ?>
 
 						<?php if ($this->is_lottery && $this->task == 'setLotteryStep') { ?>
+							<caption>參加抽獎活動</caption>
                             <tr>
                                 <th>
                                     <input type="hidden" id="is_join_lottery" name="is_join_lottery" value="0">
-                                    <label for="is_join_lottery">參加抽獎活動</label>
+                                    <label for="lottery_name">請填寫姓名</label>
                                 </th>
                                 <td>
-                                    <input type="text" id="lottery_name" name="lottery_name" value="<?php echo empty($tmp_session['lottery_name']) ? '' : $tmp_session['lottery_name']; ?>" placeholder="請填寫姓名" autocomplete="off" maxlength="50">
+                                    <input type="text" id="lottery_name" name="lottery_name" value="<?php echo empty($tmp_session['lottery_name']) ? '' : $tmp_session['lottery_name']; ?>" placeholder="例：王小明" autocomplete="off" maxlength="50">
                                 </td>
                             </tr>
                             <tr>
-                                <td>&nbsp;</td>
+                                <th><label for="lottery_phone">請填寫聯絡方式</label></th>
                                 <td>
-                                    <input type="text" id="lottery_phone" name="lottery_phone" value="<?php echo empty($tmp_session['lottery_phone']) ? '' : $tmp_session['lottery_phone']; ?>" placeholder="請填寫手機號碼" autocomplete="off" maxlength="20">
+                                    <input type="text" id="lottery_phone" name="lottery_phone" value="<?php echo empty($tmp_session['lottery_phone']) ? '' : $tmp_session['lottery_phone']; ?>" placeholder="例：手機或市話" autocomplete="off" maxlength="20">
                                 </td>
                             </tr>
 						<?php } ?>
@@ -304,7 +328,7 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
                         (若不參加抽獎活動則無需填寫，請直接按下一步)
                     </div>
 					<?php if ($this->preview == false) { ?>
-                        <a id="next_step" class="submit" href="javascript:void(0);"> 下一步 </a>
+                        <a id="next_step" class="button submit" href="javascript:void(0);"> 下一步 </a>
 					<?php } ?>
                 </div>
 			<?php } ?>
@@ -320,20 +344,21 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
 					<?php
 					if (!$prac) {
 						if ($this->preview == false && $this->is_lottery && !SurveyforceVote::getSurveyData($this->survey_id, "join_lottery")) { ?>
-                            <a id="previous_step" class="submit" href="javascript:void(0);"> 上一步 </a>
+                            <a id="previous_step" class="button submit" href="javascript:void(0);"> 上一步 </a>
 						<?php } ?>
-                        <a id="submit_img" class="submit" href="javascript:void(0);"> 確定送出 </a>
-                        <noscript>
-                            您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
-                        </noscript>
+                        
 					<?php }
 					?>
 
-					<?php if ($this->display_result == 1) { ?>
-                        <a href="<?php echo $this->preview == false ? JRoute::_('index.php?option=com_surveyforce&view=result&sid=' . $this->survey_id . '&Itemid=' . $this->itemid, false) : "javascript:void(0)"; ?>" class="submit"> 觀看投票結果 </a>
+					<?php 
+						// 投票中觀看結果 或者 指定時間顯示
+						$nowDate = JFactory::getDate()->toSql();
+						if ($this->display_result == 1 || ($this->display_result == 3 && strtotime($this->item->display_result_time) <= strtotime($nowDate))) { 
+					?>
+                        <a href="<?php echo $this->preview == false ? JRoute::_('index.php?option=com_surveyforce&view=result&sid=' . $this->survey_id . '&Itemid=' . $this->itemid, false) : "javascript:void(0)"; ?>" class="button submit"> 觀看投票結果 </a>
 					<?php } ?>
 
-                    <a href="<?php echo $this->preview == false ? JURI::root() : "javascript:void(0)"; ?>" class="btn" id="return_index"> 回首頁 </a>
+                    <!-- <a href="<?php //echo $this->preview == false ? JURI::root() : "javascript:void(0)"; ?>" class="btn" id="return_index"> 回首頁 </a> -->
 
                 </div>
 
@@ -342,8 +367,8 @@ if ($this->lottery_remind == true && $this->join_lottery == false) {
 
 		<?php if ($this->preview == true) { ?>
             <div class="btns">
-                <a href="<?php echo $this->back_link; ?>" class="submit">上一頁</a>
-                <a href="<?php echo $this->next_link; ?>" class="submit">下一頁</a>
+                <a href="<?php echo $this->back_link; ?>" class="button submit">上一頁</a>
+                <a href="<?php echo $this->next_link; ?>" class="button submit">下一頁</a>
             </div>
 		<?php } ?>
 

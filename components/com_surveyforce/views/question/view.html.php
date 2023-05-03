@@ -40,7 +40,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode('<br />', $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 
 			return false;
 		}
@@ -77,7 +77,7 @@ class SurveyforceViewQuestion extends JViewLegacy {
 
 		// 檢查是否有依序執行步驟
 		if (SurveyforceVote::checkSurveyStep($this->survey_id, "question") == false) {
-			$msg = "該議題未從投票起始頁進入，請重新執行。";
+			$msg = "未從該議題投票啟始頁進入，請重新執行。";
 			$app->redirect($intro_link, $msg);
 		}
 
@@ -153,22 +153,25 @@ class SurveyforceViewQuestion extends JViewLegacy {
 			$this->setLayout("imgcat");
 		}
 
-		// 取得分析題目的下拉選單
-		if (SurveyforceVote::getSurveyData($this->survey_id, "is_analyze") == 1) {
-			$this->analyze_params = json_decode(SurveyforceVote::getSurveyData($this->survey_id, "analyze_column"), true);
+        $option_answers = SurveyforceVote::getSurveyData($this->survey_id, "option_answers");
+		$this->lastQuestion = '0';
+        if ($this->getLastNum($this->questions_num, $option_answers) == 1) {
+            $this->lastQuestion = '1';
+        }
 
-			// 確認是否填過分析欄位
-			$analyze_answers = SurveyforceVote::getSurveyData($this->survey_id, "analyze_answers");
-			if (empty($analyze_answers)) {
-				$this->analyze_check = true;
-			} else {
-				$this->analyze_check = false;
-			}
-		}
-
+        $this->is_public = SurveyforceVote::getSurveyData($this->survey_id, 'is_public');
+		$this->display_result = SurveyforceVote::getSurveyData($this->survey_id, 'display_result');
+		$this->is_test = SurveyforceVote::getSurveyData($this->survey_id, 'is_test');
 
 		parent::display($tpl);
 
 	}
 
+	public function getLastNum($questions_num, $option_answers) {
+		if (is_array($option_answers)){
+			return $questions_num - count($option_answers);
+		} else {
+			return $questions_num;
+		}
+    }
 }

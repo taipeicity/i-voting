@@ -20,21 +20,6 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 
     <div class="question">
         <form id="question_form" method="post" action="<?php echo JRoute::_('index.php?option=com_surveyforce&view=question&task=question.check_question_form&Itemid=' . $this->itemid, false); ?>">
-			<?php if ($this->analyze_check) { ?>
-                <div class="analyze">
-					<?php foreach ($analyze_params as $title => $analyze_param) { ?>
-                        <label for="<?php echo $analyze_param['qid']; ?>" class="title">
-							<?php if ($analyze_param['required'] == 1) { ?>
-                                <span class="blossom"></span>
-							<?php } ?>
-							<?php echo $title; ?>
-                        </label>
-                        <div class="select_option"><?php echo $analyze_param['select']; ?></div>
-					<?php } ?>
-                </div>
-
-                <hr />
-			<?php } ?>
 
             <div class="header">
 				<?php
@@ -55,14 +40,14 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
 
             <div class="btns">
 				<?php if ($this->count != 1 && $this->preview == true) { ?>
-                    <a class="submit red" href="<?php echo $this->previously_question; ?>">
+                    <a class="button submit" href="<?php echo $this->previously_question; ?>">
 						<?php
 						echo "上一題";
 						?>
                     </a>
 				<?php } ?>
 				<?php if (($this->questions_num != 1 && $this->questions_num != $this->count) || $this->preview == false) { ?>
-                    <a id="submit_img" class="submit red" href="<?php echo $this->preview == false ? "javascript:void(0)" : $this->next_question; ?>">
+                    <a id="submit_img" class="button submit" href="<?php echo $this->preview == false ? "javascript:void(0)" : $this->next_question; ?>">
 						<?php
 						echo ($this->questions_num == 1 || $this->questions_num == $this->count) ? "確定送出" : "下一題";
 						?>
@@ -74,17 +59,21 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
                         您的瀏覽器不支援script程式碼,請開啟javascript功能才能進行送出功能。
                     </noscript>
                     <div>
-                        <input id="btn_reset" type="button" value="清除" class="small" />
-                        <a href="<?php echo $this->category_link; ?>" class="btn small">取消</a>
+                        <input id="btn_reset" type="button" value="清除" class="button reset" />
+                        <a href="<?php echo $this->category_link; ?>" class="button cancel">取消</a>
                     </div>
 				<?php } else { ?>
-                    <a href="<?php echo $this->back_link; ?>" class="submit">上一頁</a>
-                    <a href="<?php echo $this->next_link; ?>" class="submit">下一頁</a>
+                    <a href="<?php echo $this->back_link; ?>" class="button submit">上一頁</a>
+                    <a href="<?php echo $this->next_link; ?>" class="button submit">下一頁</a>
 				<?php } ?>
             </div>
+            <input type="hidden" id="lastQuestion" value="<?php echo JFilterOutput::cleanText($this->lastQuestion); ?>">
+            <input type="hidden" id="is_public" value="<?php echo JFilterOutput::cleanText($this->is_public); ?>">
+            <input type="hidden" id="display_result" value="<?php echo JFilterOutput::cleanText($this->display_result); ?>">
+            <input type="hidden" id="is_test" value="<?php echo JFilterOutput::cleanText($this->is_test); ?>">
             <input type="hidden" name="task" value="question.check_question_form">
-            <input type="hidden" name="sid" value="<?php echo $this->survey_id; ?>">
-            <input type="hidden" name="qid" value="<?php echo $this->question_id; ?>">
+            <input type="hidden" name="sid" value="<?php echo JFilterOutput::cleanText($this->survey_id); ?>">
+            <input type="hidden" name="qid" value="<?php echo JFilterOutput::cleanText($this->question_id); ?>">
             <input type="hidden" name="img_data" id="img_data" value="" />
 			<?php echo JHTML::_('form.token'); ?>
         </form>
@@ -177,23 +166,46 @@ $className = 'plgSurvey' . ucfirst($this->question->question_type);
                 return false;
             }
 
-			<?php
-			if ($analyze_params) {
-			foreach ($analyze_params as $title => $analyze_param) {
-			if ($analyze_param['required'] == 1) {
+            var lastQuestion = document.querySelector('#lastQuestion'),
+                is_public = document.querySelector('#is_public'),
+                display_result = document.querySelector('#display_result'),
+                is_test = document.querySelector('#is_test');
 
-			?>
-            if (jQuery("#<?php echo $analyze_param['qid']; ?>").val() === "0") {
-                jQuery("#message_area").showMessage("請填寫必填選項。");
-                return false;
+          if (parseInt(is_test.value)) {
+            is_public.value = 1;
+            display_result.value = 1;
+          }
+
+          if (parseInt(is_public.value) && parseInt(display_result.value) && parseInt(lastQuestion.value)) {
+            jQuery(".question").hide();
+            var mod_return = document.querySelector(".mod_return");
+            mod_return.hidden = true;
+
+            var div = document.createElement("div"),
+              div_span = document.createElement("div"),
+              span = document.createElement("span"),
+              div_dot = document.createElement("div");
+
+            div.classList.add("blockchain");
+            div_dot.classList.add("loading_dots");
+            span.classList.add("loading_text");
+            span.innerText = "處理中...";
+            div_span.appendChild(span);
+
+            for (var i = 0; i <= 4; i++) {
+              var span_dot = document.createElement("span");
+
+              div_dot.appendChild(span_dot);
             }
-			<?php
-			}
-			}
-			}
-			?>
 
+            div.appendChild(div_span);
+            div.appendChild(div_dot);
+            jQuery(".survey_question").append(div);
+          } else {
             jQuery.fancybox.showLoading();
+          }
+
+
 			<?php
 			if ($this->other_snapshot) {
 			?>

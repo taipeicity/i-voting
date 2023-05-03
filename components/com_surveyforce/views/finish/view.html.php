@@ -24,6 +24,7 @@ class SurveyforceViewFinish extends JViewLegacy {
 	public function display($tpl = null) {
 		$app   = JFactory::getApplication();
 		$model = $this->getModel();
+		$config     = JFactory::getConfig();
 
 		$this->itemid    = $app->input->getInt('Itemid');
 		$this->survey_id = $app->input->getInt('sid');
@@ -34,11 +35,12 @@ class SurveyforceViewFinish extends JViewLegacy {
 
 		unset($prac);
 		$session = &JFactory::getSession();
-		$prac    = $session->get('practice_pattern');
+		$prac    = $session->get('practice');
+		$is_testsite = $config->get( 'is_testsite', false );
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode('<br />', $errors));
+			JFactory::getApplication()->enqueueMessage(implode('<br />', $errors), 'error');
 
 			return false;
 		}
@@ -84,7 +86,7 @@ class SurveyforceViewFinish extends JViewLegacy {
 
 				// 檢查是否有依序執行步驟
 				if (SurveyforceVote::checkSurveyStep($this->survey_id, "finish") == false) {
-					$msg = "該議題未從投票起始頁進入，請重新執行。";
+					$msg = "未從該議題投票啟始頁進入，請重新執行。";
 					$app->redirect($intro_link, $msg);
 				}
 
@@ -98,7 +100,7 @@ class SurveyforceViewFinish extends JViewLegacy {
 			case "success":
 				// 檢查是否有依序執行步驟
 				if (SurveyforceVote::checkSurveyStep($this->survey_id, "success") == false) {
-					$msg = "該議題未從投票起始頁進入，請重新執行。";
+					$msg = "未從該議題投票啟始頁進入，請重新執行。";
 					$app->redirect($intro_link, $msg);
 				}
 
@@ -175,9 +177,21 @@ class SurveyforceViewFinish extends JViewLegacy {
 				$this->ticket_num = SurveyforceVote::getSurveyData($this->survey_id, "ticket");
 
 				if ($this->task == "check_finish_form") {
-					// 取得短網址
+                    $this->display_result = SurveyforceVote::getSurveyData($this->survey_id, "display_result");
+                    $this->is_public = SurveyforceVote::getSurveyData($this->survey_id, "is_public");
+                    $this->is_test = SurveyforceVote::getSurveyData($this->survey_id, "is_test");
+
+                    // 取得短網址
 					if ($this->ticket_num) {
-						$vote_detail_url = JURI::root() . "vote_detail.php?ticket=" . $this->ticket_num;
+
+					    if($this->is_test) {
+					        $this->display_result = 1;
+					        $this->is_public = 1;
+                        }
+
+						
+						$vote_detail_url = JURI::root() . "vote/detail/" . $this->ticket_num;
+
 						$this->short_url = JHtml::_('utility.getShortUrl', $vote_detail_url);
 						if ($this->short_url == "") {
 							$this->short_url = JHtml::_('utility.getShortUrl2', $vote_detail_url);  // 呼叫第2組API
@@ -192,7 +206,7 @@ class SurveyforceViewFinish extends JViewLegacy {
 						}
 
 						if ($this->is_lottery && $this->join_lottery == false) {
-							$resend_url             = JURI::root() . $this->survey_id . "-survey-finish/resend-layout?ticket=" . $this->ticket_num;
+							$resend_url =  substr(JURI::root(),0,-1) . JRoute::_("index.php?option=com_surveyforce&view=finish&layout=resend&sid={$this->survey_id}&Itemid={$this->itemid}&ticket={$this->ticket_num}", false);
 							$this->resend_short_url = JHtml::_('utility.getShortUrl', $resend_url);
 							if ($this->resend_short_url == "") {
 								$this->resend_short_url = JHtml::_('utility.getShortUrl2', $resend_url);  // 呼叫第2組API

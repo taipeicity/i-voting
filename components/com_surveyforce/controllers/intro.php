@@ -33,14 +33,14 @@ class SurveyforceControllerIntro extends JControllerForm {
 		$config  = JFactory::getConfig();
 		$app     = JFactory::getApplication();
 		$session = &JFactory::getSession();
+		$params = $app->getParams();
+		$cat       = $params->get('cat');
 
 		$survey_id = $app->input->getInt('sid', 0);
 		$itemid    = $app->input->getInt('Itemid', 0);
 
 
 		$expire_minute = $config->get('expire_minute', 30);
-
-		$session = &JFactory::getSession();
 
 		$return_link = JRoute::_("index.php?option=com_surveyforce&view=category&Itemid={$itemid}", false);
 
@@ -59,12 +59,21 @@ class SurveyforceControllerIntro extends JControllerForm {
 		if (SurveyforceVote::getSurveyItem($survey_id)->is_public == 0) {
 			SurveyforceVote::setSurveyStep($survey_id, "token");
 		}
-
+		
 		// 寫入議題資料-標題、驗證方式
 		$survey_item = SurveyforceVote::getSurveyItem($survey_id);
+		
+		// 議題使用台北通，且有開啟"使用身分證驗證"，則不顯示台北通的驗證方式
+		$verify_types = json_decode($survey_item->verify_type, true);
+		if (in_array("taipeicard", $verify_types) && $survey_item->is_verify_idnum == 1) {
+			$verify_types = array_diff($verify_types, array("taipeicard"));
+			$verify_types = array_values($verify_types);
+		}
+		
+		
 		SurveyforceVote::setSurveyData($survey_id, "title", $survey_item->title, true);
 		SurveyforceVote::setSurveyData($survey_id, "verify_required", $survey_item->verify_required);
-		SurveyforceVote::setSurveyData($survey_id, "verify_type", $survey_item->verify_type);
+		SurveyforceVote::setSurveyData($survey_id, "verify_type", json_encode($verify_types));
 		SurveyforceVote::setSurveyData($survey_id, "verify_params", $survey_item->verify_params);
 		SurveyforceVote::setSurveyData($survey_id, "is_public", $survey_item->is_public);
 		SurveyforceVote::setSurveyData($survey_id, "is_notice_email", $survey_item->is_notice_email);
@@ -75,9 +84,30 @@ class SurveyforceControllerIntro extends JControllerForm {
 		SurveyforceVote::setSurveyData($survey_id, "expire_time", time() + ($expire_minute * 60));
 		SurveyforceVote::setSurveyData($survey_id, "vote_pattern", $survey_item->vote_pattern);
 		SurveyforceVote::setSurveyData($survey_id, "is_analyze", $survey_item->is_analyze);
+		SurveyforceVote::setSurveyData($survey_id, "cross_validation", $survey_item->cross_validation);
+		SurveyforceVote::setSurveyData($survey_id, "is_test", $survey_item->isTest);
+		SurveyforceVote::setSurveyData($survey_id, "is_blockchain", $survey_item->is_blockchain);
+		SurveyforceVote::setSurveyData($survey_id, "option_answers", null);
+		SurveyforceVote::setSurveyData($survey_id, "onto_answers", null);
+		
+		// 附加驗證
+		SurveyforceVote::setSurveyData($survey_id, "is_additional_verify", $survey_item->is_additional_verify);
+		SurveyforceVote::setSurveyData($survey_id, "is_idnum", $survey_item->is_idnum);
+		SurveyforceVote::setSurveyData($survey_id, "is_birthday", $survey_item->is_birthday);
+		SurveyforceVote::setSurveyData($survey_id, "is_student", $survey_item->is_student);
+		SurveyforceVote::setSurveyData($survey_id, "is_local", $survey_item->is_local);
+		SurveyforceVote::setSurveyData($survey_id, "is_company", $survey_item->is_company);
+		SurveyforceVote::setSurveyData($survey_id, "local_table_suffix", $survey_item->local_table_suffix);
+		SurveyforceVote::setSurveyData($survey_id, "student_table_suffix", $survey_item->student_table_suffix);
 
 		if ($survey_item->is_analyze == 1) {
 			SurveyforceVote::setSurveyData($survey_id, "analyze_column", json_encode(SurveyforceVote::getAnalyzeColumn($survey_id)));
+		}
+
+		$verify_type = json_decode($survey_item->verify_type, true);
+		if (in_array("taipeicard", $verify_type)) {
+			$session->clear("sid", "callback");
+			$session->set("sid", $survey_id, "callback");
 		}
 
 		// 若為不驗證(圖形驗證)，且沒有提供抽獎，則略過個資頁
@@ -93,7 +123,13 @@ class SurveyforceControllerIntro extends JControllerForm {
 		} else {
 			$link = JRoute::_("index.php?option=com_surveyforce&view=statement&sid={$survey_id}&Itemid={$itemid}", false);
 		}
-
+		
+		// 練習區
+		if ($cat == "practice") {
+			$session->set('practice', 1);
+        } else {
+			$session->set('practice', 0);
+        }
 
 		// 清空所有驗證的保留欄位資料
 		$session->clear('verify_reserve_' . $survey_id);
@@ -129,7 +165,6 @@ class SurveyforceControllerIntro extends JControllerForm {
 		$survey_item = $model->getSurvey($survey_id);
 
 
-		unset($msges);
 		$msges = array ();
 
 		$email = trim($app->input->getString('email'));
@@ -154,7 +189,7 @@ class SurveyforceControllerIntro extends JControllerForm {
 				} else {
 					// 檢查手機號碼格式
 					if (!preg_match('/^09[0-9]{8}$/', $phone)) {
-						$msges[] = "手機號碼格式錯誤。";
+						$msges[] = "手機號碼格式錯誤(共10碼數字，請勿填其他符號)。";
 					}
 				}
 			}
@@ -201,13 +236,13 @@ class SurveyforceControllerIntro extends JControllerForm {
 
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		$app      = JFactory::getApplication();
-		$config   = JFactory::getConfig();
+		$app    = JFactory::getApplication();
+		$config = JFactory::getConfig();
 
 		$original_name = $app->input->getString('original_name');
-		$survey_id = $app->input->getInt('survey_id');
-		$file_name = $app->input->getString('file_name');
-		$path     = $config->get('ivoting_path') . '/survey/pdf/' . $survey_id . '/' . $file_name . '.pdf';
+		$survey_id     = $app->input->getInt('survey_id');
+		$file_name     = $app->input->getString('file_name');
+		$path          = $config->get('ivoting_path') . '/survey/pdf/' . $survey_id . '/' . $file_name . '.pdf';
 
 		header('Cache-Control: public, must-revalidate');
 		header('Content-Type: application/octet-stream');

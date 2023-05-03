@@ -342,7 +342,7 @@
         <field name="survey_type" type="list" label="議題類型"
                labelclass="control-label" default="1">
             <option value="1">i-Voting</option>
-            <option value="2">問券調查</option>
+            <option value="2">問卷調查</option>
             <option value="3">活動票選</option>
         </field>
 
@@ -422,6 +422,38 @@
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
+
+        <!-- 台北通掃描QR Code -->
+        <field name="is_qrcode" type="radio" class="btn-group" label="啟用QR Code投票" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        
+         <!-- GPS限制 -->
+        <field name="is_gps" type="radio" class="btn-group" label="是否開啟GPS限制" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="gps_latitude" type="text" class="input-xlarge" label="活動地點的GPS緯度" labelclass="control-label" description="25.037851968427287" />
+        <field name="gps_longitude" type="text" class="input-xlarge" label="活動地點的GPS經度" labelclass="control-label" description="121.56469986327129" />
+        <field name="gps_meter" type="number" class="input-medium" label="活動地點範圍距離(公尺)" labelclass="control-label" default="2000" description="請填入公尺" />
+        
+        <!-- 派送折價券 -->
+        <field name="is_coupon" type="radio" class="btn-group" label="啟用派送折價券" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="coupon_code" type="text" class="input-xlarge" label="折價券代碼" labelclass="control-label"/>
+        <field name="coupon_receive_count" type="number" class="input-medium" label="每次投票獲得張數" labelclass="control-label" default="1" />
+        <field name="coupon_number" type="number" class="input-medium" label="派券數量" labelclass="control-label" default="0" />
+        
+        
+        <!-- 區塊鏈 -->
+        <field name="is_blockchain" type="radio" class="btn-group" label="是否開啟區塊鏈上鏈" default="1">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+       
 
         <field type="number" name="quantity" label="可投票人數" showon="is_quantity:1" />
 
@@ -516,12 +548,42 @@
             <option value="1">JYES</option>
             <option value="0">JNO</option>
         </field>
+        
+        <!-- 附加驗證 -->
+        <field name="is_additional_verify" type="radio" class="btn-group" label="是否開啟附加驗證" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="is_student" type="radio" class="btn-group" label="是否判斷為高中職名單" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="is_local" type="radio" class="btn-group" label="是否判斷為在籍名單" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        
+        <field name="is_idnum" type="radio" class="btn-group" label="是否填寫身分證字號與生日" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="is_birthday" type="radio" class="btn-group" label="是否開啟填寫生日" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field name="is_company" type="radio" class="btn-group" label="是否開啟填寫公司大學名稱" default="0">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
 
         <!--        <field name="verify_required" type="hidden"/>-->
         <field name="verify_type" type="hidden"/>
         <field name="verify_params" type="hidden"/>
         <field name="vote_num_params" type="hidden"/>
         <field name="analyze_column" type="hidden"/>
+        
+        <field name="student_table_suffix" type="hidden"/>
+        <field name="local_table_suffix" type="hidden"/>
 
         <field name="checked_by" type="hidden"/>
 

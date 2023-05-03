@@ -85,7 +85,7 @@ class SurveyforceVote {
 
 		unset($survey_session);
 
-		if ($session->get('practice_pattern')) { // 判斷投票模式
+		if ($session->get('practice')) { // 判斷投票模式
 			$pattern = "practice";
 		} else {
 			$pattern = "formal";
@@ -196,9 +196,8 @@ class SurveyforceVote {
 	public static function setSurveyStep($_survey_id, $_step, $_init = false) {
 		$session = &JFactory::getSession();
 
-		unset($survey_session);
 
-		if ($session->get('practice_pattern')) { // 判斷投票模式
+		if ($session->get('practice')) { // 判斷投票模式
 			$pattern = "practice";
 		} else {
 			$pattern = "formal";
@@ -236,7 +235,7 @@ class SurveyforceVote {
 	public static function getSurveyData($_survey_id, $_name) {
 		$session = &JFactory::getSession();
 
-		unset($survey_session);
+		$survey_session = [];
 		$survey_session = json_decode($session->get('survey_data_' . $_survey_id), true);
 
 		return $survey_session[$_name];
@@ -265,14 +264,27 @@ class SurveyforceVote {
 	}
 
 	// 取得網頁結果
-	public static function curlAPI($_url, $_method, $_param) {
-		unset($result);
 
+    /**
+     * @param $_url
+     * @param $_method
+     * @param $_param
+     * @param bool $join 是否join平台
+     * @param bool $taipeiCard 是否台北通
+     *
+     * @return bool|string
+     *
+     * @since version
+     */
+    public static function curlAPI($_url, $_method, $_param, $join = false, $taipeiCard = false) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 		switch ($_method) {
 			case "GET":
+				if ($join) {
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+				}
 				$_url .= '?' . http_build_query($_param);
 				break;
 			case "POST":
@@ -292,9 +304,10 @@ class SurveyforceVote {
 				break;
 		}
 
-
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Accept: application/json'));
-		curl_setopt($ch, CURLOPT_URL, $_url);
+        if (!$taipeiCard) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+        }
+        curl_setopt($ch, CURLOPT_URL, $_url);
 		$api_response = curl_exec($ch);
 		$code         = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		$message      = curl_error($ch);
@@ -305,7 +318,7 @@ class SurveyforceVote {
 			return $api_response;
 		} else {
 			// 記錄log
-			JHtml::_('utility.recordLog', "api_log.php", sprintf("Url:%s, Code:%d, Msg:%s", $_url, $code, $message), JLog::ERROR);
+			JHtml::_('utility.recordLog', "api_log.php", sprintf("Url:%s, Code:%d, Method:%s, Msg:%s", $_url, $code, $_method, $message), JLog::ERROR);
 
 			return false;
 		}
@@ -340,9 +353,12 @@ class SurveyforceVote {
 		$session      = &JFactory::getSession();
 		$vote_pattern = self::getSurveyData($surv_id, "vote_pattern");
 
-		$result = ['msg' => '', 'status' => 0];
+		$result = [
+			'msg'    => '',
+			'status' => 0
+		];
 
-		if ($session->get('practice_pattern')) {
+		if ($session->get('practice')) {
 			if ($vote_pattern == "1") {
 				$result['msg']    = "該議題未開放投票練習，請重新操作。";
 				$result['status'] = 1;
@@ -361,10 +377,14 @@ class SurveyforceVote {
 
 		$session = &JFactory::getSession();
 
-		if ($session->get('practice_pattern')) {
+		if ($session->get('practice')) {
 
 			$uri      = JUri::getInstance();
-			$uri_root = $uri->toString(array ('scheme', 'host', 'port')) . "/";
+			$uri_root = $uri->toString(array (
+					'scheme',
+					'host',
+					'port'
+				)) . "/";
 
 			return $uri_root . $path;
 		} else {
@@ -493,6 +513,84 @@ class SurveyforceVote {
 		}
 
 		return json_encode($auths);
+	}
+
+	public static function getSurvsCounts($cat) {
+
+		if (!is_string($cat)) {
+			throw new InvalidArgumentException('Argument 1 should be string.');
+		}
+
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query->select('*');
+		$query->from($db->qn('#__survey_force_survs_release'));
+		$query->where($db->qn('published') . ' = 1');
+		$query->where($db->qn('is_checked') . ' = 1');
+		$query->where($db->qn('is_public') . ' = 1');
+		$query->where($db->qn('survey_type') . ' = 1');	// 篩選議題類型只取 ivoting
+		$query->where($db->qn('is_whitelist') . ' = 0');	// 沒有啟用白名單
+
+		$date    = JFactory::getDate();
+		$nowDate = $db->q($date->toSql());
+
+		switch ($cat) {
+			//case 'proposal':   // 我要提案
+			//	$filter = [
+			//		1
+			//	];
+			//	break;
+
+            case 'reconsideration': // 我要覆議
+                $filter = [
+                    1, 2
+                ];
+                break;
+
+			case 'discuss':   // 我要討論
+				$filter = [
+					3,
+					4
+				];
+				break;
+			case 'voting':    // 我要投票
+				$filter = [
+					5,
+					6
+				];
+				$query->where($db->qn('vote_end') . ' >= ' . $nowDate);
+				break;
+			case 'complete':   // 已完成投票
+				$filter = [6];
+				$query->where($db->qn('vote_end') . ' <= ' . $nowDate);
+				break;
+		}
+
+		$nullDate = $db->Quote($db->getNullDate());
+		$query->where('(publish_up = ' . $nullDate . ' OR publish_up <= ' . $nowDate . ')');
+		$query->where('(publish_down = ' . $nullDate . ' OR publish_down >= ' . $nowDate . ')');
+
+		$query->where($db->qn('stage') . ' IN (' . implode(",", $db->q($filter)) . ')');
+		$query->where($db->qn('vote_pattern') . ' IN (1,3)');
+		$query->where($db->qn('is_define') . ' = 1');
+
+
+		$db->setQuery($query);
+		$rows = $db->loadObjectList();
+
+		return count($rows);
+	}
+
+	public static function autoInput($string, $a_tag = false, $id = null) {
+		if (!empty($string) and $a_tag) {
+			$a      = '<a href="javascript:void(0)" class="getPdf" id="' . $id . '" title="' . $string . '">';
+			$a      .= $string;
+			$a      .= '</a>';
+			$string = $a;
+		}
+
+		return empty($string) ? "無資料" : $string;
 	}
 
 }
